@@ -1,7 +1,6 @@
 import React, { lazy } from "react";
-import CustomDataTable from "./components/CustomDataTable";
-import AddRowsScreen from "./views/AddRows/AddRowsScreen";
-import ApproverDashboard from "views/Approver/ApproverDashboard";
+import AddRowsScreen from "./views/AddTimeSheet/AddTimesheetScreen";
+
 import PendingApprovals from "views/managerScreen/PendingApprovals";
 import TimesheetsGrid from "views/managerScreen/TimesheetsGrid";
 import ReviewScreen from "views/managerScreen/ReviewScreen";
@@ -25,14 +24,9 @@ const NavigationRoutes = [
     key: "addRows",
   },
   {
-    path: "/approver",
-    component: <ApproverDashboard />,
-    key: "createform",
-  },
-  {
     path: "/pendingApprovals",
     component: <PendingApprovals />,
-    key: "pendingApprovals",
+    key: "PendingApprovals",
   },
 
   {

@@ -14,7 +14,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
   zIndex: 100,
 }));
 
-// hook
+
 const useResize = ({ minWidth }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [width, setWidth] = useState(minWidth);

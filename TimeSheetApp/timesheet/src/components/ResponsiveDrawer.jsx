@@ -96,7 +96,6 @@ export const  ResponsiveDrawer =(props)=>{
 
   const router = useDemoRouter('/dashboard');
 
-  // Remove this const when copying and pasting into your project.
   const demoWindow = window ? window() : undefined;
 
   return (

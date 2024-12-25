@@ -28,7 +28,6 @@ import { useDispatch, useSelector } from "react-redux";
 // import { resetForm } from "../../store/slice/CreateFormSlice";
 import MuiDrawer from "components/MuiDrawer";
 import CloseIcon from '@mui/icons-material/Close';
-import AccordionComponent from "components/AccordionComponent";
 import { useParams } from "react-router-dom";
 
 const Search = styled("div")(({ theme }) => ({
@@ -100,10 +99,10 @@ const StyledTypography = styled(Typography)({
 });
 
 const StyledDivider = styled(Divider)({
-  mr: 1,
+  // mr: 1,
   borderColor: "white",
   height: "30px",
-  mt: 2,
+  mt: 10,
 });
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -196,7 +195,7 @@ const accordionData = [
             <Typography variant="h6">Search Results</Typography>
             {dataTable
               .filter((option) =>
-                option.Aufex?.toLowerCase().includes(searchValue.toLowerCase())
+                option?.Aufex?.toLowerCase().includes(searchValue.toLowerCase())
               )
               .map((item, index) => (
                 <Box key={index}>
@@ -216,7 +215,7 @@ const accordionData = [
     <Box sx={{ flexGrow: 1, justifyContent: "center" }}>
       <StyledAppBar>
         <Toolbar>
-          <img
+        <img
             src={CapexLogo}
             alt="Logo"
             loading="lazy"
@@ -224,8 +223,6 @@ const accordionData = [
             style={{
               cursor: "pointer",
               marginRight: "10px",
-              // marginBottom: "20px",
-              // justifyContent: "center",
             }}
           />
 
@@ -235,6 +232,8 @@ const accordionData = [
             flexItem
             sx={{
               display: { sm: "block" },
+              marginX: "12px", 
+              marginY: "20px"
             }}
           />
 
@@ -243,6 +242,7 @@ const accordionData = [
             component="div"
             sx={{
               display: { sm: "block" },
+              marginLeft: "10px", // Adjusted for equal spacing
             }}
           >
             CATS 2.0

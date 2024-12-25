@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 import HomeSlice from './slice/HomeSlice';
-import CreateFormSlice from './slice/CreateFormSlice';
+import CreateFormSlice from './slice/TimesheetSlice';
 
 
 const reducer = combineReducers({

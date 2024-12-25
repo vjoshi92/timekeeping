@@ -9,7 +9,7 @@ const Dropdown = ({ label, options, value, onChange, sx, readOnly, disabled, err
         disablePortal
         options={options || []}
         disabled={readOnly}
-        getOptionDisabled={(option) => option === "costcenter"}
+        // getOptionDisabled={(option) => option === "costcenter"}
         sx={{ width: "100%" }}
         value={value || null}
         onChange={onChange}

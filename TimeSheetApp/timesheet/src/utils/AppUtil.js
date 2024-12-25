@@ -1,8 +1,8 @@
 export const StatusColorFormatter = (status) => {
     if (status) {
-        const sStatus = status.toLowerCase(); // Converts status to lowercase
+        const sStatus = status.toLowerCase(); 
         switch (sStatus) {
-            case "approved":      // All lowercase
+            case "approved":
                 return "#41AF6E";
             case "pending":
                 return "#005AA6";
@@ -11,10 +11,10 @@ export const StatusColorFormatter = (status) => {
             case "rejected":
                 return "#E83D64";
             default:
-                return "#005AA6"; // Default color
+                return "#005AA6"; 
         }
     } else {
-        return "#000"; // Fallback color if no status
+        return "#000"; 
     }
 };
 
@@ -23,7 +23,7 @@ export const formatDateToISO = (date) => {
 
     const d = new Date(date);
     const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const month = String(d.getMonth() + 1).padStart(2, '0'); 
     const day = String(d.getDate()).padStart(2, '0');
 
     return `${year}-${month}-${day}`;

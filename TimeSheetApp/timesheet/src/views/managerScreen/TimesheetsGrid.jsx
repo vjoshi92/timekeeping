@@ -1,5 +1,5 @@
 import { Autocomplete, Box, Button, Typography } from '@mui/material'
-import ApprovalsDatagrid from 'components/ApprovalsDatagrid'
+import ApprovalsDatagrid from 'views/managerScreen/ApprovalsDatagrid'
 import EmployeeSearch from 'components/EmployeeSearch'
 import TimeSheetsDatagrid from 'components/TimeSheetsDatagrid'
 import React from 'react'

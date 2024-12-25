@@ -7,6 +7,7 @@ const NormalInput = styled(TextField)(({ theme }) => (
     {
         "& .MuiOutlinedInput-input": {
             height: "22.5px",
+            // marginLeft:"5%",
             padding: "10px",
             fontSize: "16px",
             color: "#333",
@@ -62,7 +63,7 @@ const MuiInput = (props) => {
                     onChange={handleChange}
                     disabled={false}
                     type={type}
-                error={error}
+                    error={error}
         
                 />
             )}
@@ -81,7 +82,7 @@ const MuiInput = (props) => {
                     onChange={handleChange}
                     disabled={true}
                     type={type}
-                error={error}
+                    error={error}
                 />
             )}
             {error && helperText && (

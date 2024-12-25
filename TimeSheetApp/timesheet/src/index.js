@@ -10,6 +10,8 @@ import store from './store';
 import Header from './views/common/Header';
 import Theme from './theme/Theme';
 import reportWebVitals from './reportWebVitals';
+import ManagerHeader from 'views/common/ManagerHeader';
+const headerUrls =  ["PendingApprovals" , "ReviewScreen" , "AllTimesheet" ]
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -26,7 +28,10 @@ root.render(
                   path={r.path}
                   element={
                     <>
-                      <Header key={r.key} />
+                    {
+                      headerUrls.includes(r.key) ? <ManagerHeader key={r.key}/> : <Header key={r.key} />
+                    }
+                      
                       {r.component}
                     </>
                   }
