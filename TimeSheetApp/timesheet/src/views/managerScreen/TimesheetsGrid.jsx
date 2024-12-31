@@ -1,23 +1,42 @@
-import { Autocomplete, Box, Button, Typography } from '@mui/material'
-import ApprovalsDatagrid from 'views/managerScreen/ApprovalsDatagrid'
-import EmployeeSearch from 'components/EmployeeSearch'
-import TimeSheetsDatagrid from 'components/TimeSheetsDatagrid'
-import React from 'react'
+import { Autocomplete, Box, Button, Typography } from '@mui/material';
+import ApprovalsDatagrid from 'views/managerScreen/ApprovalsDatagrid';
+import EmployeeSearch from 'components/EmployeeSearch';
+import TimeSheetsDatagrid from 'components/TimeSheetsDatagrid';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import styled from '@emotion/styled';
+
+
+const MainBox = styled(Box)(({ theme }) => ({
+display: "flex", flexDirection: "row", justifyContent: "space-between"
+}));
+
+
+const SubBox = styled(Box)(({ theme }) => ({
+arginTop: "20px"
+}));
+
+const OuterBox = styled(Box)(({ theme }) => ({
+ padding: "40px"
+}));
 
 const TimesheetsGrid = () => {
+    const { isManager } = useParams(); 
+  
     return (
-        <Box sx={{ padding: "40px" }} >
-            <Box sx={{display:"flex", flexDirection:"row" , justifyContent:"space-between"}}>
-            <Typography sx={{ fontSize: "22px", fontWeight: 700 }}>
-                My Team's Timesheets
-            </Typography>
-            <EmployeeSearch/>
-            </Box>
-            <Box sx={{ marginTop: "20px" }}>
-                <TimeSheetsDatagrid />
-            </Box>
-        </Box>
-    )
-}
+        <OuterBox >
+            <MainBox>
+                <Typography sx={{ fontSize: "22px", fontWeight: 700 }}>
+                    {isManager === "true" ? "My Team's Timesheets" : "My Timesheets"}
+                </Typography>
 
-export default TimesheetsGrid
+                {isManager === "true" ? <EmployeeSearch /> : null}        
+            </MainBox>
+            <SubBox >
+                <TimeSheetsDatagrid />
+            </SubBox>
+        </OuterBox>
+    );
+};
+
+export default TimesheetsGrid;

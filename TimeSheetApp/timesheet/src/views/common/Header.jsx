@@ -29,6 +29,8 @@ import { useDispatch, useSelector } from "react-redux";
 import MuiDrawer from "components/MuiDrawer";
 import CloseIcon from '@mui/icons-material/Close';
 import { useParams } from "react-router-dom";
+import dayjs from "dayjs";
+import { setDateRange } from "store/slice/HomeSlice";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -46,29 +48,29 @@ const Search = styled("div")(({ theme }) => ({
 }));
 
 const IconBox = styled(Box)({
- display:"flex", 
- justifyContent:"flex-end"
+  display: "flex",
+  justifyContent: "flex-end"
 });
 
 const StyledBox = styled(Box)({
- marginTop:"10px", 
- padding:"20px"
+  // marginTop: "10px",
+  padding: "20px"
 });
 
 const ApprovalStyledBox = styled(Box)({
-display:"flex" , 
-justifyContent:"space-between" , 
-alignItems:"center" , 
-color:"#FFFFFF", 
-cursor:"pointer"
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  color: "#FFFFFF",
+  cursor: "pointer"
 });
 
 const AllStyledBox = styled(Box)({
-display:"flex" , 
-justifyContent:"space-between" , 
-alignItems:"center" , 
-color:"#FFFFFF", 
-cursor:"pointer"
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  color: "#FFFFFF",
+  cursor: "pointer"
 });
 
 const HeadingTypography = styled(Typography)({
@@ -78,24 +80,23 @@ const HeadingTypography = styled(Typography)({
   mt: 1,
 });
 const ApprovalsTypography = styled(Typography)({
-  fontWeight:"500", 
-  fontSize:"22px", 
-  color:"#FFFFFF" , 
-  marginBottom:"10px"
+  fontWeight: "500",
+  fontSize: "22px",
+  color: "#FFFFFF",
+  marginBottom: "10px"
 });
 
 const AllTypography = styled(Typography)({
-fontWeight:"500", 
-fontSize:"22px", 
-color:"#FFFFFF"
+  fontWeight: "500",
+  fontSize: "22px",
+  color: "#FFFFFF"
 });
 
-
 const StyledTypography = styled(Typography)({
- fontWeight:"500", 
- fontSize:"16px" , 
- color:"#BDBDBD" ,
- marginBottom:"10px"
+  fontWeight: "500",
+  fontSize: "16px",
+  color: "#BDBDBD",
+  marginBottom: "10px"
 });
 
 const StyledDivider = styled(Divider)({
@@ -104,6 +105,12 @@ const StyledDivider = styled(Divider)({
   height: "30px",
   mt: 10,
 });
+const StyledDrawerDivider = styled(Divider)({
+  mr: 1,
+  mb: 2,
+  borderColor: "white",
+  height: "1px",
+});
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   position: "static",
@@ -111,6 +118,15 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   // height: "50px",
   justifyContent: "center",
   // px: { xs: 1, sm: 2 },
+}));
+
+const StyledChip = styled(Chip)(({ theme }) => ({
+backgroundColor: "#ED6A15", 
+color:"#fff" , 
+marginRight:"58%" , 
+width:"3%" , 
+height:"8%" , 
+paddingRight:"8px"
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -132,8 +148,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const TextTypography = styled(Typography)({
   fontWeight: "500",
   fontSize: "16px",
-  color:"#BDBDBD",
-  paddingLeft:"15px"
+  color: "#BDBDBD",
+  paddingLeft: "15px"
 });
 
 export default function Header() {
@@ -142,11 +158,11 @@ export default function Header() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [dataTable, setDataTable] = React.useState([]);
   const [details, setDetails] = React.useState([]);
-  const [drawer , setDrawer] = React.useState(false)
+  const [drawer, setDrawer] = React.useState(false)
   const navigate = useNavigate();
   const userData = useSelector((state) => state.home.userDetails);
   const dispatch = useDispatch();
-  const params =  useParams();
+  const params = useParams();
   const isManager = true;
 
   const settings = [userData?.Fullname, "Logout"];
@@ -160,62 +176,56 @@ export default function Header() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-  const handleDrawer =()=>{
+  const handleDrawer = () => {
     setDrawer(true)
   }
 
-  const handleClose =()=>{
+  const handleClose = () => {
     setDrawer(false)
   }
-const accordionData = [
-  {
-    id:1,
-    headerTitle:"MY TIMESHEETS",
-    title:"Current Week",
-    content:"All"
-  },
-  {
-    id:2,
-    headerTitle:"MY TEAM'S TIMESHEETS",
-    title:"Pending Approvals",
-    content:"All"
-  },
-]
+
+  const handleCurrentWeekClick = () => {
+    const startOfCurrentWeek = dayjs().startOf('week').add(1, 'day');
+    const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
+    const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YY')} - ${endOfCurrentWeek.format('DD MMM YY')}`;
+    dispatch(setDateRange(formattedDateRange));
+  };
+
   const handleMenuItemClick = (setting) => {
     if (setting === "Logout") {
       // handleLogout(); // Perform logout action
     }
     handleCloseUserMenu();
   };
-  const CustomPopper = (props) => {
-    return (
-      <Popper {...props} placement="bottom-start" sx={{ width: "30vw" }}>
-        {searchValue && dataTable?.length > 0 ? (
-          <Box sx={{ p: 2, backgroundColor: "white", width: "100vw" }}>
-            <Typography variant="h6">Search Results</Typography>
-            {dataTable
-              .filter((option) =>
-                option?.Aufex?.toLowerCase().includes(searchValue.toLowerCase())
-              )
-              .map((item, index) => (
-                <Box key={index}>
-                  <Typography variant="body1">
-                    {item.Aufex} / {item.Aufnr}
-                  </Typography>
-                </Box>
-              ))}
-          </Box>
-        ) : (
-          props.children
-        )}
-      </Popper>
-    );
-  };
+  // const CustomPopper = (props) => {
+  //   return (
+  //     <Popper {...props} placement="bottom-start" sx={{ width: "30vw" }}>
+  //       {searchValue && dataTable?.length > 0 ? (
+  //         <Box sx={{ p: 2, backgroundColor: "white", width: "100vw" }}>
+  //           <Typography variant="h6">Search Results</Typography>
+  //           {dataTable
+  //             .filter((option) =>
+  //               option?.Aufex?.toLowerCase().includes(searchValue.toLowerCase())
+  //             )
+  //             .map((item, index) => (
+  //               <Box key={index}>
+  //                 <Typography variant="body1">
+  //                   {item.Aufex} / {item.Aufnr}
+  //                 </Typography>
+  //               </Box>
+  //             ))}
+  //         </Box>
+  //       ) : (
+  //         props.children
+  //       )}
+  //     </Popper>
+  //   );
+  // };
   return (
     <Box sx={{ flexGrow: 1, justifyContent: "center" }}>
       <StyledAppBar>
         <Toolbar>
-        <img
+          <img
             src={CapexLogo}
             alt="Logo"
             loading="lazy"
@@ -223,6 +233,7 @@ const accordionData = [
             style={{
               cursor: "pointer",
               marginRight: "10px",
+              marginBottom:"15px"
             }}
           />
 
@@ -232,7 +243,7 @@ const accordionData = [
             flexItem
             sx={{
               display: { sm: "block" },
-              marginX: "12px", 
+              marginX: "12px",
               marginY: "20px"
             }}
           />
@@ -248,7 +259,7 @@ const accordionData = [
             CATS 2.0
           </HeadingTypography>
 
-          <IconButton aria-label="delete" sx={{ color: "white" }} onClick={()=>handleDrawer()} >
+          <IconButton aria-label="delete" sx={{ color: "white" }} onClick={() => handleDrawer()} >
             <MenuIcon fontSize="large" />
           </IconButton>
 
@@ -257,7 +268,6 @@ const accordionData = [
               size="small"
               onClick={handleOpenUserMenu}
               sx={{
-                // mb: "50%",
                 width: { xs: "25px", sm: "30px" },
                 height: { xs: "25px", sm: "30px" },
               }}
@@ -295,60 +305,59 @@ const accordionData = [
           </Menu>
 
           <MuiDrawer
-          open={drawer}
-          handleClose={handleClose}
-          resizable={true}
+            open={drawer}
+            handleClose={handleClose}
+            resizable={true}
           // minWidth={"720px"}
-        >
-          <IconBox >
-             <CloseIcon  sx={{cursor:"pointer", marginRight:"10px", color:"#FFFF", marginTop:"10px"}} onClick={()=> setDrawer(false)}/>
+          >
+            <IconBox >
+              <CloseIcon sx={{ cursor: "pointer", marginRight: "10px", color: "#FFFF", marginTop: "10px" }} onClick={() => setDrawer(false)} />
             </IconBox>
+            {
+              isManager == true ?
+                <Box sx={{ padding: "20px" }}>
+               
+                  <StyledTypography >MY TIMESHEETS</StyledTypography>
+                  <ApprovalStyledBox
+                    onClick={handleCurrentWeekClick}
+                  >
+                    <ApprovalsTypography >
+                      Current Weeks
+                    </ApprovalsTypography>
+                 
+                  </ApprovalStyledBox>
+                  <AllStyledBox onClick={() => { navigate("/AllTimesheet/false"); }}>
+                    <ApprovalsTypography>
+                      All
+                    </ApprovalsTypography>
+                  </AllStyledBox>
+                </Box>
+                : null
+            }
+               <StyledDrawerDivider
+                    orientation="horizontal"
+                    variant="middle"
+              
+                  />
             <StyledBox >
               <StyledTypography>
                 MY TEAMS'S TIMESHEETS
               </StyledTypography>
-              <ApprovalStyledBox 
-               onClick={()=>{navigate("/")}}>
+              <ApprovalStyledBox
+                onClick={() => { navigate("/pendingApprovals") }}
+              >
                 <ApprovalsTypography >
                   Pending Approvals
-                  </ApprovalsTypography>
-                <ArrowForwardIosIcon/>
-                </ApprovalStyledBox>
-                <AllStyledBox 
-                onClick={()=>{navigate("/")}}>
-              <AllTypography >All</AllTypography>
-                </AllStyledBox>
+                </ApprovalsTypography>
+                <StyledChip label="2" variant="filled" sx={{ }} />
+              </ApprovalStyledBox>
+              <AllStyledBox
+                onClick={() => { navigate("/AllTimesheet/true"); }}>
+                <AllTypography >All</AllTypography>
+              </AllStyledBox>
             </StyledBox>
-            {
-              isManager == true ? 
-            <Box sx={{ padding:"20px"}}>
-               <Divider
-            orientation="horizontal"
-            variant="middle" 
-            sx={{
-              mr: 1,
-              mb:5,
-              borderColor: "white",
-              height: "1px",
-            }}
-          />
-             <StyledTypography >MY TIMESHEETS</StyledTypography>
-              <ApprovalStyledBox  
-              onClick={()=>{navigate("/pendingApprovals")}}>
-                <ApprovalsTypography >
-                  Current Weeks
-                </ApprovalsTypography>
-              <Chip label="2" variant="filled"  sx={{backgroundColor:"#ED6A15" , marginLeft:"4%" , size:"small"}}/>
-                </ApprovalStyledBox>
-                <AllStyledBox onClick={()=>{navigate("/AllTimesheet")}}>
-              <ApprovalsTypography>
-                All
-                </ApprovalsTypography>
-                </AllStyledBox>
-            </Box>
-            : null
-            }
-        </MuiDrawer>
+         
+          </MuiDrawer>
         </Toolbar>
       </StyledAppBar>
     </Box>

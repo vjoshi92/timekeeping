@@ -51,12 +51,18 @@ const InputStyleBox = styled(Box)(({ theme }) => ({
 }));
 
 export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate }) => {
+
+    const handleCopyModal = (inputId) => {
+        // setModalOpen(true);
+        // setActiveInputId(inputId);
+    };
+
     const getWeekDays = () => {
         let startDate;
         if (Array?.isArray(selectedDate) && selectedDate?.length === 0) {
             startDate = dayjs().startOf('week').add(1, 'day');
         } else if (selectedDate) {
-            const [startDateStr] = selectedDate.split(' - ');
+            const [startDateStr] = selectedDate?.split(' - ');
             startDate = dayjs(startDateStr, 'DD MMM YY');
         } else {
             startDate = dayjs().startOf('week').add(1, 'day');
@@ -123,6 +129,13 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
 
                                 }}
                             />
+                                <IconButton
+                                size="small"
+                                color="red"
+                                onClick={() => handleCopyModal()}
+                            >
+                                <TextSnippetIcon />
+                            </IconButton>
                         </InputStyleBox>
                     );
                 },
@@ -168,14 +181,14 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
                             justifyContent: 'center',
                         }}
                     >
-                        <IconButton
+                        {/* <IconButton
                             size="small"
                             sx={{ marginBottom: '10px' }}
                             color="#ED6A15"
                             // onClick={() => handleDelete(params?.row?.id)}
                         >
                             <TextSnippetIcon />
-                        </IconButton>
+                        </IconButton> */}
                         <Typography sx={{ color: "#121212DE", fontWeight: "700" }} >
                             0
                         </Typography>

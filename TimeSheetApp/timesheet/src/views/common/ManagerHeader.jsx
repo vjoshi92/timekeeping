@@ -90,6 +90,10 @@ const AllTypography = styled(Typography)({
   fontSize: "22px",
   color: "#FFFFFF"
 });
+const StyledIconButton = styled(IconButton)({
+  width: { xs: "25px", sm: "30px" },
+  height: { xs: "25px", sm: "30px" },
+});
 
 
 const StyledTypography = styled(Typography)({
@@ -242,6 +246,7 @@ export default function ManagerHeader() {
             style={{
               cursor: "pointer",
               marginRight: "10px",
+                 marginBottom:"15px"
             }}
           />
 
@@ -261,7 +266,7 @@ export default function ManagerHeader() {
             component="div"
             sx={{
               display: { sm: "block" },
-              marginLeft: "10px", // Adjusted for equal spacing
+              marginLeft: "10px", 
             }}
           >
             CATS 2.0
@@ -272,19 +277,15 @@ export default function ManagerHeader() {
 </HeaderBox>
 
           <Tooltip title="Open settings">
-            <IconButton
+            <StyledIconButton
               size="small"
               onClick={handleOpenUserMenu}
-              sx={{
-                width: { xs: "25px", sm: "30px" },
-                height: { xs: "25px", sm: "30px" },
-              }}
             >
               <Avatar
                 alt={userData?.Fullname}
                 src="/static/images/avatar/2.jpg"
               />
-            </IconButton>
+            </StyledIconButton>
           </Tooltip>
 
           <Menu

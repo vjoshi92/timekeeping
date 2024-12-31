@@ -5,8 +5,18 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import MuiInput from './MuiInput';
 import dayjs from 'dayjs';
 
-const BoldMuiInput = styled(MuiInput)({
-    fontWeight: 700,
+const StyledTypography = styled(Typography)({
+   fontWeight:"700" , 
+   marginTop:"10px"
+});
+
+const StyledBox = styled(Box)({
+    width:"50px",
+    textAlign: 'center',    
+});
+
+const StyledIconButton = styled(IconButton)({
+    marginBottom: "10px" 
 });
 
 export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedDate }) => {
@@ -16,7 +26,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
         if (Array.isArray(selectedDate) && selectedDate.length === 0) {
             startDate = dayjs().startOf('week').add(1, 'day');
         } else if (selectedDate) {
-            const [startDateStr] = selectedDate.split(' - ');
+            const [startDateStr] = selectedDate?.split(' - ');
             startDate = dayjs(startDateStr, 'DD MMM YY');
         } else {
             startDate = dayjs().startOf('week').add(1, 'day');
@@ -33,10 +43,8 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
                 flex: 1,
                 minWidth: 120,
                 renderHeader: () => (
-                    <Box
-                        sx={{
-                            width:"50px",
-                            textAlign: 'center',       
+                    <StyledBox
+                        sx={{                            
                             borderBottom: isToday ? '4px solid #ED6A15' : 'none',
                         }}
                     >
@@ -46,7 +54,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
                         <Box sx={{ fontWeight: 'lighter', fontSize: '0.85em' }}>
                             {currentDate.format('DD MMM')}
                         </Box>
-                    </Box>
+                    </StyledBox>
                 ),
                 renderCell: (params) => (
                     // <MuiInput
@@ -54,7 +62,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
                     //     onChange={(value) => handleInputChange(`day${i}`, value, params?.row?.id)}
                     //     value={params?.value || 0}
                     // />
-                    <Typography sx={{fontWeight:"700" , marginTop:"10px"}}>0</Typography>
+                    <StyledTypography >0</StyledTypography>
                 ),
             });
         }
@@ -81,7 +89,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
                 //     style={{ fontWeight: 'bold' }}
                     
                 // />
-                <Typography sx={{fontWeight:"700" , marginTop:"10px"}}>Total</Typography>
+                <StyledTypography>Total</StyledTypography>
             ),
         },
         ...weekDayColumns,
@@ -92,22 +100,20 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
             minWidth: 110,
             renderCell: (params) => (
                 <>
-                    <IconButton
+                    <StyledIconButton
                         size="small"
-                        sx={{ marginBottom: "10px" }}
                         color="#ED6A15"
                         onClick={() => handleDelete(params?.row?.id)}
                     >
                         <TextSnippetIcon />
-                    </IconButton>
-                    <IconButton
-                        size="small"
-                        sx={{ marginBottom: "10px" }}
+                    </StyledIconButton>
+                    <StyledIconButton
+                        size="small"                     
                         color="secondary"
                         onClick={() => handleDelete(params?.row?.id)}
                     >
                         <DeleteIcon />
-                    </IconButton>
+                    </StyledIconButton>
                 </>
             ),
         },

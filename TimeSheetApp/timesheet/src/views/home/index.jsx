@@ -11,7 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import MuiDataGrid from "../../components/MuiDataGrid";
 import { getCurrentWeekDays, PRColumns } from "../../constant/Columns";
 import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeild";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
@@ -21,6 +21,7 @@ import TreeGrid from "components/TreeGrid";
 import MuiInput from "components/MuiInput";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import IconButton from '@mui/material/IconButton';
+import { setDateRange } from "store/slice/HomeSlice";
 
 
 const style = {
@@ -30,7 +31,7 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 400,
   height: 150,
-  bgcolor: '#FFFFFF',
+  bgcolor: '#FBE1D0',
   boxShadow: 24,
   p: 4,
   display: "flex",
@@ -50,19 +51,28 @@ const ApprovalBox = styled(Box)(({ theme }) => ({
   padding: "20px"
 }));
 
-const SubModalstyle = {
-
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  height: 100,
-  bgcolor: '#FFFF',
-  boxShadow: 24,
-  p: 4,
+const SubModalstyle = styled(Box)(({ theme }) => ({
+  backgroundColor: "#FFFFFF",
   display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  flexDirection: "column"
-};
+  borderRadius: "6px",
+  width: "320px",
+  height: "300px",
+  position: "relative",
+  flexDirection: "column",
+  padding: "20px"
+}));
+
+// const SubModalstyle = {
+//   width: 400,
+//   height: 100,
+//   bgcolor: '#FFFF',
+//   boxShadow: 24,
+//   p: 4,
+//   display: "flex",
+//   justifyContent: "center",
+//   alignItems: "center",
+//   flexDirection: "column"
+// };
 
 const StyledDateTypography = styled(Typography)(({ theme }) => ({
   fontSize: "22px",
@@ -103,7 +113,7 @@ const ButtonStack = styled(Stack)(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  marginTop: "2%"
+  marginTop: "4%"
 }));
 
 const NoteButtonStack = styled(Stack)(({ theme }) => ({
@@ -141,7 +151,7 @@ const StyledButton2 = styled(Button)(({ theme }) => ({
 
 const SaveButton = styled(Button)(({ theme }) => ({
   width: "100px",
-  height: "34px",
+  height: "45px",
   marginRight: "10px",
   borderRadius: "6px",
   backgroundColor: "#ED6A15",
@@ -158,7 +168,7 @@ const SaveNoteButton = styled(Button)(({ theme }) => ({
 
 const CancelButton = styled(Button)(({ theme }) => ({
   width: "100px",
-  height: "34px",
+  height: "45px",
   marginRight: "10px",
   borderRadius: "6px",
   border: "1px solid #ED6A15",
@@ -192,15 +202,21 @@ const SaveTimeButton = styled(Button)(({ theme }) => ({
   width: "40%",
   border: "1px solid #ED6A15",
   marginTop: "2%",
+  [theme.breakpoints.up("xs")]: {
+    width: "50%",
+  },
   [theme.breakpoints.up("sm")]: {
-    width: "20%",
+    width: "35%",
   },
   [theme.breakpoints.up("md")]: {
     width: "28%",
   },
   [theme.breakpoints.up("lg")]: {
-    width: "11%",
-  }
+    width: "20%",
+  },
+  [theme.breakpoints.up("xl")]: {
+    width: "15%",
+  },
 }));
 
 const StyledFooterText = styled(Typography)(({ theme }) => ({
@@ -216,7 +232,19 @@ const StyledSavedTimeText = styled(Typography)(({ theme }) => ({
 }));
 
 const ModalTypography = styled(Typography)(({ theme }) => ({
+  color: "#121212DE",
+  fontWeight: "700",
+  fontSize: "16px"
+}));
+
+const AcknowledgeTypography = styled(Typography)(({ theme }) => ({
   color: "#DD133F",
+  fontWeight: "700",
+  fontSize: "16px"
+}));
+
+const TimesheetText = styled(Typography)(({ theme }) => ({
+  color: "#41AF6E",
   fontWeight: "700",
   fontSize: "16px"
 }));
@@ -226,18 +254,34 @@ const DescriptionTypography = styled(Typography)(({ theme }) => ({
   fontSize: "16px"
 }));
 
-const ModalLimitTypography = styled(Typography)(({ theme }) => ({
-  fontWeight: "400",
-  fontSize: "12px"
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  position: 'absolute',
+              right: '-10px',
+              top: '-30px',
+              zIndex: 1
 }));
-const ModalYesTypography = styled(Typography)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  fontWeight: "700",
-  fontSize: "15px",
-  color: "#41AF6E"
+const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+  mr: 1,
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            transition: "box-shadow 0.3s ease-in-out",
+
+            "&:hover": {
+              boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
+            },
+            "& .MuiToggleButton-root.Mui-selected": {
+              backgroundColor: "#FFFFFF",
+              "&:hover": {
+                backgroundColor: "#FFFFFF",
+              },
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+              transition: "box-shadow 0.3s ease-in-out",
+              "&:hover": {
+                boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
+              },
+            },
 }));
+
+
 
 const StyledCircularBox = styled(Box)(({ theme }) => ({
   width: "23px",
@@ -249,8 +293,31 @@ const StyledCircularBox = styled(Box)(({ theme }) => ({
   alignItems: "center",
 }));
 
+const StyledApprovalBox = styled(Box)(({ theme }) => ({
+  position: "relative",
+  backgroundColor: "white",
+  padding: "20px",
+  borderRadius: "8px",
+  textAlign: "center",
+  maxWidth: "500px", 
+  boxShadow: 3, 
+}));
+
+const StyledApprovalIconButton = styled(IconButton)(({ theme }) => ({
+  position: "absolute",
+              top: "-36px",
+              right: "0px",
+              color: "white",
+}));
+
 const StyledStack = styled(Box)(({ theme }) => ({
   backgroundColor: "#FFFFFF",
+}));
+
+const CloseButton = styled(Button)(({ theme }) => ({
+  borderColor: "#ED6A15",
+  color: "#ED6A15",
+  marginTop:"4%"
 }));
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -258,6 +325,14 @@ const StyledBox = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
+}));
+
+const StyledModalBox = styled(Box)(({ theme }) => ({
+display: "flex", 
+flexDirection: "column", 
+justifyContent: "flex-start", 
+alignItems: "center", 
+marginBottom: "5%"
 }));
 
 const Home = () => {
@@ -268,15 +343,20 @@ const Home = () => {
   const [openApproval, setOpenApproval] = React.useState(false);
   const [saveTimeClick, setSaveTimeClick] = useState(false)
   const [isTimesheetCreated, setIsTimesheetCreated] = useState(false);
+  const location = useLocation();
+  const formattedDefaultRange = location.state?.week || 'Default Week Range';
   const handleOpen = () => setOpen(true);
   const handleApproval = () => setOpenApproval(true);
-  const handelSaveNote = () => setOpenApproval(true);
+  const handelSaveNote = () => {
+    setOpenApproval(false)
+    setIsTimesheetCreated(true)
+  };
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenApproval(false);
   const navigate = useNavigate();
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const [lastSavedTime, setLastSavedTime] = useState(null);
-
+  const dispatch = useDispatch()
 
   const formatDateTime = (date) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -291,7 +371,27 @@ const Home = () => {
 
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
-
+  const handlePreviousWeek = () => {
+    // const currentStartDate = new Date(selectedDate[0]);
+    // const currentEndDate = new Date(selectedDate[1]);
+    
+    // // Decrease 7 days
+    // const newStartDate = new Date(currentStartDate.setDate(currentStartDate.getDate() - 7));
+    // const newEndDate = new Date(currentEndDate.setDate(currentEndDate.getDate() - 7));
+    
+    // dispatch(setDateRange([newStartDate, newEndDate]));
+  }
+  
+  const handleNextWeek = () => {
+    // const currentStartDate = new Date(selectedDate[0]);
+    // const currentEndDate = new Date(selectedDate[1]);
+    
+    // // Increase 7 days
+    // const newStartDate = new Date(currentStartDate.setDate(currentStartDate.getDate() + 7));
+    // const newEndDate = new Date(currentEndDate.setDate(currentEndDate.getDate() + 7));
+    
+    // dispatch(setDateRange([newStartDate, newEndDate]));
+  }
 
   const handleSaveTime = () => {
     setSaveTimeClick(true)
@@ -300,7 +400,8 @@ const Home = () => {
   }
   const handleYes = () => {
     setOpen(false);
-    setIsTimesheetCreated(true);
+    setSaveTimeClick(false)
+    // setIsTimesheetCreated(true);
   };
   const handleTimesheetModalClose = () => setIsTimesheetCreated(false);
 
@@ -354,39 +455,19 @@ const Home = () => {
       height={{ xs: "100vh", sm: "90vh", md: "90vh", lg: "90vh" }}
     >
       <StyledBox>
-        <ToggleButtonGroup
+        <StyledToggleButtonGroup
           value={alignment}
           exclusive
           onChange={handleAlignment}
           aria-label="text alignment"
-          sx={{
-            mr: 1,
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            transition: "box-shadow 0.3s ease-in-out",
-
-            "&:hover": {
-              boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
-            },
-            "& .MuiToggleButton-root.Mui-selected": {
-              backgroundColor: "#FFFFFF",
-              "&:hover": {
-                backgroundColor: "#FFFFFF",
-              },
-              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-              transition: "box-shadow 0.3s ease-in-out",
-              "&:hover": {
-                boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
-              },
-            },
-          }}
         >
-          <ToggleButton value="left" aria-label="left aligned" >
+          <ToggleButton value="left" aria-label="left aligned" onClick={()=>handlePreviousWeek()}>
             <ArrowBackIcon />
           </ToggleButton>
-          <ToggleButton value="justify" aria-label="justified">
+          <ToggleButton value="justify" aria-label="justified" onClick={()=>handleNextWeek()}>
             <ArrowForwardIcon />
           </ToggleButton>
-        </ToggleButtonGroup>
+        </StyledToggleButtonGroup>
 
         <StyledDateTypography>
           {Array.isArray(selectedDate) && selectedDate.length === 0
@@ -426,7 +507,7 @@ const Home = () => {
       </Stack >
       <Stack direction={"column"} >
         {projectedData && Object?.keys(projectedData)?.length > 0 ? (
-          <Stack direction="row" alignItems="center" spacing={2}  mt={2}>
+          <Stack direction="row" alignItems="center" spacing={2} mt={2}>
 
             <SaveTimeButton
               size="large"
@@ -438,7 +519,7 @@ const Home = () => {
               </StyledSavedTimeText>
             </SaveTimeButton>
             {lastSavedTime && (
-              <span className="text-gray-600 text-sm">
+              <span className="text-gray-600 text-sm" >
                 Last saved {formatDateTime(lastSavedTime)}
               </span>
             )}
@@ -480,8 +561,7 @@ const Home = () => {
           <ModalTypography>
             timesheet?
           </ModalTypography>
-          <ButtonStack direction="row" spacing={3}>
-
+          <ButtonStack direction="row" spacing={3} mt={4}>
             <CancelButton id="keep-mounted-modal-title" variant="h6" component="h2" size="small" onClick={() => handleClose()}>
               <CancelTypography>Cancel</CancelTypography>
             </CancelButton>
@@ -513,25 +593,25 @@ const Home = () => {
       >
         <ApprovalBox>
           {/* Add Close Button */}
-          <IconButton
+          <StyledIconButton
             onClick={handleApprovalClose}
-            sx={{
-              position: 'absolute',
-              right: '-10px',
-              top: '-30px',
-              zIndex: 1
-            }}
+            // sx={{
+            //   position: 'absolute',
+            //   right: '-10px',
+            //   top: '-30px',
+            //   zIndex: 1
+            // }}
           >
             <CloseIcon sx={{ color: "#fff" }} />
-          </IconButton>
-          <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "flex-start", alignItems: "center", marginBottom: "5%" }}>
-            <ModalTypography>
+          </StyledIconButton>
+          <StyledModalBox >
+            <AcknowledgeTypography>
               <ErrorOutlineIcon sx={{ width: "50px", height: "50px" }} />
-            </ModalTypography>
-            <ModalTypography>
+            </AcknowledgeTypography>
+            <AcknowledgeTypography>
               Acknowledgement
-            </ModalTypography>
-          </Box>
+            </AcknowledgeTypography>
+          </StyledModalBox>
           <DescriptionTypography>
             By signing this timesheet
             you are certifying that hours
@@ -549,22 +629,61 @@ const Home = () => {
           </NoteButtonStack>
         </ApprovalBox>
       </Modal>
-
       <Modal
         open={isTimesheetCreated}
-        onClose={handleTimesheetModalClose}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        BackdropProps={{
+          style: {
+            backgroundColor: "rgba(18, 18, 18, 0.6)",
+          },
+        }}
       >
-        <>
-          {/* <CloseIcon sx={{position:"relative" }}/> */}
-          <Box sx={SubModalstyle} >
-            <CheckCircleOutlineIcon color="#41AF6E" sx={{ color: "#41AF6E", width: "50px", height: "50px" }} />
-            <ModalYesTypography>
-              Your timesheet has been submitted for approval
-            </ModalYesTypography>
-          </Box>
-        </>
+        <StyledApprovalBox
+          sx={{
+            width: {
+              xs: "80%", 
+              sm: "75%", 
+              md: "40%", 
+              lg: "25%",
+            },
+          
+          }}
+        >
+          <CheckCircleOutlineIcon
+            color="#41AF6E"
+            sx={{ color: "#41AF6E", width: "50px", height: "50px" }}
+          />
+          <StyledApprovalIconButton
+           onClick={() => setIsTimesheetCreated(false)}
+            // sx={{
+            //   position: "absolute",
+            //   top: "-36px",
+            //   right: "0px",
+            //   color: "white",
+            // }}
+          >
+            <CloseIcon sx={{ color: "#fff" }} />
+          </StyledApprovalIconButton>
+          <TimesheetText>Your timesheet has been submitted</TimesheetText>
+          <TimesheetText>for approval</TimesheetText>
+          <CloseButton
+            variant="outlined"
+            // sx={{
+            //   borderColor: "#ED6A15",
+            //   color: "#ED6A15",
+            //   mt: 2,
+            // }}
+            onClick={() => setIsTimesheetCreated(false)}
+          >
+            Close
+          </CloseButton>
+        </StyledApprovalBox>
       </Modal>
-    </StyledStack>
+    </StyledStack >
   );
 };
 export default Home;

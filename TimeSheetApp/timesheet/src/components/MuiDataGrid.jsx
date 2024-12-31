@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   DataGridPremium,
@@ -6,9 +5,27 @@ import {
   useGridApiRef,
   useKeepGroupedColumnsHidden,
 } from "@mui/x-data-grid-premium";
-import { darken, lighten } from "@mui/material/styles";
+import { darken, lighten, styled } from "@mui/material/styles";
 import { Box, Stack, Typography } from "@mui/material";
 import { LicenseInfo } from "@mui/x-license";
+
+const StyledBox = styled(Box)({
+  overflowX: 'auto', 
+  width: '100%', 
+});
+
+const StyledDataGridPremium = styled(DataGridPremium)({
+  "& .MuiDataGrid-cell": {
+    paddingTop: "5px !important",
+    backgroundColor: "#FFFF"
+  },
+  "& .MuiDataGrid-columnHeader": {
+    backgroundColor: "#EEEEEE",
+    color: "#121212DE",
+    fontWeight: "700",
+    fontSize: "16px"
+  }
+});
 
 const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, isEdit }) => {
   LicenseInfo.setLicenseKey(
@@ -33,27 +50,10 @@ const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, isEdit 
     mode === "dark" ? darken(color, 0.5) : lighten(color, 0.5);
 
   return (
-    <Box
-    sx={{
-      overflowX: 'auto', 
-      width: '100%', 
-    }}
-    >
-      <DataGridPremium
+    <StyledBox>
+      <StyledDataGridPremium
         pagination={pagination}
         hideFooter={!pagination}
-        sx={{
-          "& .MuiDataGrid-cell": {
-            paddingTop: "5px !important",
-            backgroundColor: "#FFFF"
-          },
-          "& .MuiDataGrid-columnHeader": {
-            backgroundColor: "#EEEEEE",
-            color: "#121212DE",
-            fontWeight: "700",
-            fontSize: "16px"
-          },
-        }}
         rows={rows}
         columns={columns}
         autoHeight
@@ -62,7 +62,7 @@ const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, isEdit 
         apiRef={apiRef}
         initialState={initialState}
       />
-    </Box>
+    </StyledBox>
   );
 };
 

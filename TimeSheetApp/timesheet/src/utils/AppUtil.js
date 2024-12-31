@@ -1,23 +1,26 @@
 export const StatusColorFormatter = (status) => {
     if (status) {
-        const sStatus = status.toLowerCase(); 
+        const sStatus = status.toLowerCase(); // Converts status to lowercase
         switch (sStatus) {
-            case "approved":
+            case "approved": 
+            case "completed":     // All lowercase
                 return "#41AF6E";
             case "pending":
                 return "#005AA6";
+            case "open":
             case "in progress":
                 return "#ED6A15";
             case "rejected":
                 return "#E83D64";
+            case "action required":
+                return "#009FE3";
             default:
-                return "#005AA6"; 
+                return "#009FE3"; // Default color
         }
     } else {
-        return "#000"; 
+        return "#000"; // Fallback color if no status
     }
 };
-
 export const formatDateToISO = (date) => {
     if (!date) return "";
 

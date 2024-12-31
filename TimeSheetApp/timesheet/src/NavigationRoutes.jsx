@@ -30,7 +30,7 @@ const NavigationRoutes = [
   },
 
   {
-    path: "/AllTimesheet",
+    path: "/AllTimesheet/:isManager",
     component: <TimesheetsGrid />,
     key: "AllTimesheet",
   },

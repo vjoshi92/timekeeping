@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import { setDateRange } from '../store/slice/HomeSlice';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import dayjs from 'dayjs';
+import styled from '@emotion/styled';
 
 const theme = createTheme({
     palette: {
@@ -39,6 +40,16 @@ const theme = createTheme({
     },
 });
 
+const StyledButton = styled(Button)(({ theme }) => ({
+    border: "1px solid #BDBDBD",
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", 
+    transition: "box-shadow 0.3s ease-in-out", 
+    "&:hover": {
+      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)", 
+    },
+}));
+
+
 const DateButtonField = React.forwardRef((props, ref) => {
     const {
         setOpen,
@@ -52,15 +63,9 @@ const DateButtonField = React.forwardRef((props, ref) => {
     const handleRef = useForkRef(ref, containerRef);
 
     return (
-        <Button
+        <StyledButton
             variant="outlined"
             fullWidth="34px"
-            sx={{  border: "1px solid #BDBDBD",
-                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", 
-                transition: "box-shadow 0.3s ease-in-out", 
-                "&:hover": {
-                  boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)", 
-                },}}
             id={id}
             disabled={disabled}
             ref={handleRef}
@@ -68,7 +73,7 @@ const DateButtonField = React.forwardRef((props, ref) => {
             onClick={() => setOpen?.((prev) => !prev)}
         >
             <CalendarTodayIcon sx={{ color: "#121212DE" }} />
-        </Button>
+        </StyledButton>
     );
 });
 

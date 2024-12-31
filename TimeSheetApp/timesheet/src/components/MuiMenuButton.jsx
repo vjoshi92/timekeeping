@@ -10,6 +10,10 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import { Delete } from "@mui/icons-material";
 
+const StyledActionButton = styled(Typography)({
+  textTransform: "none" 
+})
+
 export default function MuiMenuButton({ options }) {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
@@ -44,7 +48,7 @@ export default function MuiMenuButton({ options }) {
         ref={anchorRef}
         aria-label="Button group with a nested menu"
       >
-        <Button sx={{ textTransform: "none" }} onClick={handleClick}>Actions</Button>
+        <StyledActionButton onClick={handleClick}>Actions</StyledActionButton>
         <Button sx={{
         
           textTransform: "none",

@@ -22,6 +22,7 @@ import MuiInput from "components/MuiInput";
 import { useLocation } from 'react-router-dom';
 import { ReviewColumns } from "components/ReviewColumns";
 import { ArrowBackIosNew } from "@mui/icons-material";
+import { setDateRange } from "store/slice/HomeSlice";
 const style = {
     position: 'absolute',
     top: '50%',
@@ -43,11 +44,38 @@ const ApprovalBox = styled(Box)(({ theme }) => ({
     display: "flex",
     borderRadius: "6px",
     width: "400px",
-    height: "130px",
+    height: "110px",
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column",
     padding: "20px"
+}));
+
+const RejectionBox = styled(Box)(({ theme }) => ({
+    backgroundColor: "#FFFFFF",
+    display: "flex",
+    borderRadius: "6px",
+    width: "400px",
+    height: "32%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    flexDirection: "column",
+    padding: "20px"
+}));
+
+const RejectionMainBox = styled(Box)(({ theme }) => ({
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: "5%"
+}));
+
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+    position: 'absolute',
+    right: 2,
+    top: -30,
+    color: "#fff",
 }));
 
 const MainBox = styled(Box)(({ theme }) => ({
@@ -247,11 +275,19 @@ const HeaderBox = styled(Box)(({ theme }) => ({
 }));
 
 const NoteButtonStack = styled(Stack)(({ theme }) => ({
+    width: "100%",
+    direction: "row",
+    display: "flex",
+    justifyContent: "center",
+    marginTop: "4%"
+}));
+
+const RejectButtonStack = styled(Stack)(({ theme }) => ({
+    width: "100%",
     direction: "row",
     display: "flex",
     justifyContent: "flex-end",
-    alignItems: "center",
-    marginTop: "8%"
+    marginTop: "4%"
 }));
 
 const DescriptionTypography = styled(Typography)(({ theme }) => ({
@@ -278,6 +314,7 @@ const ReviewScreen = () => {
     const navigate = useNavigate();
     const projectedData = useSelector((state) => state?.CreateForm?.projectData);
     const [currentDateRange, setCurrentDateRange] = useState(selectedDate || formattedDateRange);
+    const dispatch = useDispatch()
 
 
     const handleAlignment = (event, newAlignment) => {
@@ -293,7 +330,7 @@ const ReviewScreen = () => {
             const newEndDate = newStartDate.add(6, 'day');
             const newDateRange = `${newStartDate.format('DD MMM YY')} - ${newEndDate.format('DD MMM YY')}`;
             setCurrentDateRange(newDateRange);
-            dispatch(setDateRange(newDateRange)); // Assuming you have a Redux action to update the date range
+            dispatch(setDateRange(newDateRange));
         } else if (newAlignment === "justify") {
             // Handle next week
             const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YY');
@@ -573,7 +610,7 @@ const ReviewScreen = () => {
                     sx={{ width: { xs: "100%", sm: "200px" } }}
                     onClick={() => handleRejection()}
                 >
-                    Cancel
+                    Reject
                 </RejectButton>
                 <ApproveButton
                     variant="contained"
@@ -581,7 +618,7 @@ const ReviewScreen = () => {
                     sx={{ width: { xs: "100%", sm: "200px" } }}
                     onClick={() => handleApproval()}
                 >
-                    Submit
+                    Approve
                 </ApproveButton>
             </ButtonStack>
             <Modal
@@ -602,31 +639,33 @@ const ReviewScreen = () => {
                     }
                 }}
             >
-                <ApprovalBox >
-                    <Box sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        marginBottom: "5%"
-                    }}>
+                <RejectionBox >
+                    <RejectionMainBox
+                    // sx={{
+                    //     display: "flex",
+                    //     flexDirection: "row",
+                    //     justifyContent: "center",
+                    //     alignItems: "center",
+                    //     marginBottom: "5%"
+                    // }}
+                    >
                         <ModalTypography>
                             Rejection Reasons
                         </ModalTypography>
-                    </Box>
+                    </RejectionMainBox>
                     <MuiInput
                         rows={4}
                         multiline={true}
                     />
-                    <NoteButtonStack direction="row" spacing={3}>
+                    <RejectButtonStack direction="row" spacing={3}>
                         <CancelNoteButton id="keep-mounted-modal-title" variant="h6" component="h2" size="small" onClick={() => handleApprovalClose()}>
                             <CancelNoteTypography>Cancel</CancelNoteTypography>
                         </CancelNoteButton>
                         <SaveNoteButton id="keep-mounted-modal-description" sx={{ mt: 2 }} size="small" onClick={() => handleApprovalClose()}>
                             <SaveNoteTypography>Submit</SaveNoteTypography>
                         </SaveNoteButton>
-                    </NoteButtonStack>
-                </ApprovalBox>
+                    </RejectButtonStack>
+                </RejectionBox>
             </Modal>
             <Modal
                 keepMounted
@@ -648,31 +687,17 @@ const ReviewScreen = () => {
 
             >
                 <ApprovalBox>
-                    {/* Add Close Button */}
-                    <IconButton
-                        onClick={handleApprovalClose}
-                        sx={{
-                            position: 'absolute',
-                            right: '-10px',
-                            top: '-30px',
-                            zIndex: 1
-                        }}
+                    <StyledIconButton
+                        onClick={handelSaveNote}
                     >
-                        <CloseIcon sx={{ color: "#fff" }} />
-                    </IconButton>
-                    <Box sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "flex-start",
-                        alignItems: "center",
-                        marginBottom: "5%"
-                    }}>
-                    </Box>
+                        <CloseIcon />
+                    </StyledIconButton>
+
                     <DescriptionTypography>
                         Are you sure you want to approve this timesheet?
                     </DescriptionTypography>
                     <NoteButtonStack direction="row" spacing={3}>
-                        <CancelNoteButton id="keep-mounted-modal-title" variant="h6" component="h2" size="small" onClick={() => handleApprovalClose()}>
+                        <CancelNoteButton id="keep-mounted-modal-title" variant="h6" component="h2" size="small" onClick={handelSaveNote}>
                             <CancelNoteTypography>No</CancelNoteTypography>
                         </CancelNoteButton>
                         <SaveNoteButton id="keep-mounted-modal-description" sx={{ mt: 2 }} size="small" onClick={handelSaveNote}>

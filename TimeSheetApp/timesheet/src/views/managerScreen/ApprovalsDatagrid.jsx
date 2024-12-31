@@ -7,7 +7,46 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import ApprovalIcon from '@mui/icons-material/Approval';
 import Checkbox from '@mui/material/Checkbox';
 import { useNavigate } from 'react-router-dom';
+import styled from '@emotion/styled';
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
+
+
+const StyledBox = styled(Box)(({ theme }) => ({
+ display: 'flex', 
+ gap: '10px',
+marginTop: "15px"
+}));
+
+const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+  border: 'none',
+  '& .MuiDataGrid-cell': {
+    border: 'none',
+    // width:250
+  },
+  '& .MuiDataGrid-columnHeaders': {
+    border: 'none',
+    backgroundColor: "#BDBDBD",
+  },
+  '& .MuiDataGrid-columnSeparator': {
+    color: "black",
+  },
+  '& .MuiDataGrid-cell[data-field="timesheet"]': {
+    color: '#0073E6',
+  },
+  "& .MuiDataGrid-columnHeader": {
+    backgroundColor: "#EEEEEE",
+    color: "#121212DE",
+    fontWeight: "700",
+    fontSize: "16px",
+  },
+  '& .MuiDataGrid-columnHeader[data-field="Check"]': {
+    display: 'none',
+  },
+  '& .MuiDataGrid-columnHeaders > .MuiDataGrid-columnHeader:last-child .MuiDataGrid-columnSeparator': {
+    display: 'none',
+  },
+}));
+
 
 export default function ApprovalsDatagrid() {
   const navigate = useNavigate();
@@ -72,12 +111,12 @@ export default function ApprovalsDatagrid() {
       sortable: false,
       width: 300,
       renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: '10px', marginTop: "15px" }}>
+        <StyledBox >
           <RemoveRedEyeIcon sx={{ color: '#0073E6', cursor: 'pointer' }} onClick={() => handleEyeClick(params)} />
           <ApprovalIcon sx={{color:"#005AA6"}}/>
           <CloseIcon color="error" style={{ cursor: 'pointer' }} />
           <CheckIcon color="success" style={{ cursor: 'pointer' }} />
-        </Box>
+        </StyledBox>
       ),
     },
   ];
@@ -443,7 +482,7 @@ export default function ApprovalsDatagrid() {
 
 return (
   <Box sx={{ height: 400, width: '100%' }}>
-    <DataGrid
+    <StyledDataGrid
       rows={rows}
       columns={columns}
       hideFooter
@@ -451,35 +490,35 @@ return (
       checkboxSelection={false}
       disableColumnSelector
       disableRowSelectionOnClick
-      sx={{
-        border: 'none',
-        '& .MuiDataGrid-cell': {
-          border: 'none',
-          // width:250
-        },
-        '& .MuiDataGrid-columnHeaders': {
-          border: 'none',
-          backgroundColor: "#BDBDBD",
-        },
-        '& .MuiDataGrid-columnSeparator': {
-          color: "black",
-        },
-        '& .MuiDataGrid-cell[data-field="timesheet"]': {
-          color: '#0073E6',
-        },
-        "& .MuiDataGrid-columnHeader": {
-          backgroundColor: "#EEEEEE",
-          color: "#121212DE",
-          fontWeight: "700",
-          fontSize: "16px",
-        },
-        '& .MuiDataGrid-columnHeader[data-field="Check"]': {
-          display: 'none',
-        },
-        '& .MuiDataGrid-columnHeaders > .MuiDataGrid-columnHeader:last-child .MuiDataGrid-columnSeparator': {
-          display: 'none',
-        },
-      }}
+      // sx={{
+      //   // border: 'none',
+      //   // '& .MuiDataGrid-cell': {
+      //   //   border: 'none',
+      //   //   // width:250
+      //   // },
+      //   // '& .MuiDataGrid-columnHeaders': {
+      //   //   border: 'none',
+      //   //   backgroundColor: "#BDBDBD",
+      //   // },
+      //   // '& .MuiDataGrid-columnSeparator': {
+      //   //   color: "black",
+      //   // },
+      //   // '& .MuiDataGrid-cell[data-field="timesheet"]': {
+      //   //   color: '#0073E6',
+      //   // },
+      //   // "& .MuiDataGrid-columnHeader": {
+      //   //   backgroundColor: "#EEEEEE",
+      //   //   color: "#121212DE",
+      //   //   fontWeight: "700",
+      //   //   fontSize: "16px",
+      //   // },
+      //   // '& .MuiDataGrid-columnHeader[data-field="Check"]': {
+      //   //   display: 'none',
+      //   // },
+      //   // '& .MuiDataGrid-columnHeaders > .MuiDataGrid-columnHeader:last-child .MuiDataGrid-columnSeparator': {
+      //   //   display: 'none',
+      //   // },
+      // }}
     />
   </Box>
 );

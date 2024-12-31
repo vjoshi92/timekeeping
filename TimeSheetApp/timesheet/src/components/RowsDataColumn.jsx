@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, IconButton, Modal, styled, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, IconButton, List, ListItem, ListItemText, Modal, styled, TextField, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import MuiInput from './MuiInput';
@@ -19,6 +19,13 @@ const HeaderStyledBox = styled(Box)(({ theme }) => ({
     width: "100%",
 }));
 
+const StyledDrawerDivider = styled(Divider)({
+    mr: 1,
+    marginBottom: "1rem",
+    borderColor: "#ED6A15",
+    height: "1px",
+  });
+  
 const DayBox = styled(Box)(({ theme }) => ({
     fontWeight: '700',
     textAlign: 'center'
@@ -73,11 +80,23 @@ const ModalBox = styled(Box)(({ theme }) => ({
 
 export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate }) => {
     const [modalOpen, setModalOpen] = useState(false);
+    const [activeInputId, setActiveInputId] = useState(null);
 
-    const handleCopyModal = () => {
+    const handleCopyModal = (inputId) => {
         setModalOpen(true);
+        setActiveInputId(inputId);
     };
 
+    const notes = [
+        { id:1 , content: "Discuss project deadlines and deliverables." , date:"01/03/2024" },
+        { id:2, content: "Complete the UI design for the dashboard." , date:"05/02/2024" },
+        { id:3,content: "Submit the monthly report by EOD." , date:"10/01/2024" },
+    ];
+    
+    const handleSaveNotes = ()=>{
+        setModalOpen(false)
+        
+    }
     const handleCloseModal = () => {
         setModalOpen(false);
     };
@@ -86,7 +105,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
         if (Array?.isArray(selectedDate) && selectedDate?.length === 0) {
             startDate = dayjs().startOf('week').add(1, 'day');
         } else if (selectedDate) {
-            const [startDateStr] = selectedDate.split(' - ');
+            const [startDateStr] = selectedDate?.split(' - ');
             startDate = dayjs(startDateStr, 'DD MMM YY');
         } else {
             startDate = dayjs().startOf('week').add(1, 'day');
@@ -134,6 +153,12 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
 
                         return <EmptyBox sx={{ backgroundColor: isToday ? '#FBE1D0' : 'transparent' }}></EmptyBox>;
                     }
+
+                    const inputId = `${params.row.id}-day${i}`;
+                    const isActive = activeInputId === inputId && !modalOpen;
+
+                    console.log("isActive" , isActive)
+
                     return (
                         <InputStyleBox
                             sx={{
@@ -153,12 +178,21 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                     width: '80% !important',
                                     verticalAlign: 'unset',
                                     backgroundColor: "#FFFFFF",
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': {
+                                            border: isActive ? '1px solid #ED6A15' : 'inherit',
+                                        },
+                                        "&  .MuiOutlinedInput-input" :{
+                                            border: isActive ? '1px solid #ED6A15' : 'inherit',
+                                        }
+                                    }
                                 }}
                             />
                             <IconButton
                                 size="small"
                                 color="red"
-                                onClick={() => handleCopyModal()}
+                                onClick={() => handleCopyModal(inputId)}
+                        
                             >
                                 <TextSnippetIcon />
                             </IconButton>
@@ -169,8 +203,8 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                 aria-labelledby="notes-modal"
                                 BackdropProps={{
                                     style: {
-                                        backgroundColor: 'rgba(211, 211, 211, 0.7)',
-                                        opacity: "80%"
+                                        backgroundColor: 'rgba(206, 212, 218, 0.2)',
+                                        opacity: "90%"
                                     }
                                 }}
                             >
@@ -200,9 +234,10 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                         onClick={handleCloseModal}
                                         sx={{
                                             position: 'absolute',
-                                            right: 8,
-                                            top: 8,
-                                            color: (theme) => theme.palette.grey[500],
+                                            right: 2,
+                                            top: -30,
+                                           
+                                            color:"#fff",
                                         }}
                                     >
                                         <CloseIcon />
@@ -222,20 +257,42 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                     >
                                         Notes
                                     </Typography>
-                                    <Box sx={{ mb: 3 }}>
-                                        <Typography
-                                            variant="body1"
-                                            sx={{
-                                                fontSize: {
-                                                    xs: '0.875rem',
-                                                    sm: '1rem'
-                                                }
-                                            }}
-                                        >
-                                            Your notes content goes here...
-                                        </Typography>
-                                    </Box>
-
+                                    <StyledDrawerDivider/>
+                                    <Box 
+  sx={{ 
+    mb: 3, 
+    height: "15rem", 
+    overflowY: "auto" ,
+    padding: "1rem"
+  }}
+>
+    <List>
+        {notes.map((note, index) => (
+            <ListItem
+                key={index}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    // gap: 1,
+                    backgroundColor: '#fff',
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)',
+                    borderRadius: '8px',
+                    paddingLeft: '10px',
+                    mb: 1, // Adds spacing between tiles
+                }}
+            >
+                <Typography  sx={{ fontSize: '1rem', fontWeight: '600' }}>
+                    {note.content}
+                </Typography>
+                <Typography  sx={{ fontSize: '0.875rem', color: 'gray' }}>
+                    {note.date}
+                </Typography>
+            </ListItem>
+        ))}
+    </List>
+</Box>
+{/* <StyledDrawerDivider/> */}
                                     <Box sx={{
                                         display: 'flex',
                                         flexDirection: {
@@ -246,9 +303,10 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                         gap: 2
                                     }}>
                                         <MuiInput
-                                            type={'string'}
+                                             multiline={true}
                                             onChange={(value) => handleInputChange(`day${i}`, value, params?.row?.id)}
-                                            value={params?.value || 0}
+                                            value={params?.value}
+                                            rows={2}
                                             disabled={false}
                                             sx={{
                                                 width: {
@@ -258,6 +316,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                                 verticalAlign: 'unset',
                                                 backgroundColor: "#FFFFFF",
                                             }}
+                                            
                                         />
                                         <Button
                                             variant="contained"
@@ -267,8 +326,9 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                                     xs: '100%',
                                                     sm: '120px'
                                                 },
-                                                backgroundColor:"#ED6A15"
+                                                backgroundColor: "#ED6A15"
                                             }}
+                                            onClick={()=>handleSaveNotes()}
                                         >
                                             Save
                                         </Button>
@@ -335,63 +395,3 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
     return columns;
 };
 
-
-// {
-//     field: 'project',
-//     headerName: '',
-//     flex: 0.5,
-//     minWidth: 100,
-//     treeField: true,
-//     renderCell: (params) => {
-//         const indent = params.api.getRowNode(params.id)?.depth * 10 || 0;
-//         return (
-//             <Box sx={{
-//                 ml: `${indent}px`, display: "flex",
-//                 justifyContent: "center",
-//                 alignItems: "center",
-//                 marginTop: "10px",
-//             }}>
-//                 <Typography sx={{ color: "#121212DE", fontWeight: "700", marginLeft: "-10px" }}>
-//                     {params.value}
-//                 </Typography>
-//             </Box>
-//         );
-//     },
-// },
-
-// {
-//     field: 'level',
-//     headerName: '',
-//     flex: 0.5,
-//     minWidth: 150,
-//     treeField: true,
-//     renderCell: (params) => {
-//         const indent = params.api.getRowNode(params.id)?.depth * 10
-//         return (
-//             <Box
-//                 sx={{
-//                     ml: `${indent}px`,
-//                     display: "flex",
-//                     justifyContent: "center",
-//                     alignItems: "center",
-//                     marginTop: "10px",
-//                     overflowX: "auto",
-//                     // whiteSpace: "nowrap",
-//                     scrollbarWidth: "none",
-//                    '&::-webkit-scrollbar': { display: 'none' },
-//                 }}>
-//                 <Typography
-//                 sx={{
-//                     color: "#0073E6DE",
-//                     fontWeight: "500",
-//                     // marginLeft:"5px",
-//                     overflow: "hidden",
-//                     textOverflow: "ellipsis",
-//                     whiteSpace: "nowrap",
-//                     }}>
-//                     {params.value}
-//                 </Typography>
-//             </Box>
-//         );
-//     },
-// },

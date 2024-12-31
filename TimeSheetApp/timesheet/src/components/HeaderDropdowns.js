@@ -3,6 +3,13 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import styled from '@emotion/styled';
+
+const StyledButton = styled(Button)({
+textTransform:"none" , 
+color:"#fff"
+})
+
 
 export default function HeaderDropdowns({name}) {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -16,17 +23,16 @@ export default function HeaderDropdowns({name}) {
 
   return (
     <div>
-      <Button
+      <StyledButton
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        sx={{textTransform:"none" , color:"#fff"}}
       >
         {name}
         <ArrowDropDownIcon />
-      </Button>
+      </StyledButton>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
@@ -36,9 +42,9 @@ export default function HeaderDropdowns({name}) {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem>
-        <MenuItem onClick={handleClose}>Logout</MenuItem>
+        <MenuItem onClick={handleClose}>23-29 sept 2024</MenuItem>
+        <MenuItem onClick={handleClose}>26-30 sept 2024</MenuItem>
+        <MenuItem onClick={handleClose}>21-23 sept 2024</MenuItem>
       </Menu>
     </div>
   );
