@@ -256,29 +256,29 @@ const DescriptionTypography = styled(Typography)(({ theme }) => ({
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
   position: 'absolute',
-              right: '-10px',
-              top: '-30px',
-              zIndex: 1
+  right: '-10px',
+  top: '-30px',
+  zIndex: 1
 }));
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   mr: 1,
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            transition: "box-shadow 0.3s ease-in-out",
+  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+  transition: "box-shadow 0.3s ease-in-out",
 
-            "&:hover": {
-              boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
-            },
-            "& .MuiToggleButton-root.Mui-selected": {
-              backgroundColor: "#FFFFFF",
-              "&:hover": {
-                backgroundColor: "#FFFFFF",
-              },
-              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-              transition: "box-shadow 0.3s ease-in-out",
-              "&:hover": {
-                boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
-              },
-            },
+  "&:hover": {
+    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
+  },
+  "& .MuiToggleButton-root.Mui-selected": {
+    backgroundColor: "#FFFFFF",
+    "&:hover": {
+      backgroundColor: "#FFFFFF",
+    },
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    transition: "box-shadow 0.3s ease-in-out",
+    "&:hover": {
+      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
+    },
+  },
 }));
 
 
@@ -299,15 +299,15 @@ const StyledApprovalBox = styled(Box)(({ theme }) => ({
   padding: "20px",
   borderRadius: "8px",
   textAlign: "center",
-  maxWidth: "500px", 
-  boxShadow: 3, 
+  maxWidth: "500px",
+  boxShadow: 3,
 }));
 
 const StyledApprovalIconButton = styled(IconButton)(({ theme }) => ({
   position: "absolute",
-              top: "-36px",
-              right: "0px",
-              color: "white",
+  top: "-36px",
+  right: "0px",
+  color: "white",
 }));
 
 const StyledStack = styled(Box)(({ theme }) => ({
@@ -317,7 +317,7 @@ const StyledStack = styled(Box)(({ theme }) => ({
 const CloseButton = styled(Button)(({ theme }) => ({
   borderColor: "#ED6A15",
   color: "#ED6A15",
-  marginTop:"4%"
+  marginTop: "4%"
 }));
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -328,11 +328,11 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }));
 
 const StyledModalBox = styled(Box)(({ theme }) => ({
-display: "flex", 
-flexDirection: "column", 
-justifyContent: "flex-start", 
-alignItems: "center", 
-marginBottom: "5%"
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-start",
+  alignItems: "center",
+  marginBottom: "5%"
 }));
 
 const Home = () => {
@@ -374,22 +374,22 @@ const Home = () => {
   const handlePreviousWeek = () => {
     // const currentStartDate = new Date(selectedDate[0]);
     // const currentEndDate = new Date(selectedDate[1]);
-    
+
     // // Decrease 7 days
     // const newStartDate = new Date(currentStartDate.setDate(currentStartDate.getDate() - 7));
     // const newEndDate = new Date(currentEndDate.setDate(currentEndDate.getDate() - 7));
-    
+
     // dispatch(setDateRange([newStartDate, newEndDate]));
   }
-  
+
   const handleNextWeek = () => {
     // const currentStartDate = new Date(selectedDate[0]);
     // const currentEndDate = new Date(selectedDate[1]);
-    
+
     // // Increase 7 days
     // const newStartDate = new Date(currentStartDate.setDate(currentStartDate.getDate() + 7));
     // const newEndDate = new Date(currentEndDate.setDate(currentEndDate.getDate() + 7));
-    
+
     // dispatch(setDateRange([newStartDate, newEndDate]));
   }
 
@@ -461,10 +461,10 @@ const Home = () => {
           onChange={handleAlignment}
           aria-label="text alignment"
         >
-          <ToggleButton value="left" aria-label="left aligned" onClick={()=>handlePreviousWeek()}>
+          <ToggleButton value="left" aria-label="left aligned" onClick={() => handlePreviousWeek()}>
             <ArrowBackIcon />
           </ToggleButton>
-          <ToggleButton value="justify" aria-label="justified" onClick={()=>handleNextWeek()}>
+          <ToggleButton value="justify" aria-label="justified" onClick={() => handleNextWeek()}>
             <ArrowForwardIcon />
           </ToggleButton>
         </StyledToggleButtonGroup>
@@ -595,12 +595,12 @@ const Home = () => {
           {/* Add Close Button */}
           <StyledIconButton
             onClick={handleApprovalClose}
-            // sx={{
-            //   position: 'absolute',
-            //   right: '-10px',
-            //   top: '-30px',
-            //   zIndex: 1
-            // }}
+          // sx={{
+          //   position: 'absolute',
+          //   right: '-10px',
+          //   top: '-30px',
+          //   zIndex: 1
+          // }}
           >
             <CloseIcon sx={{ color: "#fff" }} />
           </StyledIconButton>
@@ -645,12 +645,12 @@ const Home = () => {
         <StyledApprovalBox
           sx={{
             width: {
-              xs: "80%", 
-              sm: "75%", 
-              md: "40%", 
+              xs: "80%",
+              sm: "75%",
+              md: "40%",
               lg: "25%",
             },
-          
+
           }}
         >
           <CheckCircleOutlineIcon
@@ -658,13 +658,13 @@ const Home = () => {
             sx={{ color: "#41AF6E", width: "50px", height: "50px" }}
           />
           <StyledApprovalIconButton
-           onClick={() => setIsTimesheetCreated(false)}
-            // sx={{
-            //   position: "absolute",
-            //   top: "-36px",
-            //   right: "0px",
-            //   color: "white",
-            // }}
+            onClick={() => setIsTimesheetCreated(false)}
+          // sx={{
+          //   position: "absolute",
+          //   top: "-36px",
+          //   right: "0px",
+          //   color: "white",
+          // }}
           >
             <CloseIcon sx={{ color: "#fff" }} />
           </StyledApprovalIconButton>

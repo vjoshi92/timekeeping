@@ -28,10 +28,10 @@ root.render(
                   path={r.path}
                   element={
                     <>
-                    {
+                    {/* {
                       headerUrls.includes(r.key) ? <ManagerHeader key={r.key}/> : <Header key={r.key} />
-                    }
-                      
+                    } */}
+                       <Header key={r.key} />
                       {r.component}
                     </>
                   }

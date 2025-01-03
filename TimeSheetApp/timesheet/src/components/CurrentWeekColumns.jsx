@@ -10,10 +10,18 @@ const StyledTypography = styled(Typography)({
    marginTop:"10px"
 });
 
-const StyledBox = styled(Box)({
-    width:"50px",
-    textAlign: 'center',    
-});
+// const StyledBox = styled(Box)({
+//     width:"50px",
+//     textAlign: 'center',    
+// });
+
+const StyledBox = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '100%',
+    width: "100%",
+}));
 
 const StyledIconButton = styled(IconButton)({
     marginBottom: "10px" 

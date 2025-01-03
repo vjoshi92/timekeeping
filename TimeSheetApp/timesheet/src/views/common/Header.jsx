@@ -18,6 +18,7 @@ import {
   Menu,
   MenuItem,
   Popper,
+  Stack,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -57,12 +58,14 @@ const StyledBox = styled(Box)({
   padding: "20px"
 });
 
-const ApprovalStyledBox = styled(Box)({
+const ApprovalStyledBox = styled(Stack)({
   display: "flex",
-  justifyContent: "space-between",
+  justifyContent: "start",
   alignItems: "center",
   color: "#FFFFFF",
-  cursor: "pointer"
+  cursor: "pointer",
+  marginBottom:"0.5rem",
+  marginTop: "0.5rem"
 });
 
 const AllStyledBox = styled(Box)({
@@ -83,7 +86,6 @@ const ApprovalsTypography = styled(Typography)({
   fontWeight: "500",
   fontSize: "22px",
   color: "#FFFFFF",
-  marginBottom: "10px"
 });
 
 const AllTypography = styled(Typography)({
@@ -121,12 +123,9 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 }));
 
 const StyledChip = styled(Chip)(({ theme }) => ({
-backgroundColor: "#ED6A15", 
-color:"#fff" , 
-marginRight:"58%" , 
-width:"3%" , 
-height:"8%" , 
-paddingRight:"8px"
+  backgroundColor: "#ED6A15",
+  color: "#fff",
+  marginLeft: "0.4rem"
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -165,7 +164,7 @@ export default function Header() {
   const params = useParams();
   const isManager = true;
 
-  const settings = [userData?.Fullname, "Logout"];
+  const settings = ["Welcome Vijay Joshi", "Logout"];
   // const handleCreateNew = () => {
   //   dispatch(resetForm());
   //   navigate("/CapEx_Request");
@@ -189,6 +188,7 @@ export default function Header() {
     const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
     const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YY')} - ${endOfCurrentWeek.format('DD MMM YY')}`;
     dispatch(setDateRange(formattedDateRange));
+    handleClose();
   };
 
   const handleMenuItemClick = (setting) => {
@@ -233,7 +233,7 @@ export default function Header() {
             style={{
               cursor: "pointer",
               marginRight: "10px",
-              marginBottom:"15px"
+              marginBottom: "15px"
             }}
           />
 
@@ -259,7 +259,7 @@ export default function Header() {
             CATS 2.0
           </HeadingTypography>
 
-          <IconButton aria-label="delete" sx={{ color: "white" }} onClick={() => handleDrawer()} >
+          <IconButton aria-label="delete" sx={{ color: "white", marginRight:"1rem" }} onClick={() => handleDrawer()} >
             <MenuIcon fontSize="large" />
           </IconButton>
 
@@ -316,17 +316,17 @@ export default function Header() {
             {
               isManager == true ?
                 <Box sx={{ padding: "20px" }}>
-               
+
                   <StyledTypography >MY TIMESHEETS</StyledTypography>
-                  <ApprovalStyledBox
+                  <ApprovalStyledBox direction={"row"}
                     onClick={handleCurrentWeekClick}
                   >
                     <ApprovalsTypography >
                       Current Weeks
                     </ApprovalsTypography>
-                 
+
                   </ApprovalStyledBox>
-                  <AllStyledBox onClick={() => { navigate("/AllTimesheet/false"); }}>
+                  <AllStyledBox onClick={() => { navigate("/AllTimesheet/false"); handleClose(); }}>
                     <ApprovalsTypography>
                       All
                     </ApprovalsTypography>
@@ -334,29 +334,29 @@ export default function Header() {
                 </Box>
                 : null
             }
-               <StyledDrawerDivider
-                    orientation="horizontal"
-                    variant="middle"
-              
-                  />
+            <StyledDrawerDivider
+              orientation="horizontal"
+              variant="middle"
+
+            />
             <StyledBox >
               <StyledTypography>
                 MY TEAMS'S TIMESHEETS
               </StyledTypography>
-              <ApprovalStyledBox
-                onClick={() => { navigate("/pendingApprovals") }}
+              <ApprovalStyledBox direction={"row"}
+                onClick={() => { navigate("/pendingApprovals"); handleClose(); }}
               >
                 <ApprovalsTypography >
                   Pending Approvals
                 </ApprovalsTypography>
-                <StyledChip label="2" variant="filled" sx={{ }} />
+                <StyledChip label="2" variant="filled" sx={{}} />
               </ApprovalStyledBox>
               <AllStyledBox
-                onClick={() => { navigate("/AllTimesheet/true"); }}>
+                onClick={() => { navigate("/AllTimesheet/true"); handleClose(); }}>
                 <AllTypography >All</AllTypography>
               </AllStyledBox>
             </StyledBox>
-         
+
           </MuiDrawer>
         </Toolbar>
       </StyledAppBar>
