@@ -187,7 +187,7 @@ export default function Header() {
   const handleCurrentWeekClick = () => {
     const startOfCurrentWeek = dayjs().startOf('week').add(1, 'day');
     const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
-    const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YY')} - ${endOfCurrentWeek.format('DD MMM YY')}`;
+    const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YYYY')} - ${endOfCurrentWeek.format('DD MMM YYYY')}`;
     dispatch(setDateRange(formattedDateRange));
   };
 
