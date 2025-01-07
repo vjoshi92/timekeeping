@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, ListItem, ListItemText, styled, Typography } from '@mui/material';
+import { Alert, Box, Button, FormControl, ListItem, ListItemText, Snackbar, styled, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import Dropdown from '../../components/Dropdown';
@@ -90,6 +90,8 @@ const AddRowsScreen = () => {
     });
     const navigate = useNavigate();
     const [projectDataArray, setProjectDataArray] = useState([]);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [addProjectOpen, setAddProjectOpen] = useState(false);
 
     const handleProjectData = () => {
         const levels = ['levelOne'];
@@ -97,6 +99,7 @@ const AddRowsScreen = () => {
         for (const level of levels) {
             if (selectedLevels[level]) {
                 lastSelectedLevel = selectedLevels[level];
+
                 break;
             }
         }
@@ -114,6 +117,7 @@ const AddRowsScreen = () => {
             id: Math.random(),
             hierarchy: [selectedLevels.project, lastSelectedLevel],
         };
+
 
         const isDuplicate = projectedData.some(
             (item) =>
@@ -138,9 +142,10 @@ const AddRowsScreen = () => {
                 tData.unshift(data);
             }
             dispatch(setProjectData(tData));
+            setAddProjectOpen(true)
             navigate(-1);
         } else {
-            console.log("Duplicate entry: Project and level already exist.");
+            setSnackbarOpen(true);
         }
     };
 
@@ -156,11 +161,25 @@ const AddRowsScreen = () => {
         { id: 3, title: "NOF-1.5.1.1.1", value: "Mechanical Kit Design" },
     ];
 
-    const handleChange = (level, value, label) => {
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
+
+    const handleProjectClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setAddProjectOpen(false);
+    };
+
+
+    const handleChange = (level, value) => {
         setSelectedLevels((prevLevels) => ({
             ...prevLevels,
-            [level]: value,
-            title: label
+            [level]: value
         }));
     };
 
@@ -224,6 +243,34 @@ const AddRowsScreen = () => {
                     </StyledButton>
                 </Box>
             )}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleSnackbarClose}
+                    severity="warning"
+                    sx={{ width: '100%' }}
+                >
+                    Project already added with the selected task
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={addProjectOpen}
+                autoHideDuration={3000}
+                onClose={handleProjectClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleProjectClose}
+                    severity="success"
+                    sx={{ width: '100%' }}
+                >
+                    Added Project Sucessfully
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

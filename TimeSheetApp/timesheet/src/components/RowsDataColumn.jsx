@@ -44,6 +44,16 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
     color: "#121212DE",
     fontWeight: "700"
 }));
+const NotesTypography = styled(Typography)(({ theme }) => ({
+    mb: 2,
+    textAlign: 'center',
+    fontSize: {
+        xs: '1.1rem',
+        sm: '1.25rem'
+    },
+    fontWeight: "700",
+    fontSize: "16px"
+}));
 const IconButtonStyle = styled(Box)(({ theme }) => ({
     width: '100%',
     height: '100%',
@@ -78,6 +88,12 @@ const ModalBox = styled(Box)(({ theme }) => ({
     borderRadius: 4,
 }));
 
+const ModalStyledTypography = styled(Box)(({ theme }) => ({
+    fontWeight: 600,
+    fontSize: "16px",
+    marginBottom: "2%"
+}));
+
 export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [activeInputId, setActiveInputId] = useState(null);
@@ -88,9 +104,9 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
     };
 
     const notes = [
-        { id: 1, content: "Discuss project deadlines and deliverables.", date: "01/03/2024" },
-        { id: 2, content: "Complete the UI design for the dashboard.", date: "05/02/2024" },
-        { id: 3, content: "Submit the monthly report by EOD.", date: "10/01/2024" },
+        { id: 1, content: "Discuss project deadlines and deliverables.", date: "10/01/2024", time: "05.30pm" },
+        { id: 2, content: "Complete the UI design for the dashboard.", date: "05/02/2024", time: "02.30pm" },
+        { id: 3, content: "Submit the monthly report by EOD.", date: "01/03/2024", time: "06.30pm" },
     ];
 
     const handleSaveNotes = () => {
@@ -111,7 +127,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
         }
         else if (selectedDate) {
             const [startDateStr] = selectedDate?.split(' - ');
-            startDate = dayjs(startDateStr, 'DD-MMM-YYYY');
+            startDate = dayjs(startDateStr, 'DD MMM YYYY');
         } else {
             startDate = dayjs().startOf('week').add(1, 'day');
         }
@@ -253,20 +269,15 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                         <CloseIcon />
                                     </IconButton>
 
-                                    <Typography
+                                    <NotesTypography
                                         variant="h6"
                                         component="h2"
                                         sx={{
-                                            mb: 2,
-                                            textAlign: 'center',
-                                            fontSize: {
-                                                xs: '1.1rem',
-                                                sm: '1.25rem'
-                                            }
+
                                         }}
                                     >
                                         Notes
-                                    </Typography>
+                                    </NotesTypography>
                                     <StyledDrawerDivider />
                                     <Box
                                         sx={{
@@ -293,55 +304,60 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                                     }}
                                                 >
                                                     <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>
-                                                        {note.content}
+                                                        {note?.content}
                                                     </Typography>
                                                     <Typography sx={{ fontSize: '0.875rem', color: 'gray' }}>
-                                                        {note.date}
+                                                        {note?.date}&nbsp; &nbsp; &nbsp;{note?.time}
+
                                                     </Typography>
                                                 </ListItem>
                                             ))}
                                         </List>
                                     </Box>
                                     {/* <StyledDrawerDivider/> */}
-                                    <Box sx={{
-                                        display: 'flex',
-                                        flexDirection: {
-                                            xs: 'column',
-                                            sm: 'row'
-                                        },
-                                        alignItems: 'center',
-                                        gap: 2
-                                    }}>
-                                        <MuiInput
-                                            multiline={true}
-                                            onChange={(value) => handleInputChange(`day${i}`, value, params?.row?.id)}
-                                            value={params?.value}
-                                            rows={2}
-                                            disabled={false}
-                                            sx={{
-                                                width: {
-                                                    xs: '100% !important',
-                                                    sm: '80% !important'
-                                                },
-                                                verticalAlign: 'unset',
-                                                backgroundColor: "#FFFFFF",
-                                            }}
+                                    <Box>
+                                        <ModalStyledTypography>Add New</ModalStyledTypography>
+                                        <Box sx={{
+                                            display: 'flex',
+                                            flexDirection: {
+                                                xs: 'column',
+                                                sm: 'row'
+                                            },
+                                            alignItems: 'center',
+                                            gap: 2
+                                        }}>
 
-                                        />
-                                        <Button
-                                            variant="contained"
-                                            sx={{
-                                                height: '40px',
-                                                width: {
-                                                    xs: '100%',
-                                                    sm: '120px'
-                                                },
-                                                backgroundColor: "#ED6A15"
-                                            }}
-                                            onClick={() => handleSaveNotes()}
-                                        >
-                                            Save
-                                        </Button>
+                                            <MuiInput
+                                                multiline={true}
+                                                onChange={(value) => handleInputChange(`day${i}`, value, params?.row?.id)}
+                                                value={params?.value}
+                                                rows={2}
+                                                disabled={false}
+                                                sx={{
+                                                    width: {
+                                                        xs: '100% !important',
+                                                        sm: '80% !important'
+                                                    },
+                                                    verticalAlign: 'unset',
+                                                    backgroundColor: "#FFFFFF",
+                                                }}
+
+                                            />
+                                            <Button
+                                                variant="contained"
+                                                sx={{
+                                                    height: '40px',
+                                                    width: {
+                                                        xs: '100%',
+                                                        sm: '120px'
+                                                    },
+                                                    backgroundColor: "#ED6A15"
+                                                }}
+                                                onClick={() => handleSaveNotes()}
+                                            >
+                                                Save
+                                            </Button>
+                                        </Box>
                                     </Box>
                                 </ModalBox>
                             </Modal>

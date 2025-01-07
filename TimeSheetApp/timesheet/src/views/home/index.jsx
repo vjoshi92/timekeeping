@@ -187,7 +187,7 @@ const CancelNoteButton = styled(Button)(({ theme }) => ({
 const FooterButton = styled(Button)(({ theme }) => ({
   width: "95%",
   position: "absolute",
-  bottom: "3%",
+  bottom: "2%",
   [theme.breakpoints.up("sm")]: {
     width: "95%",
   },
@@ -281,8 +281,6 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   },
 }));
 
-
-
 const StyledCircularBox = styled(Box)(({ theme }) => ({
   width: "23px",
   height: "23px",
@@ -371,29 +369,51 @@ const Home = () => {
 
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
+
   const handlePreviousWeek = () => {
-    // const dateArray = selectedDate.split(" - ");
-    // const currentStartDate = new Date(dateArray[0]);
-    // const currentEndDate = new Date(dateArray[1]);
+    let currentStartDate;
 
-    // // Decrease 7 days
-    // const newStartDate = new Date(currentStartDate.setDate(currentStartDate.getDate() - 7));
-    // const newEndDate = new Date(currentEndDate.setDate(currentEndDate.getDate() - 7));
-
-    // dispatch(setDateRange([newStartDate, newEndDate]));
-  }
+    if (!selectedDate || selectedDate.length === 0) {
+      currentStartDate = dayjs().startOf('week').add(1, 'day');
+    } else {
+      try {
+        if (typeof selectedDate === 'string') {
+          const startDateStr = selectedDate.split(' - ')[0];
+          currentStartDate = dayjs(startDateStr, 'DD MMM YYYY');
+        } else {
+          currentStartDate = dayjs().startOf('week').add(1, 'day');
+        }
+      } catch (error) {
+        currentStartDate = dayjs().startOf('week').add(1, 'day');
+      }
+    }
+    const startOfPreviousWeek = currentStartDate.subtract(7, 'day');
+    const endOfPreviousWeek = startOfPreviousWeek.add(6, 'day');
+    const newDateRange = `${startOfPreviousWeek.format('DD MMM YYYY')} - ${endOfPreviousWeek.format('DD MMM YYYY')}`;
+    dispatch(setDateRange(newDateRange));
+  };
 
   const handleNextWeek = () => {
-    // const currentStartDate = new Date(selectedDate[0]);
-    // const currentEndDate = new Date(selectedDate[1]);
-
-    // // Increase 7 days
-    // const newStartDate = new Date(currentStartDate.setDate(currentStartDate.getDate() + 7));
-    // const newEndDate = new Date(currentEndDate.setDate(currentEndDate.getDate() + 7));
-
-    // dispatch(setDateRange([newStartDate, newEndDate]));
-  }
-
+    let currentStartDate;
+    if (!selectedDate || selectedDate.length === 0) {
+      currentStartDate = dayjs().startOf('week').add(1, 'day');
+    } else {
+      try {
+        if (typeof selectedDate === 'string') {
+          const startDateStr = selectedDate.split(' - ')[0];
+          currentStartDate = dayjs(startDateStr, 'DD MMM YYYY');
+        } else {
+          currentStartDate = dayjs().startOf('week').add(1, 'day');
+        }
+      } catch (error) {
+        currentStartDate = dayjs().startOf('week').add(1, 'day');
+      }
+    }
+    const startOfNextWeek = currentStartDate.add(7, 'day');
+    const endOfNextWeek = startOfNextWeek.add(6, 'day');
+    const newDateRange = `${startOfNextWeek.format('DD MMM YYYY')} - ${endOfNextWeek.format('DD MMM YYYY')}`;
+    dispatch(setDateRange(newDateRange));
+  };
   const handleSaveTime = () => {
     setSaveTimeClick(true)
     const currentTime = new Date();
@@ -412,16 +432,7 @@ const Home = () => {
 
   const startOfCurrentWeek = dayjs().startOf('week').add(1, 'day');
   const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
-  const formattedDateRange = `${startOfCurrentWeek.format('DD-MMM-YYYY')} - ${endOfCurrentWeek.format('DD-MMM-YYYY')}`;
-
-  // useEffect(() => {
-  //   const dateArray = formattedDateRange.split(" - ");
-  //   const currentStartDate = new Date(dateArray[0]);
-  //   const currentEndDate = new Date(dateArray[1]);
-
-  //   dispatch(setDateRange([currentStartDate, currentEndDate]));
-    
-  // },[])
+  const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YYYY')} - ${endOfCurrentWeek.format('DD MMM YYYY')}`;
 
 
 
@@ -462,7 +473,7 @@ const Home = () => {
   return (
     <StyledStack
       padding={{ xs: 1, sm: 2 }}
-      height={{ xs: "100vh", sm: "90vh", md: "90vh", lg: "90vh" }}
+      height={{ xs: "80vh", sm: "80vh", md: "90vh", lg: "80vh" }}
     >
       <StyledBox>
         <StyledToggleButtonGroup

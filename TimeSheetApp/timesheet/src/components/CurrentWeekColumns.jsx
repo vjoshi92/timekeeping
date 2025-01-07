@@ -31,7 +31,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
     const getWeekDays = () => {
         let startDate;
         
-        if (Array.isArray(selectedDate) && selectedDate.length === 0) {
+        if (Array?.isArray(selectedDate) && selectedDate?.length === 0) {
             startDate = dayjs().startOf('week').add(1, 'day');
         }
         else if (Array.isArray(selectedDate) && selectedDate.length > 0) {
@@ -40,7 +40,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
         }
         else if (selectedDate) {
             const [startDateStr] = selectedDate?.split(' - ');
-            startDate = dayjs(startDateStr, 'DD-MMM-YYYY');
+            startDate = dayjs(startDateStr, 'DD MMM YYYY');
         } else {
             startDate = dayjs().startOf('week').add(1, 'day');
         }
