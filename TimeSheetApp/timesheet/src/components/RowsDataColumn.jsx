@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Button, Divider, IconButton, List, ListItem, ListItemText, Modal, styled, TextField, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import TextSnippetOutlined from '@mui/icons-material/TextSnippetOutlined';
 import MuiInput from './MuiInput';
 import CloseIcon from '@mui/icons-material/Close';
 import clsx from 'clsx';
@@ -24,8 +24,8 @@ const StyledDrawerDivider = styled(Divider)({
     marginBottom: "1rem",
     borderColor: "#ED6A15",
     height: "1px",
-  });
-  
+});
+
 const DayBox = styled(Box)(({ theme }) => ({
     fontWeight: '700',
     textAlign: 'center'
@@ -88,14 +88,14 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
     };
 
     const notes = [
-        { id:1 , content: "Discuss project deadlines and deliverables." , date:"01/03/2024" },
-        { id:2, content: "Complete the UI design for the dashboard." , date:"05/02/2024" },
-        { id:3,content: "Submit the monthly report by EOD." , date:"10/01/2024" },
+        { id: 1, content: "Discuss project deadlines and deliverables.", date: "01/03/2024" },
+        { id: 2, content: "Complete the UI design for the dashboard.", date: "05/02/2024" },
+        { id: 3, content: "Submit the monthly report by EOD.", date: "10/01/2024" },
     ];
-    
-    const handleSaveNotes = ()=>{
+
+    const handleSaveNotes = () => {
         setModalOpen(false)
-        
+
     }
     const handleCloseModal = () => {
         setModalOpen(false);
@@ -104,9 +104,14 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
         let startDate;
         if (Array?.isArray(selectedDate) && selectedDate?.length === 0) {
             startDate = dayjs().startOf('week').add(1, 'day');
-        } else if (selectedDate) {
+        }
+        else if (Array.isArray(selectedDate) && selectedDate.length > 0) {
+            const [startDateStr] = selectedDate;
+            startDate = dayjs(startDateStr, 'DD-MMM-YYYY');
+        }
+        else if (selectedDate) {
             const [startDateStr] = selectedDate?.split(' - ');
-            startDate = dayjs(startDateStr, 'DD MMM YY');
+            startDate = dayjs(startDateStr, 'DD-MMM-YYYY');
         } else {
             startDate = dayjs().startOf('week').add(1, 'day');
         }
@@ -119,7 +124,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                 field: `day${i}`,
                 headerName: currentDate?.format('ddd'),
                 flex: 1,
-                minWidth: 120,
+                minWidth: 100,
                 borderBottom: "5px solid black",
                 headerClassName: isToday ? 'highlight-column' : '',
                 renderHeader: () => (
@@ -157,7 +162,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                     const inputId = `${params.row.id}-day${i}`;
                     const isActive = activeInputId === inputId && !modalOpen;
 
-                    console.log("isActive" , isActive)
+                    console.log("isActive", isActive)
 
                     return (
                         <InputStyleBox
@@ -182,7 +187,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                         '& fieldset': {
                                             border: isActive ? '1px solid #ED6A15' : 'inherit',
                                         },
-                                        "&  .MuiOutlinedInput-input" :{
+                                        "&  .MuiOutlinedInput-input": {
                                             border: isActive ? '1px solid #ED6A15' : 'inherit',
                                         }
                                     }
@@ -190,11 +195,16 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                             />
                             <IconButton
                                 size="small"
-                                color="red"
+
                                 onClick={() => handleCopyModal(inputId)}
-                        
+
                             >
-                                <TextSnippetIcon />
+                                <TextSnippetOutlined sx={
+                                    {
+                                        color: "grey",
+                                        fontWeight: "400"
+                                    }
+                                } />
                             </IconButton>
                             <Modal
                                 key="notes-modal"
@@ -236,8 +246,8 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                             position: 'absolute',
                                             right: 2,
                                             top: -30,
-                                           
-                                            color:"#fff",
+
+                                            color: "#fff",
                                         }}
                                     >
                                         <CloseIcon />
@@ -257,42 +267,42 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                     >
                                         Notes
                                     </Typography>
-                                    <StyledDrawerDivider/>
-                                    <Box 
-  sx={{ 
-    mb: 3, 
-    height: "15rem", 
-    overflowY: "auto" ,
-    padding: "1rem"
-  }}
->
-    <List>
-        {notes.map((note, index) => (
-            <ListItem
-                key={index}
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    // gap: 1,
-                    backgroundColor: '#fff',
-                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)',
-                    borderRadius: '8px',
-                    paddingLeft: '10px',
-                    mb: 1, // Adds spacing between tiles
-                }}
-            >
-                <Typography  sx={{ fontSize: '1rem', fontWeight: '600' }}>
-                    {note.content}
-                </Typography>
-                <Typography  sx={{ fontSize: '0.875rem', color: 'gray' }}>
-                    {note.date}
-                </Typography>
-            </ListItem>
-        ))}
-    </List>
-</Box>
-{/* <StyledDrawerDivider/> */}
+                                    <StyledDrawerDivider />
+                                    <Box
+                                        sx={{
+                                            mb: 3,
+                                            height: "15rem",
+                                            overflowY: "auto",
+                                            padding: "1rem"
+                                        }}
+                                    >
+                                        <List>
+                                            {notes.map((note, index) => (
+                                                <ListItem
+                                                    key={index}
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'flex-start',
+                                                        // gap: 1,
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)',
+                                                        borderRadius: '8px',
+                                                        paddingLeft: '10px',
+                                                        mb: 1, // Adds spacing between tiles
+                                                    }}
+                                                >
+                                                    <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>
+                                                        {note.content}
+                                                    </Typography>
+                                                    <Typography sx={{ fontSize: '0.875rem', color: 'gray' }}>
+                                                        {note.date}
+                                                    </Typography>
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </Box>
+                                    {/* <StyledDrawerDivider/> */}
                                     <Box sx={{
                                         display: 'flex',
                                         flexDirection: {
@@ -303,7 +313,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                         gap: 2
                                     }}>
                                         <MuiInput
-                                             multiline={true}
+                                            multiline={true}
                                             onChange={(value) => handleInputChange(`day${i}`, value, params?.row?.id)}
                                             value={params?.value}
                                             rows={2}
@@ -316,7 +326,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                                 verticalAlign: 'unset',
                                                 backgroundColor: "#FFFFFF",
                                             }}
-                                            
+
                                         />
                                         <Button
                                             variant="contained"
@@ -328,7 +338,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                                 },
                                                 backgroundColor: "#ED6A15"
                                             }}
-                                            onClick={()=>handleSaveNotes()}
+                                            onClick={() => handleSaveNotes()}
                                         >
                                             Save
                                         </Button>

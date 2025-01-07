@@ -110,7 +110,8 @@ const AddRowsScreen = () => {
             day6: "",
             project: selectedLevels.project || "",
             level: lastSelectedLevel,
-            id: projectedData?.length,
+            title: selectedLevels.title,
+            id: Math.random(),
             hierarchy: [selectedLevels.project, lastSelectedLevel],
         };
 
@@ -122,7 +123,20 @@ const AddRowsScreen = () => {
 
         if (!isDuplicate) {
             let tData = [...projectedData];
-            tData.push(data);
+            if (tData && tData.length === 0) {
+
+                tData.push(data);
+                tData.push({
+                    day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0,
+                    project: "",
+                    level: 0,
+                    title: '',
+                    id: Math.random(),
+                    hierarchy: []
+                })
+            } else {
+                tData.unshift(data);
+            }
             dispatch(setProjectData(tData));
             navigate(-1);
         } else {
@@ -142,10 +156,11 @@ const AddRowsScreen = () => {
         { id: 3, title: "NOF-1.5.1.1.1", value: "Mechanical Kit Design" },
     ];
 
-    const handleChange = (level, value) => {
+    const handleChange = (level, value, label) => {
         setSelectedLevels((prevLevels) => ({
             ...prevLevels,
             [level]: value,
+            title: label
         }));
     };
 
@@ -159,17 +174,17 @@ const AddRowsScreen = () => {
             maxWidth: '800px',
             margin: '0 auto'
         }}>
-            <Button 
-                sx={{ 
+            <Button
+                sx={{
                     marginBottom: { xs: 2, sm: 3 },
                     padding: { xs: 1, sm: 1.5 }
-                }} 
-                startIcon={<ArrowBackIosNewIcon sx={{ color: "#0073E6" }} />} 
+                }}
+                startIcon={<ArrowBackIosNewIcon sx={{ color: "#0073E6" }} />}
                 onClick={() => navigate(-1)}
             >
                 <StyledTypography>Back</StyledTypography>
             </Button>
-            
+
             <StyledBox>
                 <StyledHeaderTypography>Add row to this timesheet</StyledHeaderTypography>
             </StyledBox>
@@ -193,16 +208,16 @@ const AddRowsScreen = () => {
                             label: `${option.title}`,
                             value: option.value,
                         }))}
-                        onChange={(event, value) => handleChange('levelOne', value?.value)}
+                        onChange={(event, value) => handleChange('levelOne', value?.value, value.label)}
                         value={selectedLevels.levelOne || null}
                     />
                 </StyledFormControl>
             )}
 
             {selectedLevels?.levelOne && (
-                <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: { xs: 'stretch', sm: 'flex-start' } 
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: { xs: 'stretch', sm: 'flex-start' }
                 }}>
                     <StyledButton onClick={handleProjectData}>
                         <SaveTypography>Save</SaveTypography>

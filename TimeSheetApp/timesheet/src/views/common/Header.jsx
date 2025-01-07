@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import MenuIcon from "@mui/icons-material/Menu";
-import CapexLogo from "../../img/CapeExLogo.png";
+import CapexLogo from "../../img/jma-logo.svg";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -233,7 +233,8 @@ export default function Header() {
             style={{
               cursor: "pointer",
               marginRight: "10px",
-              marginBottom: "15px"
+              marginBottom: "10px",
+              width:"4rem"
             }}
           />
 

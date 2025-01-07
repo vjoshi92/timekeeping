@@ -372,8 +372,9 @@ const Home = () => {
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
   const handlePreviousWeek = () => {
-    // const currentStartDate = new Date(selectedDate[0]);
-    // const currentEndDate = new Date(selectedDate[1]);
+    // const dateArray = selectedDate.split(" - ");
+    // const currentStartDate = new Date(dateArray[0]);
+    // const currentEndDate = new Date(dateArray[1]);
 
     // // Decrease 7 days
     // const newStartDate = new Date(currentStartDate.setDate(currentStartDate.getDate() - 7));
@@ -411,7 +412,16 @@ const Home = () => {
 
   const startOfCurrentWeek = dayjs().startOf('week').add(1, 'day');
   const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
-  const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YY')} - ${endOfCurrentWeek.format('DD MMM YY')}`;
+  const formattedDateRange = `${startOfCurrentWeek.format('DD-MMM-YYYY')} - ${endOfCurrentWeek.format('DD-MMM-YYYY')}`;
+
+  // useEffect(() => {
+  //   const dateArray = formattedDateRange.split(" - ");
+  //   const currentStartDate = new Date(dateArray[0]);
+  //   const currentEndDate = new Date(dateArray[1]);
+
+  //   dispatch(setDateRange([currentStartDate, currentEndDate]));
+    
+  // },[])
 
 
 
@@ -502,7 +512,7 @@ const Home = () => {
         {projectedData && Object?.keys(projectedData)?.length > 0 ? (
           <TreeGrid columns={AllRowsColumns} density={"standard"} data={projectedData} />
         ) : (
-          <MuiDataGrid columns={AllDaysColumns} rows={rows} density={"standard"} />
+          <MuiDataGrid disableColumnMenu={true} columns={AllDaysColumns} rows={rows} density={"standard"} />
         )}
       </Stack >
       <Stack direction={"column"} >

@@ -8,3 +8,8 @@ body {
 code {
   font-family: Montserrat;
 }
+
+/* to disable the outline in cell of the datagrid */
+.MuiDataGrid-root .MuiDataGrid-columnHeader:focus-within, .css-yvpc5e-MuiDataGrid-root .MuiDataGrid-cell:focus-within {
+  outline: none !important;
+}

@@ -77,6 +77,8 @@ export default function TreeGrid({ columns, density, data }) {
         sx={customStyles}
         getRowClassName={getRowClassName}
         pinnedColumns={{ left: ['__tree_data__'] }}
+        disableColumnMenu 
+        defaultGroupingExpansionDepth={-1}
       />
     </Box>
   );

@@ -27,7 +27,7 @@ const StyledDataGridPremium = styled(DataGridPremium)({
   }
 });
 
-const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, isEdit }) => {
+const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, disableColumnMenu }) => {
   LicenseInfo.setLicenseKey(
     "25f2175523aa72e9d954ec0ef5a74461Tz05NjQ3MCxFPTE3NTU3MDU1NjQwMDAsUz1wcmVtaXVtLExNPXN1YnNjcmlwdGlvbixQVj1pbml0aWFsLEtWPTI="
   );
@@ -61,6 +61,7 @@ const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, isEdit 
         getRowId={(row) => datagridName == 'DaysColumns' ? row.id : Math.random()}
         apiRef={apiRef}
         initialState={initialState}
+        disableColumnMenu={disableColumnMenu}
       />
     </StyledBox>
   );
