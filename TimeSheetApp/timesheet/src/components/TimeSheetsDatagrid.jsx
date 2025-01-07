@@ -6,11 +6,59 @@ import CloseIcon from '@mui/icons-material/Close';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import Checkbox from '@mui/material/Checkbox';
 import MuiDataGrid from './MuiDataGrid';
+import { useParams } from 'react-router-dom';
+import { Typography } from '@mui/material';
+import { StatusColorFormatter } from 'utils/AppUtil';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
-const columns = [
+const MyColumns = [
+  {
+    field: 'timesheet',
+    headerName: 'TIMESHEET',
+    minWidth: 200,
+    flex: 1,
+  },
 
+  {
+    headerName: "STATUS",
+    field: "status",
+    flex: 1,
+    minWidth: 120,
+    renderCell: (params) => (
+      <Typography variant="body1" textTransform={"uppercase"} sx={{ fontWeight: 600, color: StatusColorFormatter(params.value) }}>
+        {params.value}
+      </Typography>
+    ),
+  },
+  {
+    field: 'totalHours',
+    headerName: 'TOTAL HOURS',
+    minWidth: 200,
+    hAlign: "Right",
+    flex: 1,
+  },
+  {
+    field: 'dateSubmitted',
+    headerName: 'DATE SUBMITTED',
+    minWidth: 200,
+    flex: 1,
+  },
+
+  {
+    field: 'actions',
+    headerName: 'ACTIONS',
+    description: 'Approve or reject the entry.',
+    flex: 1,
+    renderCell: () => (
+      <Box>
+        <RemoveRedEyeIcon sx={{ color: '#0073E6', cursor: 'pointer' }} />
+      </Box>
+    ),
+  },
+];
+
+const ManagerColumns = [
   {
     field: 'employeeName',
     headerName: 'EMPLOYEE NAME',
@@ -34,14 +82,20 @@ const columns = [
     headerName: 'STATUS',
     minWidth: 200,
     flex: 1,
+    renderCell: (params) => (
+      <Typography variant="body1" textTransform={"uppercase"} sx={{ fontWeight: 600, color: StatusColorFormatter(params.value) }}>
+        {params.value}
+      </Typography>
+    ),
+
   },
+
 
   {
     field: 'totalHours',
     headerName: 'TOTAL HOURS',
     minWidth: 200,
     flex: 1,
-    valueGetter: (params) => (params.row?.totalHours ? params.row.totalHours : 'N/A'),
   },
   {
     field: 'dateSubmitted',
@@ -64,14 +118,17 @@ const columns = [
 ];
 
 const rows = [
-  { id: 1, employeeId: '100190', employeeName: 'Jon', timesheet: "23 - 29 Sep 2024", status: "PENDING", totalHours: "40", dateSubmitted: "29-sep-2024" },
-  { id: 2, employeeId: '100191', employeeName: 'Alice', timesheet: "23 - 29 Sep 2024", status: "REJECTED", totalHours: "35", dateSubmitted: "29-sep-2024" },
-  { id: 3, employeeId: '100192', employeeName: 'Mark', timesheet: "23 - 29 Sep 2024", status: "APPROVED", totalHours: "31", dateSubmitted: "29-sep-2024" },
-  { id: 4, employeeId: '100193', employeeName: 'Sara', timesheet: "23 - 29 Sep 2024", status: "PENDING", totalHours: "25", dateSubmitted: "29-sep-2024" },
-  { id: 5, employeeId: '100194', employeeName: 'Paul', timesheet: "23 - 29 Sep 2024", status: "LOCKED", totalHours: "35", dateSubmitted: "29-sep-2024" },
+  { id: 1, employeeId: '100190', employeeName: 'Jon', timesheet: "23 - 29 Sep 2024", status: "PENDING", totalHours: "40", dateSubmitted: "29-Sep-2024" },
+  { id: 2, employeeId: '100191', employeeName: 'Alice', timesheet: "23 - 29 Sep 2024", status: "REJECTED", totalHours: "40", dateSubmitted: "29-Sep-2024" },
+  { id: 3, employeeId: '100192', employeeName: 'Mark', timesheet: "23 - 29 Sep 2024", status: "APPROVED", totalHours: "40", dateSubmitted: "29-Sep-2024" },
+  { id: 4, employeeId: '100193', employeeName: 'Sara', timesheet: "23 - 29 Sep 2024", status: "PENDING", totalHours: "52", dateSubmitted: "29-Sep-2024" },
+  { id: 5, employeeId: '100194', employeeName: 'Paul', timesheet: "23 - 29 Sep 2024", status: "LOCKED", totalHours: "40", dateSubmitted: "29-Sep-2024" },
 ];
 
 export default function TimeSheetsDatagrid() {
+  const { isManager } = useParams();
+  const columns = isManager == 'true' ? ManagerColumns : MyColumns;
+
   return (
 
     <MuiDataGrid

@@ -12,7 +12,7 @@ export const StatusColorFormatter = (status) => {
                 return "#ED6A15";
             case "rejected":
                 return "#E83D64";
-            case "action required":
+            case "locked":
                 return "#009FE3";
             default:
                 return "#009FE3"; // Default color
