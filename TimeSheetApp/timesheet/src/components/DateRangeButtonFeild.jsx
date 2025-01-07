@@ -28,11 +28,11 @@ const theme = createTheme({
                 },
                 root: {
                     '& .Mui-selected': {
-                        backgroundColor: '#ED6A15', 
+                        backgroundColor: '#ED6A15',
                         '&:hover': {
                             backgroundColor: '#ED6A15'
                         }
-                        
+
                     },
                 },
             },
@@ -42,10 +42,10 @@ const theme = createTheme({
 
 const StyledButton = styled(Button)(({ theme }) => ({
     border: "1px solid #BDBDBD",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", 
-    transition: "box-shadow 0.3s ease-in-out", 
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    transition: "box-shadow 0.3s ease-in-out",
     "&:hover": {
-      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)", 
+        boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
     },
 }));
 
@@ -107,9 +107,11 @@ export default function DatePickerWithButtonField() {
         setValue(newValue);
 
         if (newValue && newValue.isValid()) {
-            const startOfWeek = dayjs(newValue).startOf('week').add(1, 'day'); 
-            const endOfWeek = dayjs(newValue).endOf('week').add(1,"day");
-            const formattedDateRange = `${startOfWeek.format('DD MMM YY')} - ${endOfWeek.format('DD MMM YY')}`;
+            const startOfWeek = dayjs(newValue).startOf('week').add(1, 'day');
+            const endOfWeek = dayjs(newValue).endOf('week').add(1, "day");
+            const formattedDateRange = `${startOfWeek.format('DD MMM YYYY')} - ${endOfWeek.format('DD MMM YYYY')}`;
+
+            console.log("formattedDateRange", formattedDateRange)
             dispatch(setDateRange(formattedDateRange));
         } else {
             console.log('Invalid date selected');
@@ -119,7 +121,7 @@ export default function DatePickerWithButtonField() {
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <ButtonDatePicker
-                label={value ? `Week: ${dayjs(value).startOf('week').add(1, 'day').format('DD MMM YY')} - ${dayjs(value).endOf('week').format('DD MMM YY')}` : null}
+                label={value ? `Week: ${dayjs(value).startOf('week').add(1, 'day').format('DD MMM YYYY')} - ${dayjs(value).endOf('week').format('DD MMM YYYY')}` : null}
                 value={value}
                 onChange={handleDateChange}
             />

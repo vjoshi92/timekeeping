@@ -22,7 +22,7 @@ const WeekTogglePicker = () => {
       endDate = currentDate.subtract(1, 'week').endOf('week').add(1, 'day');
     }
 
-    const formattedDateRange = `${startDate.format('DD MMM YY')} - ${endDate.format('DD MMM YY')}`;
+    const formattedDateRange = `${startDate.format('DD MMM YYYY')} - ${endDate.format('DD MMM YYYY')}`;
     dispatch(setDateRange(formattedDateRange));
   };
 

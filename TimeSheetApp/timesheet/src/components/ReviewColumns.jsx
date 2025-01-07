@@ -17,6 +17,10 @@ const StyledStack = styled(Box)(({ theme }) => ({
     width: "100%",
 }));
 
+const StyledTypography = styled(Typography)({
+    fontWeight:"700" , 
+    marginTop:"10px"
+ });
 const DayBox = styled(Box)(({ theme }) => ({
   fontWeight: '700', 
   textAlign: 'center'
@@ -63,7 +67,7 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
             startDate = dayjs().startOf('week').add(1, 'day');
         } else if (selectedDate) {
             const [startDateStr] = selectedDate?.split(' - ');
-            startDate = dayjs(startDateStr, 'DD MMM YY');
+            startDate = dayjs(startDateStr, 'DD MMM YYYY');
         } else {
             startDate = dayjs().startOf('week').add(1, 'day');
         }
@@ -203,6 +207,25 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
                     </Box>
                 );
             },
+        },
+        {
+            field: "data",
+            headerName: "",
+            flex: 1,
+            fontWeight: "700",
+            minWidth: 170,
+            renderCell: (params) => (
+                // <MuiInput
+                //     disabled={true}
+                //     onChange={(value) => {
+                //         handleInputChange('Zkstar', value, params?.row?.id);
+                //     }}
+                //     value="Total"
+                //     style={{ fontWeight: 'bold' }}
+                    
+                // />
+                <StyledTypography>Total</StyledTypography>
+            ),
         },
 
     ];

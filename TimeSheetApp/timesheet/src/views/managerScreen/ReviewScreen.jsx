@@ -23,6 +23,7 @@ import { useLocation } from 'react-router-dom';
 import { ReviewColumns } from "components/ReviewColumns";
 import { ArrowBackIosNew } from "@mui/icons-material";
 import { setDateRange } from "store/slice/HomeSlice";
+import { setProjectData } from "store/slice/TimesheetSlice";
 const style = {
     position: 'absolute',
     top: '50%',
@@ -325,18 +326,18 @@ const ReviewScreen = () => {
 
         if (newAlignment === "left") {
             // Handle previous week
-            const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YY');
+            const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YYYY');
             const newStartDate = startDate.subtract(7, 'day');
             const newEndDate = newStartDate.add(6, 'day');
-            const newDateRange = `${newStartDate.format('DD MMM YY')} - ${newEndDate.format('DD MMM YY')}`;
+            const newDateRange = `${newStartDate.format('DD MMM YYYY')} - ${newEndDate.format('DD MMM YYYY')}`;
             setCurrentDateRange(newDateRange);
             dispatch(setDateRange(newDateRange));
         } else if (newAlignment === "justify") {
             // Handle next week
-            const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YY');
+            const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YYYY');
             const newStartDate = startDate.add(7, 'day');
             const newEndDate = newStartDate.add(6, 'day');
-            const newDateRange = `${newStartDate.format('DD MMM YY')} - ${newEndDate.format('DD MMM YY')}`;
+            const newDateRange = `${newStartDate.format('DD MMM YYYY')} - ${newEndDate.format('DD MMM YYYY')}`;
             setCurrentDateRange(newDateRange);
             dispatch(setDateRange(newDateRange)); // Assuming you have a Redux action to update the date range
         }
@@ -432,7 +433,7 @@ const ReviewScreen = () => {
         let tempRows = [...rows];
         tempRows.splice(rowId, 1);
         // setRows(tempRows)
-        // dispatch(setEstimates(tempRows));
+        dispatch(setProjectData(tempRows));
         // updateCount(tempRows);
     };
 
@@ -455,7 +456,7 @@ const ReviewScreen = () => {
 
     const startOfCurrentWeek = dayjs().startOf('week').add(1, 'day');
     const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
-    const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YY')} - ${endOfCurrentWeek.format('DD MMM YY')}`;
+    const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YYYY')} - ${endOfCurrentWeek.format('DD MMM YYYY')}`;
 
     return (
         <StyledStack

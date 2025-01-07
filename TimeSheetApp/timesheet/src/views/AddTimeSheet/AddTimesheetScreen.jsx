@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, ListItem, ListItemText, styled, Typography } from '@mui/material';
+import { Alert, Box, Button, FormControl, ListItem, ListItemText, Snackbar, styled, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import Dropdown from '../../components/Dropdown';
@@ -90,6 +90,8 @@ const AddRowsScreen = () => {
     });
     const navigate = useNavigate();
     const [projectDataArray, setProjectDataArray] = useState([]);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [addProjectOpen, setAddProjectOpen] = useState(false);
 
     const handleProjectData = () => {
         const levels = ['levelOne'];
@@ -97,6 +99,7 @@ const AddRowsScreen = () => {
         for (const level of levels) {
             if (selectedLevels[level]) {
                 lastSelectedLevel = selectedLevels[level];
+
                 break;
             }
         }
@@ -114,6 +117,7 @@ const AddRowsScreen = () => {
             hierarchy: [selectedLevels.project, lastSelectedLevel],
         };
 
+
         const isDuplicate = projectedData.some(
             (item) =>
                 item.project === data.project &&
@@ -124,9 +128,10 @@ const AddRowsScreen = () => {
             let tData = [...projectedData];
             tData.push(data);
             dispatch(setProjectData(tData));
+            setAddProjectOpen(true)
             navigate(-1);
         } else {
-            console.log("Duplicate entry: Project and level already exist.");
+            setSnackbarOpen(true);
         }
     };
 
@@ -141,6 +146,21 @@ const AddRowsScreen = () => {
         { id: 2, title: "NOF-1.4.8.1.1", value: "Detailed Mechanical Design" },
         { id: 3, title: "NOF-1.5.1.1.1", value: "Mechanical Kit Design" },
     ];
+
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
+
+    const handleProjectClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setAddProjectOpen(false);
+    };
+
 
     const handleChange = (level, value) => {
         setSelectedLevels((prevLevels) => ({
@@ -159,17 +179,17 @@ const AddRowsScreen = () => {
             maxWidth: '800px',
             margin: '0 auto'
         }}>
-            <Button 
-                sx={{ 
+            <Button
+                sx={{
                     marginBottom: { xs: 2, sm: 3 },
                     padding: { xs: 1, sm: 1.5 }
-                }} 
-                startIcon={<ArrowBackIosNewIcon sx={{ color: "#0073E6" }} />} 
+                }}
+                startIcon={<ArrowBackIosNewIcon sx={{ color: "#0073E6" }} />}
                 onClick={() => navigate(-1)}
             >
                 <StyledTypography>Back</StyledTypography>
             </Button>
-            
+
             <StyledBox>
                 <StyledHeaderTypography>Add row to this timesheet</StyledHeaderTypography>
             </StyledBox>
@@ -200,15 +220,43 @@ const AddRowsScreen = () => {
             )}
 
             {selectedLevels?.levelOne && (
-                <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: { xs: 'stretch', sm: 'flex-start' } 
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: { xs: 'stretch', sm: 'flex-start' }
                 }}>
                     <StyledButton onClick={handleProjectData}>
                         <SaveTypography>Save</SaveTypography>
                     </StyledButton>
                 </Box>
             )}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleSnackbarClose}
+                    severity="warning"
+                    sx={{ width: '100%' }}
+                >
+                    Project already added with the selected task
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={addProjectOpen}
+                autoHideDuration={3000}
+                onClose={handleProjectClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleProjectClose}
+                    severity="success"
+                    sx={{ width: '100%' }}
+                >
+                    Added Project Sucessfully
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
