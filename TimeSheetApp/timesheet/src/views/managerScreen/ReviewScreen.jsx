@@ -11,7 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import MuiDataGrid from "../../components/MuiDataGrid";
 import { getCurrentWeekDays, PRColumns } from "../../constant/Columns";
 import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeild";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
@@ -138,7 +138,8 @@ const ButtonStack = styled(Box)(({ theme }) => ({
     alignItems: "flex-start",
     gap: { xs: "10px", sm: "20px" },
     width: "100%",
-    marginTop: "1%"
+    marginTop: "1%",
+
 }));
 
 const SaveNoteTypography = styled(Typography)(({ theme }) => ({
@@ -316,40 +317,90 @@ const ReviewScreen = () => {
     const projectedData = useSelector((state) => state?.CreateForm?.projectData);
     const [currentDateRange, setCurrentDateRange] = useState(selectedDate || formattedDateRange);
     const dispatch = useDispatch()
+    const { isReviewer } = useParams();
+
+    console.log("isReviewer", isReviewer)
 
 
-    const handleAlignment = (event, newAlignment) => {
+    // const handleAlignment = (event, newAlignment) => {
 
-        console.log("newAlignment", newAlignment)
-        if (!newAlignment) return; // Prevent deselection
-        setAlignment(newAlignment);
+    //     console.log("newAlignment", newAlignment)
+    //     if (!newAlignment) return; // Prevent deselection
+    //     setAlignment(newAlignment);
 
-        if (newAlignment === "left") {
-            // Handle previous week
-            const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YYYY');
-            const newStartDate = startDate.subtract(7, 'day');
-            const newEndDate = newStartDate.add(6, 'day');
-            const newDateRange = `${newStartDate.format('DD MMM YYYY')} - ${newEndDate.format('DD MMM YYYY')}`;
-            setCurrentDateRange(newDateRange);
-            dispatch(setDateRange(newDateRange));
-        } else if (newAlignment === "justify") {
-            // Handle next week
-            const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YYYY');
-            const newStartDate = startDate.add(7, 'day');
-            const newEndDate = newStartDate.add(6, 'day');
-            const newDateRange = `${newStartDate.format('DD MMM YYYY')} - ${newEndDate.format('DD MMM YYYY')}`;
-            setCurrentDateRange(newDateRange);
-            dispatch(setDateRange(newDateRange)); // Assuming you have a Redux action to update the date range
-        }
-    };
+    //     if (newAlignment === "left") {
+    //         // Handle previous week
+    //         const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YYYY');
+    //         const newStartDate = startDate.subtract(7, 'day');
+    //         const newEndDate = newStartDate.add(6, 'day');
+    //         const newDateRange = `${newStartDate.format('DD MMM YYYY')} - ${newEndDate.format('DD MMM YYYY')}`;
+    //         setCurrentDateRange(newDateRange);
+    //         dispatch(setDateRange(newDateRange));
+    //     } else if (newAlignment === "justify") {
+    //         // Handle next week
+    //         const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YYYY');
+    //         const newStartDate = startDate.add(7, 'day');
+    //         const newEndDate = newStartDate.add(6, 'day');
+    //         const newDateRange = `${newStartDate.format('DD MMM YYYY')} - ${newEndDate.format('DD MMM YYYY')}`;
+    //         setCurrentDateRange(newDateRange);
+    //         dispatch(setDateRange(newDateRange)); // Assuming you have a Redux action to update the date range
+    //     }
+    // };
 
     if (!data) {
         return <div>No data available</div>;
     }
 
-    // const handleAlignment = (event, newAlignment) => {
-    //     setAlignment(newAlignment);
-    // };
+    const handleAlignment = (event, newAlignment) => {
+        setAlignment(newAlignment);
+    };
+
+
+    const handlePreviousWeek = () => {
+        let currentStartDate;
+
+        if (!selectedDate || selectedDate.length === 0) {
+            currentStartDate = dayjs().startOf('week').add(1, 'day');
+        } else {
+            try {
+                if (typeof selectedDate === 'string') {
+                    const startDateStr = selectedDate.split(' - ')[0];
+                    currentStartDate = dayjs(startDateStr, 'DD MMM YYYY');
+                } else {
+                    currentStartDate = dayjs().startOf('week').add(1, 'day');
+                }
+            } catch (error) {
+                currentStartDate = dayjs().startOf('week').add(1, 'day');
+            }
+        }
+        const startOfPreviousWeek = currentStartDate.subtract(7, 'day');
+        const endOfPreviousWeek = startOfPreviousWeek.add(6, 'day');
+        const newDateRange = `${startOfPreviousWeek.format('DD MMM YYYY')} - ${endOfPreviousWeek.format('DD MMM YYYY')}`;
+        dispatch(setDateRange(newDateRange));
+    };
+
+    const handleNextWeek = () => {
+        let currentStartDate;
+        if (!selectedDate || selectedDate.length === 0) {
+            currentStartDate = dayjs().startOf('week').add(1, 'day');
+        } else {
+            try {
+                if (typeof selectedDate === 'string') {
+                    const startDateStr = selectedDate.split(' - ')[0];
+                    currentStartDate = dayjs(startDateStr, 'DD MMM YYYY');
+                } else {
+                    currentStartDate = dayjs().startOf('week').add(1, 'day');
+                }
+            } catch (error) {
+                currentStartDate = dayjs().startOf('week').add(1, 'day');
+            }
+        }
+        const startOfNextWeek = currentStartDate.add(7, 'day');
+        const endOfNextWeek = startOfNextWeek.add(6, 'day');
+        const newDateRange = `${startOfNextWeek.format('DD MMM YYYY')} - ${endOfNextWeek.format('DD MMM YYYY')}`;
+        dispatch(setDateRange(newDateRange));
+    };
+
 
     const handleSubmit = () => {
         navigate("/addRows")
@@ -534,10 +585,10 @@ const ReviewScreen = () => {
                             onChange={handleAlignment}
                             aria-label="text alignment"
                         >
-                            <ToggleButton value="left" aria-label="left aligned">
+                            <ToggleButton value="left" aria-label="left aligned" onClick={() => handlePreviousWeek()}>
                                 <ArrowBackIcon />
                             </ToggleButton>
-                            <ToggleButton value="justify" aria-label="justified">
+                            <ToggleButton value="justify" aria-label="justified" onClick={() => handleNextWeek()}>
                                 <ArrowForwardIcon />
                             </ToggleButton>
                         </ToggleButtonGroup>
@@ -584,44 +635,51 @@ const ReviewScreen = () => {
                         }} />
                 )}
             </Stack>
-            <SaveButton
-                variant="outlined"
-                color="error"
-            >
-                Save
-            </SaveButton>
-            <ButtonStack sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                justifyContent: "flex-start",
-                alignItems: { xs: "stretch", sm: "flex-start" },
-                gap: { xs: "10px", sm: "20px" },
-                width: "100%",
-                marginTop: "1%"
-            }} >
-                <ReworkButton
-                    variant="contained"
+            {
+                isReviewer == "true" ? <SaveButton
+                    variant="outlined"
                     color="error"
                 >
-                    Request Rework
-                </ReworkButton>
-                <RejectButton
-                    variant="contained"
-                    color="error"
-                    sx={{ width: { xs: "100%", sm: "200px" } }}
-                    onClick={() => handleRejection()}
-                >
-                    Reject
-                </RejectButton>
-                <ApproveButton
-                    variant="contained"
-                    color="success"
-                    sx={{ width: { xs: "100%", sm: "200px" } }}
-                    onClick={() => handleApproval()}
-                >
-                    Approve
-                </ApproveButton>
-            </ButtonStack>
+                    Save
+                </SaveButton> : null
+            }
+
+            {
+                isReviewer == "true" ? <ButtonStack sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    justifyContent: "flex-start",
+                    alignItems: { xs: "stretch", sm: "flex-start" },
+                    gap: { xs: "10px", sm: "20px" },
+                    width: "100%",
+                    marginTop: "1%",
+                    marginBottom: "5%"
+                }} >
+                    <ReworkButton
+                        variant="contained"
+                        color="error"
+                    >
+                        Request Rework
+                    </ReworkButton>
+                    <RejectButton
+                        variant="contained"
+                        color="error"
+                        sx={{ width: { xs: "100%", sm: "200px" } }}
+                        onClick={() => handleRejection()}
+                    >
+                        Reject
+                    </RejectButton>
+                    <ApproveButton
+                        variant="contained"
+                        color="success"
+                        sx={{ width: { xs: "100%", sm: "200px" } }}
+                        onClick={() => handleApproval()}
+                    >
+                        Approve
+                    </ApproveButton>
+                </ButtonStack> : null
+            }
+
             <Modal
                 keepMounted
                 open={openRejection}
