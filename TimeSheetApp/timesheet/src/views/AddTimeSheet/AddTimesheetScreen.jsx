@@ -87,6 +87,7 @@ const AddRowsScreen = () => {
     const [selectedLevels, setSelectedLevels] = useState({
         project: null,
         levelOne: null,
+        levelOneTitle: null
     });
     const navigate = useNavigate();
     const [projectDataArray, setProjectDataArray] = useState([]);
@@ -96,10 +97,11 @@ const AddRowsScreen = () => {
     const handleProjectData = () => {
         const levels = ['levelOne'];
         let lastSelectedLevel = null;
+        let lastSelectedTitle = null;
         for (const level of levels) {
             if (selectedLevels[level]) {
                 lastSelectedLevel = selectedLevels[level];
-
+                lastSelectedTitle = selectedLevels.levelOneTitle;
                 break;
             }
         }
@@ -113,12 +115,12 @@ const AddRowsScreen = () => {
             day6: "",
             project: selectedLevels.project || "",
             level: lastSelectedLevel,
-            title: selectedLevels.title,
+            title: lastSelectedTitle,
             id: Math.random(),
-            hierarchy: [selectedLevels.project, lastSelectedLevel],
+            hierarchy: [selectedLevels.project, `${lastSelectedTitle}\n${lastSelectedLevel}`],
         };
 
-
+        // console.log("data", data)
         const isDuplicate = projectedData.some(
             (item) =>
                 item.project === data.project &&
@@ -176,10 +178,13 @@ const AddRowsScreen = () => {
     };
 
 
-    const handleChange = (level, value) => {
+    const handleChange = (level, value, title) => {
+        // console.log("level>>>>>>", level)
+        console.log("Value>>>>>>", value)
         setSelectedLevels((prevLevels) => ({
             ...prevLevels,
-            [level]: value
+            [level]: value,
+            [`${level}Title`]: title
         }));
     };
 

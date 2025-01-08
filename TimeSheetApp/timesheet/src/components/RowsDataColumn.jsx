@@ -178,8 +178,6 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                     const inputId = `${params.row.id}-day${i}`;
                     const isActive = activeInputId === inputId && !modalOpen;
 
-                    console.log("isActive", isActive)
-
                     return (
                         <InputStyleBox
                             sx={{
