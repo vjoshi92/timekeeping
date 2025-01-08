@@ -69,7 +69,7 @@ const HeaderBox = styled(Box)({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  marginRight:"2%"
+  marginRight: "2%"
 });
 
 const HeadingTypography = styled(Typography)({
@@ -172,7 +172,7 @@ export default function ManagerHeader() {
     setAnchorTeam(null);
   };
 
-  const settings = [userData?.Fullname, "Logout"];
+  const settings = ["Welcome Vijay Joshi", "Logout"];
   // const handleCreateNew = () => {
   //   dispatch(resetForm());
   //   navigate("/CapEx_Request");
@@ -246,7 +246,7 @@ export default function ManagerHeader() {
             style={{
               cursor: "pointer",
               marginRight: "10px",
-                 marginBottom:"15px"
+              marginBottom: "15px"
             }}
           />
 
@@ -266,15 +266,15 @@ export default function ManagerHeader() {
             component="div"
             sx={{
               display: { sm: "block" },
-              marginLeft: "10px", 
+              marginLeft: "10px",
             }}
           >
             CATS 2.0
           </HeadingTypography>
           <HeaderBox>
-  <HeaderDropdowns name="My TimeSheet" backgroundColor="white" color="white" sx={{ marginRight: "10px"  }} />
-  <HeaderDropdowns name="My Team" backgroundColor="white" sx={{ marginRight: "10px" }} />
-</HeaderBox>
+            <HeaderDropdowns name="My TimeSheet" backgroundColor="white" color="white" sx={{ marginRight: "10px" }} />
+            <HeaderDropdowns name="My Team" backgroundColor="white" sx={{ marginRight: "10px" }} />
+          </HeaderBox>
 
           <Tooltip title="Open settings">
             <StyledIconButton

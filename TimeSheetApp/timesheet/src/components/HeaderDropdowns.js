@@ -33,7 +33,7 @@ export default function HeaderDropdowns({name}) {
         {name}
         <ArrowDropDownIcon />
       </StyledButton>
-      <Menu
+      {/* <Menu
         id="basic-menu"
         anchorEl={anchorEl}
         open={open}
@@ -42,10 +42,8 @@ export default function HeaderDropdowns({name}) {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleClose}>23-29 sept 2024</MenuItem>
-        <MenuItem onClick={handleClose}>26-30 sept 2024</MenuItem>
-        <MenuItem onClick={handleClose}>21-23 sept 2024</MenuItem>
-      </Menu>
+        
+      </Menu> */}
     </div>
   );
 }

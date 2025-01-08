@@ -22,6 +22,8 @@ import MuiInput from "components/MuiInput";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import IconButton from '@mui/material/IconButton';
 import { setDateRange } from "store/slice/HomeSlice";
+import { Footer } from "components/Footer";
+
 
 
 const style = {
@@ -185,39 +187,32 @@ const CancelNoteButton = styled(Button)(({ theme }) => ({
 }));
 
 const FooterButton = styled(Button)(({ theme }) => ({
-  width: "95%",
-  position: "absolute",
-  bottom: "2%",
-  [theme.breakpoints.up("sm")]: {
-    width: "95%",
-  },
-  [theme.breakpoints.up("md")]: {
-    width: "97%",
-  },
-  [theme.breakpoints.up("lg")]: {
-    width: "97%",
-  }
-}));
-const SaveTimeButton = styled(Button)(({ theme }) => ({
-  width: "40%",
-  border: "1px solid #ED6A15",
-  marginTop: "2%",
-  [theme.breakpoints.up("xs")]: {
-    width: "50%",
-  },
+  width: "100%",
+
   [theme.breakpoints.up("sm")]: {
     width: "35%",
   },
   [theme.breakpoints.up("md")]: {
-    width: "28%",
+    width: "27%",
   },
   [theme.breakpoints.up("lg")]: {
-    width: "20%",
+    width: "27%",
   },
   [theme.breakpoints.up("xl")]: {
-    width: "15%",
+    width: "27%",
   },
 }));
+
+
+const SaveTimeButton = styled(Button)(({ theme }) => ({
+  border: "1px solid #ED6A15",
+  padding: "10px 20px", // Adjust padding
+  fontSize: "12px", // Default for small screens
+  [theme.breakpoints.up("sm")]: {
+    fontSize: "14px", // Adjust for larger screens
+  },
+}));
+
 
 const StyledFooterText = styled(Typography)(({ theme }) => ({
   color: "#FFFF",
@@ -225,10 +220,24 @@ const StyledFooterText = styled(Typography)(({ theme }) => ({
   fontSize: "15px"
 }));
 
+const StyledSaveStack = styled(Stack)(({ theme }) => ({
+  flexDirection: "column", // Default for small screens
+  alignItems: "flex-start", // Adjust alignment for small screens
+  gap: "10px", // Add spacing between children
+  [theme.breakpoints.up("sm")]: {
+    flexDirection: "row", // Horizontal layout for larger screens
+    alignItems: "center",
+    gap: "20px",
+  },
+}));
+
 const StyledSavedTimeText = styled(Typography)(({ theme }) => ({
   color: "#ED6A15",
   fontWeight: "700",
-  fontSize: "15px"
+  fontSize: "14px", // Smaller text for small screens
+  [theme.breakpoints.up("sm")]: {
+    fontSize: "15px", // Larger text for medium and up
+  },
 }));
 
 const ModalTypography = styled(Typography)(({ theme }) => ({
@@ -290,6 +299,115 @@ const StyledCircularBox = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
 }));
+
+const FooterBox = styled(Box)(({ theme }) => ({
+  width: "100%",
+  padding: theme.spacing(2),
+  display: "flex",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  backgroundColor: "#ffffff",
+  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+  boxSizing: "border-box",
+
+  // Container layout
+  flexDirection: "column",
+  [theme.breakpoints.up("md")]: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  // Spacing and margins
+  gap: theme.spacing(2),
+  marginTop: "auto",
+
+  // Height adjustments
+  minHeight: {
+    xs: "auto",
+    sm: "80px",
+    md: "70px"
+  },
+
+  // Inner content layout
+  "& .footer-content": {
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing(2),
+
+    [theme.breakpoints.up("md")]: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    }
+  },
+
+  // Save time section
+  "& .save-time-section": {
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing(1),
+
+    [theme.breakpoints.up("sm")]: {
+      flexDirection: "row",
+      alignItems: "center",
+    }
+  },
+
+  // Button sizes
+  "& .save-time-button": {
+    width: {
+      xs: "100%",
+      sm: "auto"
+    },
+    minWidth: {
+      sm: "150px"
+    }
+  },
+
+  "& .submit-button": {
+    width: {
+      xs: "100%",
+      md: "auto"
+    },
+    minWidth: {
+      md: "200px"
+    }
+  },
+
+  // Last saved text
+  "& .last-saved": {
+    fontSize: {
+      xs: "12px",
+      sm: "14px"
+    },
+    textAlign: {
+      xs: "center",
+      sm: "left"
+    },
+    marginTop: {
+      xs: theme.spacing(1),
+      sm: 0
+    },
+    whiteSpace: "nowrap"
+  },
+
+  // Padding adjustments
+  paddingLeft: {
+    xs: theme.spacing(2),
+    sm: theme.spacing(3),
+    md: theme.spacing(4)
+  },
+  paddingRight: {
+    xs: theme.spacing(2),
+    sm: theme.spacing(3),
+    md: theme.spacing(4)
+  }
+}));
+
+
 
 const StyledApprovalBox = styled(Box)(({ theme }) => ({
   position: "relative",
@@ -370,12 +488,6 @@ const Home = () => {
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
 
-  //  const handleCurrentWeekClick = () => {
-  //     const startOfCurrentWeek = dayjs().startOf('week').add(1, 'day');
-  //     const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
-  //     const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YY')} - ${endOfCurrentWeek.format('DD MMM YY')}`;
-  //     dispatch(setDateRange(formattedDateRange));
-  //   };
   const handlePreviousWeek = () => {
     let currentStartDate;
 
@@ -420,11 +532,13 @@ const Home = () => {
     const newDateRange = `${startOfNextWeek.format('DD MMM YYYY')} - ${endOfNextWeek.format('DD MMM YYYY')}`;
     dispatch(setDateRange(newDateRange));
   };
+
   const handleSaveTime = () => {
     setSaveTimeClick(true)
     const currentTime = new Date();
     setLastSavedTime(currentTime);
   }
+
   const handleYes = () => {
     setOpen(false);
     setSaveTimeClick(false)
@@ -439,9 +553,6 @@ const Home = () => {
   const startOfCurrentWeek = dayjs().startOf('week').add(1, 'day');
   const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
   const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YYYY')} - ${endOfCurrentWeek.format('DD MMM YYYY')}`;
-
-
-
   const rows = [
     { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
   ];
@@ -529,45 +640,49 @@ const Home = () => {
         {projectedData && Object?.keys(projectedData)?.length > 0 ? (
           <TreeGrid columns={AllRowsColumns} density={"standard"} data={projectedData} />
         ) : (
-          <MuiDataGrid columns={AllDaysColumns} rows={rows} density={"standard"} />
+          <MuiDataGrid disableColumnMenu={true} columns={AllDaysColumns} rows={rows} density={"standard"} />
         )}
       </Stack >
-      <Stack direction={"column"} >
-        {projectedData && Object?.keys(projectedData)?.length > 0 ? (
-          <Stack direction="row" alignItems="center" spacing={2} mt={2}>
+      <FooterBox>
+        <div className="footer-content">
+          {/* Left side - Save Time section */}
+          {projectedData && Object?.keys(projectedData)?.length > 0 && (
+            <div className="save-time-section">
+              <SaveTimeButton
+                className="save-time-button"
+                onClick={handleSaveTime}
+              >
+                <StyledSavedTimeText>
+                  Save My Time
+                </StyledSavedTimeText>
+              </SaveTimeButton>
+              {lastSavedTime && (
+                <Typography className="last-saved">
+                  Last saved {formatDateTime(lastSavedTime)}
+                </Typography>
+              )}
+            </div>
+          )}
 
-            <SaveTimeButton
-              size="large"
-              onClick={handleSaveTime}
-              className="flex-shrink-0"
-            >
-              <StyledSavedTimeText>
-                Save My Time
-              </StyledSavedTimeText>
-            </SaveTimeButton>
-            {lastSavedTime && (
-              <span className="text-gray-600 text-sm" >
-                Last saved {formatDateTime(lastSavedTime)}
-              </span>
+          {/* Right side - Submit button */}
+          <FooterButton
+            className="submit-button"
+            onClick={handleApproval}
+            sx={{
+              backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+            }}
+            disabled={!(
+              projectedData &&
+              Object?.keys(projectedData)?.length > 0 &&
+              saveTimeClick
             )}
-          </Stack>
-        ) : null}
-
-
-        <FooterButton
-          size="large"
-          fullWidth
-          onClick={() => handleApproval()}
-          sx={{
-            backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-          }}
-          disabled={!(projectedData && Object?.keys(projectedData)?.length > 0 && saveTimeClick)}
-        >
-          <StyledFooterText>
-            Submit Week for Approval
-          </StyledFooterText>
-        </FooterButton>
-      </Stack>
+          >
+            <StyledFooterText>
+              Submit Week for Approval
+            </StyledFooterText>
+          </FooterButton>
+        </div>
+      </FooterBox>
       <Modal
         keepMounted
         open={open}

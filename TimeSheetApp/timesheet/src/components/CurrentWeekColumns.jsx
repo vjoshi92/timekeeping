@@ -10,10 +10,18 @@ const StyledTypography = styled(Typography)({
    marginTop:"10px"
 });
 
-const StyledBox = styled(Box)({
-    width:"50px",
-    textAlign: 'center',    
-});
+// const StyledBox = styled(Box)({
+//     width:"50px",
+//     textAlign: 'center',    
+// });
+
+const StyledBox = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '100%',
+    width: "100%",
+}));
 
 const StyledIconButton = styled(IconButton)({
     marginBottom: "10px" 
@@ -25,7 +33,12 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
         
         if (Array?.isArray(selectedDate) && selectedDate?.length === 0) {
             startDate = dayjs().startOf('week').add(1, 'day');
-        } else if (selectedDate) {
+        }
+        else if (Array.isArray(selectedDate) && selectedDate.length > 0) {
+            const [startDateStr] = selectedDate;
+            startDate = dayjs(startDateStr, 'DD-MMM-YYYY');
+        }
+        else if (selectedDate) {
             const [startDateStr] = selectedDate?.split(' - ');
             startDate = dayjs(startDateStr, 'DD MMM YYYY');
         } else {
@@ -93,30 +106,30 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
             ),
         },
         ...weekDayColumns,
-        {
-            field: "Actions",
-            headerName: "ACTIONS",
-            flex: 0.5,
-            minWidth: 110,
-            renderCell: (params) => (
-                <>
-                    <StyledIconButton
-                        size="small"
-                        color="#ED6A15"
-                        onClick={() => handleDelete(params?.row?.id)}
-                    >
-                        <TextSnippetIcon />
-                    </StyledIconButton>
-                    <StyledIconButton
-                        size="small"                     
-                        color="secondary"
-                        onClick={() => handleDelete(params?.row?.id)}
-                    >
-                        <DeleteIcon />
-                    </StyledIconButton>
-                </>
-            ),
-        },
+        // {
+        //     field: "Actions",
+        //     headerName: "ACTIONS",
+        //     flex: 0.5,
+        //     minWidth: 110,
+        //     renderCell: (params) => (
+        //         <>
+        //             <StyledIconButton
+        //                 size="small"
+        //                 color="#ED6A15"
+        //                 onClick={() => handleDelete(params?.row?.id)}
+        //             >
+        //                 <TextSnippetIcon />
+        //             </StyledIconButton>
+        //             <StyledIconButton
+        //                 size="small"                     
+        //                 color="secondary"
+        //                 onClick={() => handleDelete(params?.row?.id)}
+        //             >
+        //                 <DeleteIcon />
+        //             </StyledIconButton>
+        //         </>
+        //     ),
+        // },
     ];
 
     return columns;

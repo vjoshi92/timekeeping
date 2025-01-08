@@ -87,6 +87,7 @@ const AddRowsScreen = () => {
     const [selectedLevels, setSelectedLevels] = useState({
         project: null,
         levelOne: null,
+        levelOneTitle: null
     });
     const navigate = useNavigate();
     const [projectDataArray, setProjectDataArray] = useState([]);
@@ -96,10 +97,11 @@ const AddRowsScreen = () => {
     const handleProjectData = () => {
         const levels = ['levelOne'];
         let lastSelectedLevel = null;
+        let lastSelectedTitle = null;
         for (const level of levels) {
             if (selectedLevels[level]) {
                 lastSelectedLevel = selectedLevels[level];
-
+                lastSelectedTitle = selectedLevels.levelOneTitle;
                 break;
             }
         }
@@ -113,11 +115,12 @@ const AddRowsScreen = () => {
             day6: "",
             project: selectedLevels.project || "",
             level: lastSelectedLevel,
-            id: projectedData?.length,
-            hierarchy: [selectedLevels.project, lastSelectedLevel],
+            title: lastSelectedTitle,
+            id: Math.random(),
+            hierarchy: [selectedLevels.project, `${lastSelectedTitle}\n${lastSelectedLevel}`],
         };
 
-
+        // console.log("data", data)
         const isDuplicate = projectedData.some(
             (item) =>
                 item.project === data.project &&
@@ -126,7 +129,20 @@ const AddRowsScreen = () => {
 
         if (!isDuplicate) {
             let tData = [...projectedData];
-            tData.push(data);
+            if (tData && tData.length === 0) {
+
+                tData.push(data);
+                tData.push({
+                    day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0,
+                    project: "",
+                    level: 0,
+                    title: '',
+                    id: Math.random(),
+                    hierarchy: []
+                })
+            } else {
+                tData.unshift(data);
+            }
             dispatch(setProjectData(tData));
             setAddProjectOpen(true)
             navigate(-1);
@@ -162,10 +178,13 @@ const AddRowsScreen = () => {
     };
 
 
-    const handleChange = (level, value) => {
+    const handleChange = (level, value, title) => {
+        // console.log("level>>>>>>", level)
+        console.log("Value>>>>>>", value)
         setSelectedLevels((prevLevels) => ({
             ...prevLevels,
             [level]: value,
+            [`${level}Title`]: title
         }));
     };
 
@@ -213,7 +232,7 @@ const AddRowsScreen = () => {
                             label: `${option.title}`,
                             value: option.value,
                         }))}
-                        onChange={(event, value) => handleChange('levelOne', value?.value)}
+                        onChange={(event, value) => handleChange('levelOne', value?.value, value.label)}
                         value={selectedLevels.levelOne || null}
                     />
                 </StyledFormControl>

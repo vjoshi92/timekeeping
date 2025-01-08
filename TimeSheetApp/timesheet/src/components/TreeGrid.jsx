@@ -7,10 +7,9 @@ import { useGridApiRef } from '@mui/x-data-grid-premium';
 
 const getTreeDataPath = (row) => {
   if (row.isTotal) return ['Total'];
-  
-  // Otherwise, use the existing hierarchy
   return row?.hierarchy;
 };
+
 
 const groupingColDef = {
   headerName: '',
@@ -62,6 +61,8 @@ LicenseInfo.setLicenseKey(
 export default function TreeGrid({ columns, density, data }) {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
 
+  console.log("data>>>>>>>>>>>" , data)
+
   return (
     <Box style={{ height: "auto", width: '100%' }}>
       <DataGridPro
@@ -77,6 +78,8 @@ export default function TreeGrid({ columns, density, data }) {
         sx={customStyles}
         getRowClassName={getRowClassName}
         pinnedColumns={{ left: ['__tree_data__'] }}
+        disableColumnMenu 
+        defaultGroupingExpansionDepth={-1}
       />
     </Box>
   );

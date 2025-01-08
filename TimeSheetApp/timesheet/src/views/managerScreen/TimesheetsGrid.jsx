@@ -8,21 +8,21 @@ import styled from '@emotion/styled';
 
 
 const MainBox = styled(Box)(({ theme }) => ({
-display: "flex", flexDirection: "row", justifyContent: "space-between"
+    display: "flex", flexDirection: "row", justifyContent: "space-between"
 }));
 
 
 const SubBox = styled(Box)(({ theme }) => ({
-arginTop: "20px"
+    marginTop: "20px"
 }));
 
 const OuterBox = styled(Box)(({ theme }) => ({
- padding: "40px"
+    padding: "40px"
 }));
 
 const TimesheetsGrid = () => {
-    const { isManager } = useParams(); 
-  
+    const { isManager } = useParams();
+
     return (
         <OuterBox >
             <MainBox>
@@ -30,7 +30,7 @@ const TimesheetsGrid = () => {
                     {isManager === "true" ? "My Team's Timesheets" : "My Timesheets"}
                 </Typography>
 
-                {isManager === "true" ? <EmployeeSearch /> : null}        
+                {isManager === "true" ? <EmployeeSearch /> : null}
             </MainBox>
             <SubBox >
                 <TimeSheetsDatagrid />
