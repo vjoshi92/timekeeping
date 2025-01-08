@@ -54,7 +54,7 @@ export default function ApprovalsDatagrid() {
   const navigate = useNavigate();
   const handleEyeClick = (params) => {
     const allData = params.row;
-    navigate('/Review', { state: { data: allData } });
+    navigate('/Review/true', { state: { data: allData } });
   };
   const columns = [
     {
