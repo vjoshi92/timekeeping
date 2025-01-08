@@ -577,7 +577,7 @@ const Home = () => {
       >
         <Box sx={style} >
           <ModalTypography>
-            Do you want to copy last weeks's
+            Do you want to copy last week's
           </ModalTypography>
           <ModalTypography>
             timesheet?

@@ -323,7 +323,7 @@ export default function Header() {
                     onClick={handleCurrentWeekClick}
                   >
                     <ApprovalsTypography >
-                      Current Weeks
+                      Current Week
                     </ApprovalsTypography>
 
                   </ApprovalStyledBox>
@@ -350,7 +350,7 @@ export default function Header() {
                 <ApprovalsTypography >
                   Pending Approvals
                 </ApprovalsTypography>
-                <StyledChip label="2" variant="filled" sx={{}} />
+                <StyledChip label="5" variant="filled" sx={{}} />
               </ApprovalStyledBox>
               <AllStyledBox
                 onClick={() => { navigate("/AllTimesheet/true"); handleClose(); }}>
