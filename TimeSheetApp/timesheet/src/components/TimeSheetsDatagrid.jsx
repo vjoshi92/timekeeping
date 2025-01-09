@@ -69,25 +69,25 @@ export default function TimeSheetsDatagrid() {
     {
       field: 'employeeName',
       headerName: 'EMPLOYEE NAME',
-      minWidth: 200,
+      minWidth: 190,
       flex: 1,
     },
     {
       field: 'employeeId',
       headerName: 'EMPLOYEE ID',
-      minWidth: 200,
+      minWidth: 170,
       flex: 1,
     },
     {
       field: 'timesheet',
       headerName: 'TIMESHEET',
-      minWidth: 200,
+      minWidth: 180,
       flex: 1,
     },
     {
       field: 'status',
       headerName: 'STATUS',
-      minWidth: 200,
+      minWidth: 180,
       flex: 1,
       renderCell: (params) => (
         <Typography variant="body1" textTransform={"uppercase"} sx={{ fontWeight: 600, color: StatusColorFormatter(params.value) }}>
@@ -101,13 +101,13 @@ export default function TimeSheetsDatagrid() {
     {
       field: 'totalHours',
       headerName: 'TOTAL HOURS',
-      minWidth: 200,
+      minWidth: 180,
       flex: 1,
     },
     {
       field: 'dateSubmitted',
       headerName: 'DATE SUBMITTED',
-      minWidth: 200,
+      minWidth: 190,
       flex: 1,
     },
 
@@ -115,6 +115,7 @@ export default function TimeSheetsDatagrid() {
       field: 'actions',
       headerName: 'ACTIONS',
       description: 'Approve or reject the entry.',
+      minWidth: 190,
       flex: 1,
       renderCell: (params) => (
         <Box >
