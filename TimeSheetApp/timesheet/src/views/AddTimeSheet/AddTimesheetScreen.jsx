@@ -179,8 +179,7 @@ const AddRowsScreen = () => {
 
 
     const handleChange = (level, value, title) => {
-        // console.log("level>>>>>>", level)
-        console.log("Value>>>>>>", value)
+    
         setSelectedLevels((prevLevels) => ({
             ...prevLevels,
             [level]: value,
