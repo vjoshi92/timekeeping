@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Box, Button, Divider, Fade, IconButton, Modal, Popper, Stack, ToggleButton, Typography } from "@mui/material";
+import { Alert, Box, Button, Divider, Fade, IconButton, Modal, Popper, Snackbar, Stack, ToggleButton, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "@emotion/styled";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
@@ -24,6 +24,8 @@ import { ReviewColumns } from "components/ReviewColumns";
 import { ArrowBackIosNew } from "@mui/icons-material";
 import { setDateRange } from "store/slice/HomeSlice";
 import { setProjectData } from "store/slice/TimesheetSlice";
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import Dropdown from "components/Dropdown";
 const style = {
     position: 'absolute',
     top: '50%',
@@ -39,6 +41,11 @@ const style = {
     alignItems: "center",
     flexDirection: "column"
 };
+
+const StyledTypography = styled(Typography)({
+    color: "#0073E6",
+    fontWeight: "500"
+});
 
 const ApprovalBox = styled(Box)(({ theme }) => ({
     backgroundColor: "#FFFFFF",
@@ -57,7 +64,7 @@ const RejectionBox = styled(Box)(({ theme }) => ({
     display: "flex",
     borderRadius: "6px",
     width: "400px",
-    height: "32%",
+    // height: "32%",
     justifyContent: "flex-end",
     alignItems: "center",
     flexDirection: "column",
@@ -65,8 +72,9 @@ const RejectionBox = styled(Box)(({ theme }) => ({
 }));
 
 const RejectionMainBox = styled(Box)(({ theme }) => ({
+    width: "100%",
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: "5%"
@@ -138,7 +146,7 @@ const ButtonStack = styled(Box)(({ theme }) => ({
     alignItems: "flex-start",
     gap: { xs: "10px", sm: "20px" },
     width: "100%",
-    marginTop: "1%",
+    marginBottom: "2%",
 
 }));
 
@@ -265,7 +273,8 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 const ModalTypography = styled(Typography)(({ theme }) => ({
     fontWeight: "700",
-    fontSize: "14px"
+    fontSize: "14px",
+    marginBottom: "3%"
 }));
 
 const HeaderBox = styled(Box)(({ theme }) => ({
@@ -298,6 +307,15 @@ const DescriptionTypography = styled(Typography)(({ theme }) => ({
     fontSize: "16px"
 }));
 
+const StyledDropdown = styled(Dropdown)(({ readOnly, backgroundColor, theme }) => ({
+    backgroundColor: backgroundColor || (readOnly ? "#F5F5F5" : "transparent"),
+    marginBottom: theme.spacing(2),
+    width: "100%",
+    [theme.breakpoints.down("sm")]: {
+        fontSize: '14px'
+    }
+}));
+
 const ReviewScreen = () => {
     const { state } = useLocation();
     const { data } = state || {};
@@ -310,7 +328,12 @@ const ReviewScreen = () => {
     const handleOpen = () => setOpen(true);
     const handleApproval = () => setOpenApproval(true);
     const handleRejection = () => setOpenRejection(true);
-    const handelSaveNote = () => setOpenApproval(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const handelSaveNote = () => {
+        setOpenApproval(false)
+        setSnackbarOpen(true)
+        navigate(-1)
+    };
     const handleClose = () => setOpen(false);
     const handleApprovalClose = () => setOpenRejection(false);
     const navigate = useNavigate();
@@ -318,34 +341,18 @@ const ReviewScreen = () => {
     const [currentDateRange, setCurrentDateRange] = useState(selectedDate || formattedDateRange);
     const dispatch = useDispatch()
     const { isReviewer } = useParams();
+    const [selectedReason, setSelectedReason] = useState(""); // Add this new state
 
-    console.log("isReviewer", isReviewer)
+    const ProjectData = [
+        { id: 1, title: "Incorrect Time Entry" },
+        { id: 2, title: "Incorrect Charge Code" },
+        { id: 3, title: "Other" },
+    ];
 
+    const handleReasonChange = (event, value) => {
+        setSelectedReason(value);
+    };
 
-    // const handleAlignment = (event, newAlignment) => {
-
-    //     console.log("newAlignment", newAlignment)
-    //     if (!newAlignment) return; // Prevent deselection
-    //     setAlignment(newAlignment);
-
-    //     if (newAlignment === "left") {
-    //         // Handle previous week
-    //         const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YYYY');
-    //         const newStartDate = startDate.subtract(7, 'day');
-    //         const newEndDate = newStartDate.add(6, 'day');
-    //         const newDateRange = `${newStartDate.format('DD MMM YYYY')} - ${newEndDate.format('DD MMM YYYY')}`;
-    //         setCurrentDateRange(newDateRange);
-    //         dispatch(setDateRange(newDateRange));
-    //     } else if (newAlignment === "justify") {
-    //         // Handle next week
-    //         const startDate = dayjs(selectedDate?.split(' - ')[0] || startOfCurrentWeek, 'DD MMM YYYY');
-    //         const newStartDate = startDate.add(7, 'day');
-    //         const newEndDate = newStartDate.add(6, 'day');
-    //         const newDateRange = `${newStartDate.format('DD MMM YYYY')} - ${newEndDate.format('DD MMM YYYY')}`;
-    //         setCurrentDateRange(newDateRange);
-    //         dispatch(setDateRange(newDateRange)); // Assuming you have a Redux action to update the date range
-    //     }
-    // };
 
     if (!data) {
         return <div>No data available</div>;
@@ -353,6 +360,13 @@ const ReviewScreen = () => {
 
     const handleAlignment = (event, newAlignment) => {
         setAlignment(newAlignment);
+    };
+
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
     };
 
 
@@ -512,8 +526,9 @@ const ReviewScreen = () => {
     return (
         <StyledStack
             padding={{ xs: 1, sm: 1 }}
-            height={{ xs: "auto", sm: "90vh", md: "90vh", lg: "90vh" }}
+            // height={{ xs: "auto", sm: "90vh", md: "90vh", lg: "90vh" }}
             paddingX={{ xs: 2, sm: 10 }}
+
         >
             <HeaderBox
                 sx={{
@@ -522,14 +537,26 @@ const ReviewScreen = () => {
                     gap: { xs: 2, sm: 0 }
                 }}
             >
-                <ArrowBackIosNew
+                <Button
+                    sx={{
+                        marginBottom: { xs: 2, sm: 3 },
+                        padding: { xs: 1, sm: 1.5 }
+                    }}
+                    startIcon={<ArrowBackIosNewIcon sx={{ color: "#0073E6" }} />}
+                    onClick={() => navigate(-1)}
+                >
+                    <StyledTypography>Back</StyledTypography>
+                </Button>
+                {/* <ArrowBackIosNew
                     sx={{
                         color: "#005AA6",
                         mb: { xs: 2, sm: 0 },
                         mr: { sm: 2 }
                     }}
-                    onClick={() => navigate(-1)}
-                />
+                    onClick={() => navigate(-1)
+
+                    }
+                /> */}
                 <HeaderStack
                     sx={{
                         flexDirection: { xs: 'column', sm: 'row' },
@@ -608,7 +635,7 @@ const ReviewScreen = () => {
                             onChange={(newValue) => setValue(newValue)}
                         />
                     </SubBox>
-                    <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
+                    {/* <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
                         <StyledButton2 size="small" variant="outlined" boxShadow="5" onClick={handleOpen}>
                             <EditIcon fontSize="small" backgroundColor="#FFFF" sx={{ color: "#ED6A15" }} />
                         </StyledButton2>
@@ -617,10 +644,10 @@ const ReviewScreen = () => {
                                 <AddIcon fontSize="small" color="#FFFF" sx={{ color: "#FFFF" }} />
                             </StyledCircularBox>
                         </StyledButton2>
-                    </Box>
+                    </Box> */}
                 </MainBox>
             </StyledBox>
-            <Stack mt={2} sx={{
+            <Stack mt={2} mb={4} sx={{
                 width: "100%",
                 overflowX: { xs: "auto", sm: "visible" }
             }}>
@@ -635,14 +662,14 @@ const ReviewScreen = () => {
                         }} />
                 )}
             </Stack>
-            {
+            {/* {
                 isReviewer == "true" ? <SaveButton
                     variant="outlined"
                     color="error"
                 >
                     Save
                 </SaveButton> : null
-            }
+            } */}
 
             {
                 isReviewer == "true" ? <ButtonStack sx={{
@@ -659,7 +686,7 @@ const ReviewScreen = () => {
                         variant="contained"
                         color="error"
                     >
-                        Request Rework
+                        Release Timesheet
                     </ReworkButton>
                     <RejectButton
                         variant="contained"
@@ -683,7 +710,7 @@ const ReviewScreen = () => {
             <Modal
                 keepMounted
                 open={openRejection}
-                onClose={handleApprovalClose}
+                // onClose={handleApprovalClose}
                 sx={{
                     display: "flex",
                     justifyContent: "center",
@@ -698,29 +725,42 @@ const ReviewScreen = () => {
                     }
                 }}
             >
-                <RejectionBox >
-                    <RejectionMainBox
-                    // sx={{
-                    //     display: "flex",
-                    //     flexDirection: "row",
-                    //     justifyContent: "center",
-                    //     alignItems: "center",
-                    //     marginBottom: "5%"
-                    // }}
-                    >
+                <RejectionBox>
+                    <RejectionMainBox>
                         <ModalTypography>
                             Rejection Reasons
                         </ModalTypography>
+                        <StyledDropdown
+                            name="project"
+                            options={ProjectData.map(option => option?.title)}
+                            onChange={handleReasonChange}
+                            value={selectedReason || "--"}
+                        />
                     </RejectionMainBox>
-                    <MuiInput
-                        rows={4}
-                        multiline={true}
-                    />
+                    {selectedReason === "Other" && (
+                        <MuiInput
+                            rows={2}
+                            multiline={true}
+                            placeholder="Please specify the reason"
+                            sx={{ width: "100%", marginTop: "20px" }}
+                        />
+                    )}
                     <RejectButtonStack direction="row" spacing={3}>
-                        <CancelNoteButton id="keep-mounted-modal-title" variant="h6" component="h2" size="small" onClick={() => handleApprovalClose()}>
+                        <CancelNoteButton
+                            id="keep-mounted-modal-title"
+                            variant="h6"
+                            component="h2"
+                            size="small"
+                            onClick={() => handleApprovalClose()}
+                        >
                             <CancelNoteTypography>Cancel</CancelNoteTypography>
                         </CancelNoteButton>
-                        <SaveNoteButton id="keep-mounted-modal-description" sx={{ mt: 2 }} size="small" onClick={() => handleApprovalClose()}>
+                        <SaveNoteButton
+                            id="keep-mounted-modal-description"
+                            sx={{ mt: 2 }}
+                            size="small"
+                            onClick={() => handleApprovalClose()}
+                        >
                             <SaveNoteTypography>Submit</SaveNoteTypography>
                         </SaveNoteButton>
                     </RejectButtonStack>
@@ -765,7 +805,20 @@ const ReviewScreen = () => {
                     </NoteButtonStack>
                 </ApprovalBox>
             </Modal>
-
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleSnackbarClose}
+                    severity="success"
+                    sx={{ width: '100%' }}
+                >
+                    Timesheet Approved Sucessfully !
+                </Alert>
+            </Snackbar>
         </StyledStack>
     );
 };

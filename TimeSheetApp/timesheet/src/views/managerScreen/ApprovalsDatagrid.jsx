@@ -83,19 +83,21 @@ export default function ApprovalsDatagrid() {
     {
       field: 'employeeName',
       headerName: 'EMPLOYEE NAME',
-      width: 300,
+      width: 210,
       editable: true,
     },
     {
       field: 'employeeId',
       headerName: 'EMPLOYEE ID',
-      width: 300,
+      minWidth: 200,
+      flex: 1,
       editable: true,
     },
     {
       field: 'timesheet',
       headerName: 'TIMESHEET',
-      width: 300,
+      minWidth: 200,
+      flex: 1,
       editable: true,
     },
     {
@@ -103,20 +105,22 @@ export default function ApprovalsDatagrid() {
       headerName: 'TOTAL HOURS',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 300,
-      valueGetter: (params) => (params.row?.totalHours ? params.row.totalHours : 'N/A'),
+      minWidth: 200,
+      flex: 1,
+
     },
     {
       field: 'actions',
       headerName: 'ACTIONS',
       description: 'Approve or reject the entry.',
       sortable: false,
-      width: 300,
+      minWidth: 200,
+      flex: 1,
       renderCell: (params) => (
         <StyledBox direction={"row"}>
-          <RemoveRedEyeIcon sx={{ color: '#0073E6', cursor: 'pointer' }} onClick={() => handleEyeClick(params)} />
-          <ApprovalIcon sx={{ color: "#005AA6" }} />
-          <CloseIcon color="error" style={{ cursor: 'pointer' }} />
+          <RemoveRedEyeIcon sx={{ color: '#0073E6', cursor: 'pointer', marginRight: "10%" }} onClick={() => handleEyeClick(params)} />
+          <ApprovalIcon sx={{ color: "#005AA6", marginRight: "10%" }} />
+          <CloseIcon color="error" style={{ cursor: 'pointer', marginRight: "10%" }} />
           <CheckIcon color="success" style={{ cursor: 'pointer' }} />
         </StyledBox>
       ),
@@ -126,10 +130,10 @@ export default function ApprovalsDatagrid() {
     {
       id: 1,
       employeeId: '100190',
-      employeeName: 'Jon',
+      employeeName: 'Jon doe',
       timesheet: "23 - 29 Sep 2024",
       totalHours: "40",
-      status: "pending",
+      status: "Pending",
       treeData: [
         {
           day0: "9",
@@ -199,10 +203,10 @@ export default function ApprovalsDatagrid() {
     {
       id: 2,
       employeeId: '100191',
-      employeeName: 'Alice',
+      employeeName: 'Alice wok',
       timesheet: "23 - 29 Sep 2024",
-      totalHours: "35",
-      status: "pending",
+      totalHours: "52",
+      status: "Pending",
       treeData: [
         {
           day0: "9",
@@ -270,10 +274,10 @@ export default function ApprovalsDatagrid() {
     {
       id: 3,
       employeeId: '100192',
-      employeeName: 'Mark',
+      employeeName: 'Mark doe',
       timesheet: "23 - 29 Sep 2024",
-      totalHours: "38",
-      status: "pending",
+      totalHours: "40",
+      status: "Pending",
       treeData: [
         {
           day0: "9",
@@ -341,10 +345,10 @@ export default function ApprovalsDatagrid() {
     {
       id: 4,
       employeeId: '100193',
-      employeeName: 'Sara',
+      employeeName: 'Sara liz',
       timesheet: "23 - 29 Sep 2024",
       totalHours: "42",
-      status: "pending",
+      status: "Pending",
       treeData: [
         {
           day0: "9",
@@ -412,10 +416,10 @@ export default function ApprovalsDatagrid() {
     {
       id: 5,
       employeeId: '100194',
-      employeeName: 'Paul',
+      employeeName: 'Paul heyman',
       timesheet: "23 - 29 Sep 2024",
-      totalHours: "39",
-      status: "pending",
+      totalHours: "40",
+      status: "Pending",
       treeData: [
         {
           day0: "9",
@@ -483,7 +487,7 @@ export default function ApprovalsDatagrid() {
   ];
 
   return (
-    <Box sx={{width: '100%' }}>
+    <Box sx={{ width: '100%' }}>
       <MuiDataGrid
         rows={rows}
         columns={columns}

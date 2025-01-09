@@ -23,6 +23,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import IconButton from '@mui/material/IconButton';
 import { setDateRange } from "store/slice/HomeSlice";
 import { Footer } from "components/Footer";
+import { deleteProjectDataById } from "store/slice/TimesheetSlice";
 
 
 
@@ -567,11 +568,12 @@ const Home = () => {
   };
 
   const handleDelete = (rowId) => {
-    let tempRows = [...rows];
-    tempRows.splice(rowId, 1);
+    // let tempRows = [...rows];
+    // tempRows.splice(rowId, 1);
     // setRows(tempRows)
     // dispatch(setEstimates(tempRows));
     // updateCount(tempRows);
+    dispatch(deleteProjectDataById(rowId));
   };
 
   const AllDaysColumns = DaysColumns({ rows, selectedDate, handleInputChange, handleDelete })
