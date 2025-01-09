@@ -7,7 +7,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }));
 const StyledMainBox = styled(Box)(({ theme }) => ({
     display: "flex",
-    flexDirection: "column", 
+    flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "flex-start",
     width: "100%",
@@ -36,7 +36,7 @@ const PendingApprovals = () => {
             <Box sx={{ marginTop: "20px", marginBottom: "40px" }}>
                 <ApprovalsDatagrid />
             </Box>
-            <StyledMainBox sx={{ gap: { xs: 2, sm: 2} }}>
+            <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
                 <StyledButton
                     variant="contained"
                     color="#005AA6"
@@ -50,17 +50,17 @@ const PendingApprovals = () => {
                 >
                     Release Timesheet
                 </StyledButton>
-                <StyledButton
+                {/* <StyledButton
                     variant="contained"
                     color="error"
-                    sx={{ width: { xs: "100%", sm: "200px" } }}
+                    sx={{ width: { xs: "100%", sm: "200px" }, fontWeight: 700, }}
                 >
                     Reject
-                </StyledButton>
+                </StyledButton> */}
                 <StyledButton
                     variant="contained"
-                    color="success"
-                    sx={{ width: { xs: "100%", sm: "200px" } }}
+                    // color="success"
+                    sx={{ width: { xs: "100%", sm: "200px" }, fontWeight: 700, backgroundColor: "green" }}
                 >
                     Approve
                 </StyledButton>
