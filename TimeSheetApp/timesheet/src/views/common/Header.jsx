@@ -64,7 +64,7 @@ const ApprovalStyledBox = styled(Stack)({
   alignItems: "center",
   color: "#FFFFFF",
   cursor: "pointer",
-  marginBottom:"0.5rem",
+  marginBottom: "0.5rem",
   marginTop: "0.5rem"
 });
 
@@ -180,6 +180,7 @@ export default function Header() {
   }
 
   const handleClose = () => {
+
     setDrawer(false)
   }
 
@@ -188,7 +189,9 @@ export default function Header() {
     const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
     const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YYYY')} - ${endOfCurrentWeek.format('DD MMM YYYY')}`;
     dispatch(setDateRange(formattedDateRange));
+    navigate("/")
     handleClose();
+
   };
 
   const handleMenuItemClick = (setting) => {
@@ -234,7 +237,7 @@ export default function Header() {
               cursor: "pointer",
               marginRight: "10px",
               marginBottom: "10px",
-              width:"4rem"
+              width: "4rem"
             }}
           />
 
@@ -260,7 +263,7 @@ export default function Header() {
             CATS 2.0
           </HeadingTypography>
 
-          <IconButton aria-label="delete" sx={{ color: "white", marginRight:"1rem" }} onClick={() => handleDrawer()} >
+          <IconButton aria-label="delete" sx={{ color: "white", marginRight: "1rem" }} onClick={() => handleDrawer()} >
             <MenuIcon fontSize="large" />
           </IconButton>
 

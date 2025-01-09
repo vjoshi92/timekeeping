@@ -248,6 +248,7 @@ const AddRowsScreen = () => {
                     </StyledButton>
                 </Box>
             )}
+
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}

@@ -25,6 +25,7 @@ const theme = createTheme({
                 },
                 weekDayLabel: {
                     color: '#ED6A15',
+
                 },
                 root: {
                     '& .Mui-selected': {
@@ -34,9 +35,22 @@ const theme = createTheme({
                         }
 
                     },
-                },
+                    '& .MuiPickersDay-today': {
+                        backgroundColor: '#ED6A15',
+                        '&:not(.Mui-selected)': {
+                            backgroundColor: '#ED6A15'
+                        }
+                    }
+                }
             },
         },
+        MuiPickersCalendarHeader: {
+            styleOverrides: {
+                label: {
+                    fontFamily: 'Montserrat, sans-serif',
+                }
+            }
+        }
     },
 });
 
