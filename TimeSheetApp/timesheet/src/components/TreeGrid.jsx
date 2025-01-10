@@ -1,136 +1,148 @@
-import * as React from 'react';
-import { DataGridPro } from '@mui/x-data-grid-pro';
-import { LicenseInfo } from '@mui/x-license';
-import { useSelector } from 'react-redux';
-import { Box } from '@mui/material';
-import { useGridApiRef } from '@mui/x-data-grid-premium';
+import * as React from "react";
+import { DataGridPro } from "@mui/x-data-grid-pro";
+import { LicenseInfo } from "@mui/x-license";
+import { useSelector } from "react-redux";
+import { Box, Stack, styled, Tooltip, Typography } from "@mui/material";
+import { useGridApiRef } from "@mui/x-data-grid-premium";
+
+const EmptyBox = styled(Typography)(({ theme }) => ({
+  width: "100%",
+  height: "100%",
+}));
 
 const getTreeDataPath = (row) => {
-  if (row.isTotal) return ['Total'];
+  if (row.isTotal) return ["Total"];
   return row?.hierarchy;
 };
 
-
 const groupingColDef = {
-  headerName: '',
+  headerName: "",
   pinnable: true,
-  pinned: 'left', 
+  pinned: "left",
+  minWidth: 150,
+  flex: 1,
+  renderCell: (params) => {
+    return params.row.title ? (
+      <Stack ml={"1rem"}>
+        <Typography fontWeight={700}>{params.row.title}</Typography>
+        <Tooltip title={params.row.level}>
+          <Typography>{params.row.level}</Typography>
+        </Tooltip>
+      </Stack>
+    ) : (
+      <Typography mt={"1rem"} fontWeight={700}>
+        {params.value}
+      </Typography>
+    );
+  },
 };
 
 const customStyles = {
-  '& .MuiDataGrid-cell': {
-    backgroundColor: '#FFFF',
+  "& .MuiDataGrid-cell": {
+    backgroundColor: "#FFFF",
   },
-  '& .MuiDataGrid-columnHeaderTitle .Mui-groupHeader': {
-    display: 'none',
+  "& .MuiDataGrid-columnHeaderTitle .Mui-groupHeader": {
+    display: "none",
   },
-  '& .MuiDataGrid-columnHeader': {
-    color: '#121212DE',
-    fontWeight: '700',
-    fontSize: '16px',
-    backgroundColor: '#EEEEEE',
+  "& .MuiDataGrid-columnHeader": {
+    color: "#121212DE",
+    fontWeight: "700",
+    fontSize: "16px",
+    backgroundColor: "#EEEEEE",
   },
-  '& .MuiOutlinedInput-input': {
-    backgroundColor: '#FFFFFF',
+  "& .MuiOutlinedInput-input": {
+    backgroundColor: "#FFFFFF",
   },
-  '& .level-0': {
-    color: '#121212DE',
-    fontWeight: '700',
-    marginRight: '20px',
+  "& .level-0": {
+    color: "#121212DE",
+    fontWeight: "700",
+    marginRight: "20px",
   },
-  '& .level-1, & .level-2': {
-    color: '#0073E6DE',
-    fontWeight: '400',
-    marginRight: '20px',
+  "& .level-1, & .level-2": {
+    color: "#0073E6DE",
+    fontWeight: "400",
+    marginRight: "20px",
   },
-  '& .total-row': {
-    backgroundColor: '#F0F0F0',
-    fontWeight: 'bold',
+  "& .total-row": {
+    backgroundColor: "#F0F0F0",
+    fontWeight: "bold",
   },
 };
 
 const getRowClassName = (params) => {
   const level = params.row.hierarchy ? params.row.hierarchy.length - 1 : 0;
-  return params.row.isTotal ? 'total-row' : `level-${level}`;
+  return params.row.isTotal ? "total-row" : `level-${level}`;
 };
 
 LicenseInfo.setLicenseKey(
-  '25f2175523aa72e9d954ec0ef5a74461Tz05NjQ3MCxFPTE3NTU3MDU1NjQwMDAsUz1wcmVtaXVtLExNPXN1YnNjcmlwdGlvbixQVj1pbml0aWFsLEtWPTI='
+  "25f2175523aa72e9d954ec0ef5a74461Tz05NjQ3MCxFPTE3NTU3MDU1NjQwMDAsUz1wcmVtaXVtLExNPXN1YnNjcmlwdGlvbixQVj1pbml0aWFsLEtWPTI="
 );
 
 export default function TreeGrid({ columns, density, data }) {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
-
-  console.log("data>>>>>>>>>>>" , data)
-
   return (
-    <Box style={{ height: "auto", width: '100%' }}>
+    <Box style={{ height: "auto", width: "100%" }}>
       <DataGridPro
         treeData
         rows={data}
         columns={columns}
         hideFooter
         autoHeight
-        density={density || 'compact'}
+        density={density || "compact"}
         apiRef={useGridApiRef()}
         getTreeDataPath={getTreeDataPath}
         groupingColDef={groupingColDef}
         sx={customStyles}
         getRowClassName={getRowClassName}
-        pinnedColumns={{ left: ['__tree_data__'] }}
-        disableColumnMenu 
+        pinnedColumns={{ left: ["__tree_data__"] }}
+        disableColumnMenu
         defaultGroupingExpansionDepth={-1}
       />
     </Box>
   );
 }
 
+// const initialState = useKeepGroupedColumnsHidden({
+//   apiRef,
+//   initialState: {
+// pinnedColumns: {
+//   left: [
+//     GRID_ROW_GROUPING_SINGLE_GROUPING_FIELD,
+//     "project"
+//   ]
+// }
+//   },
+// });
 
-
-
-  // const initialState = useKeepGroupedColumnsHidden({
-  //   apiRef,
-  //   initialState: {
-      // pinnedColumns: { 
-      //   left: [
-      //     GRID_ROW_GROUPING_SINGLE_GROUPING_FIELD, 
-      //     "project"
-      //   ] 
-      // }
-  //   },
-  // });
-
-  // sx={{
-        //   "& .MuiDataGrid-cell": {
-        //     backgroundColor: "#FFFFFF", // Cell background color
-        //     color: "black", // Parent text color
-        //   },
-        //   "& .MuiDataGrid-cell:first-child": {
-        //     color: "blue", // First child text color
-        //   },
-        //   "& .MuiDataGrid-cell:last-child": {
-        //     color: "blue", // Last child text color, if needed
-        //   },
-        //   "& .MuiOutlinedInput-input": {
-        //     backgroundColor: "#FFFFFF", // Input background
-        //   },
-        //   "& .MuiDataGrid-columnHeaderTitle": {
-        //     display: "none", 
-        //   },
-        //   "& .MuiDataGrid-columnHeader": {
-        //     backgroundColor: "#EEEEEE", 
-        //     color: "black", 
-        //     fontWeight: "700",
-        //     fontSize: "16px",
-        //   },
-        //   "& .MuiDataGrid-cell--textLeft": {
-        //     color: "black", 
-        //     fontWeight: "700",
-        //     fontSize: "16px",
-        //   },
-        // }}
-
-
+// sx={{
+//   "& .MuiDataGrid-cell": {
+//     backgroundColor: "#FFFFFF", // Cell background color
+//     color: "black", // Parent text color
+//   },
+//   "& .MuiDataGrid-cell:first-child": {
+//     color: "blue", // First child text color
+//   },
+//   "& .MuiDataGrid-cell:last-child": {
+//     color: "blue", // Last child text color, if needed
+//   },
+//   "& .MuiOutlinedInput-input": {
+//     backgroundColor: "#FFFFFF", // Input background
+//   },
+//   "& .MuiDataGrid-columnHeaderTitle": {
+//     display: "none",
+//   },
+//   "& .MuiDataGrid-columnHeader": {
+//     backgroundColor: "#EEEEEE",
+//     color: "black",
+//     fontWeight: "700",
+//     fontSize: "16px",
+//   },
+//   "& .MuiDataGrid-cell--textLeft": {
+//     color: "black",
+//     fontWeight: "700",
+//     fontSize: "16px",
+//   },
+// }}
 
 // import * as React from 'react';
 // import { DataGridPro } from '@mui/x-data-grid-pro';
@@ -139,7 +151,6 @@ export default function TreeGrid({ columns, density, data }) {
 // import { Box } from '@mui/material';
 // import { DataGridPremium, useGridApiRef, useKeepGroupedColumnsHidden } from '@mui/x-data-grid-premium';
 // import MuiDataGrid from './MuiDataGrid';
-
 
 // LicenseInfo.setLicenseKey(
 //   "25f2175523aa72e9d954ec0ef5a74461Tz05NjQ3MCxFPTE3NTU3MDU1NjQwMDAsUz1wcmVtaXVtLExNPXN1YnNjcmlwdGlvbixQVj1pbml0aWFsLEtWPTI="
