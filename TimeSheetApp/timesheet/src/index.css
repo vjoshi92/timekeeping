@@ -10,6 +10,10 @@ code {
 }
 
 /* to disable the outline in cell of the datagrid */
-.MuiDataGrid-root .MuiDataGrid-columnHeader:focus-within, .css-yvpc5e-MuiDataGrid-root .MuiDataGrid-cell:focus-within {
+.MuiDataGrid-root .MuiDataGrid-columnHeader:focus-within, .MuiDataGrid-root .MuiDataGrid-cell:focus-within {
+  outline: none !important;
+}
+
+.MuiDataGrid-root .MuiDataGrid-cell:focus {
   outline: none !important;
 }

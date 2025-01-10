@@ -44,12 +44,12 @@ const StyledDrawerDivider = styled(Divider)({
 });
 
 const StyledTypography = styled(Typography)({
-    fontWeight:"700" , 
-    marginTop:"10px"
- });
+    fontWeight: "700",
+    marginTop: "10px"
+});
 const DayBox = styled(Box)(({ theme }) => ({
-  fontWeight: '700', 
-  textAlign: 'center'
+    fontWeight: '700',
+    textAlign: 'center'
 }));
 const EmptyBox = styled(Box)(({ theme }) => ({
     width: '100%',
@@ -57,9 +57,9 @@ const EmptyBox = styled(Box)(({ theme }) => ({
 }));
 
 const DateBox = styled(Box)(({ theme }) => ({
-    fontWeight: '400', 
-    fontSize: '14px', 
-    textAlign: 'center' 
+    fontWeight: '400',
+    fontSize: '14px',
+    textAlign: 'center'
 }));
 
 const ModalBox = styled(Box)(({ theme }) => ({
@@ -94,9 +94,9 @@ const InputStyleBox = styled(Box)(({ theme }) => ({
 }));
 
 export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate }) => {
-        const [modalOpen, setModalOpen] = useState(false);
-        const [activeInputId, setActiveInputId] = useState(null);
-
+    const [modalOpen, setModalOpen] = useState(false);
+    const [activeInputId, setActiveInputId] = useState(null);
+    const [hasNote, setHasNote] = useState(new Set());
     const handleCopyModal = (inputId) => {
         setModalOpen(true);
         setActiveInputId(inputId);
@@ -108,17 +108,17 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
         { id: 3, content: "Submit the monthly report by EOD.", date: "01/03/2024", time: "06.30pm", username: "Alice wok" },
     ];
 
-    
     const handleSaveNotes = () => {
-        setModalOpen(false)
-
+        if (activeInputId) {
+            setHasNote(prev => new Set(prev).add(activeInputId));
+        }
+        setModalOpen(false);
     }
-
 
     const handleCloseModal = () => {
         setModalOpen(false);
     };
-    
+
     const getWeekDays = () => {
         let startDate;
         if (Array?.isArray(selectedDate) && selectedDate?.length === 0) {
@@ -140,22 +140,22 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
                 headerName: currentDate?.format('ddd'),
                 flex: 1,
                 minWidth: 120,
-                borderBottom:"5px solid black",
+                borderBottom: "5px solid black",
                 headerClassName: isToday ? 'highlight-column' : '',
 
                 renderHeader: () => (
                     <StyledStack
-                        // sx={{
-                            
-                        //     // borderBottom:"5px solid black",                     
-                        //     // borderBottom: isToday ? '4px solid #ED6A15' : 'none',        
-                        //     "& .MuiDataGrid-columnHeaderTitleContainer": {
-                        //         borderBottom: '5px solid orange !important', 
-                        //     },            
-                        //     "& .css-1k5yziq-MuiDataGrid-root .MuiDataGrid-row--borderBottom .MuiDataGrid-columnHeader": {
-                        //         borderBottom: '5px solid green !important',
-                        //     },            
-                        // }}
+                    // sx={{
+
+                    //     // borderBottom:"5px solid black",                     
+                    //     // borderBottom: isToday ? '4px solid #ED6A15' : 'none',        
+                    //     "& .MuiDataGrid-columnHeaderTitleContainer": {
+                    //         borderBottom: '5px solid orange !important', 
+                    //     },            
+                    //     "& .css-1k5yziq-MuiDataGrid-root .MuiDataGrid-row--borderBottom .MuiDataGrid-columnHeader": {
+                    //         borderBottom: '5px solid green !important',
+                    //     },            
+                    // }}
                     >
 
                         <DayBox >
@@ -180,33 +180,42 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
 
                     const inputId = `${params.row.id}-day${i}`;
                     const isActive = activeInputId === inputId && !modalOpen;
-                    
+                    const inputHasNote = hasNote.has(inputId);
+
                     return (
                         <InputStyleBox>
                             <DecimalInput
                                 onChange={(value) => handleInputChange(`day${i}`, value, params?.row?.id)}
                                 value={params?.value || 0}
-                                disabled={false}
                                 sx={{
                                     width: '87% !important',
                                     verticalAlign: 'unset',
                                     backgroundColor: "#FFFFFF",
-
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': {
+                                            borderColor: inputHasNote ? '#FF0000' : '#000000',
+                                            borderWidth: '1px'
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: inputHasNote ? '#FF0000' : '#000000',
+                                            borderWidth: '1px'
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: inputHasNote ? '#FF0000' : '#000000',
+                                            borderWidth: '1px'
+                                        }
+                                    }
                                 }}
                                 readOnly
                             />
-                               <IconButton
+                            <IconButton
                                 size="small"
-
                                 onClick={() => handleCopyModal(inputId)}
-
                             >
-                                <TextSnippetOutlined sx={
-                                    {
-                                        color: "grey",
-                                        fontWeight: "400"
-                                    }
-                                } />
+                                <TextSnippetOutlined sx={{
+                                    color: inputHasNote ? "red" : "grey",
+                                    fontWeight: "400"
+                                }} />
                             </IconButton>
                         </InputStyleBox>
                     );
@@ -219,199 +228,160 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
     const weekDayColumns = getWeekDays();
 
     const columns = [
-    
+
 
         ...weekDayColumns,
         {
             field: 'Actions',
             headerName: '',
-            flex: 0.5,
-            minWidth: 100,
-            valueGetter: (value, row) => {
-                if (isAutogeneratedRow(row)) {
-                    return '[this is an autogenerated row]';
-                }
-                // return `title: ${value}`;
-            },
+            flex: 0.1,
+            minWidth: 0,
             renderCell: (params) => {
-                if (params.row.isParent || isAutogeneratedRow(params.row)) {
-                    return <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            backgroundColor: 'transparent',
-                        }}
-                    ></Box>;
-                }
                 return (
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        {/* <IconButton
-                            size="small"
-                            sx={{ marginBottom: '10px' }}
-                            color="#ED6A15"
-                            // onClick={() => handleDelete(params?.row?.id)}
-                        >
-                            <TextSnippetIcon />
-                        </IconButton> */}
-                        <Typography sx={{ color: "#121212DE", fontWeight: "700" }} >
-                            0
-                        </Typography>
-                        <IconButton
-                            size="small"
-                            sx={{ marginBottom: '10px' }}
-                            color="secondary"
-                            onClick={() => handleDelete(params?.row?.id)}
-                        >
-                            <DeleteIcon />
-                        </IconButton>
+                    <>
                         <Modal
-                                key="notes-modal"
-                                open={modalOpen}
-                                // onClose={handleCloseModal}
-                                aria-labelledby="notes-modal"
-                                BackdropProps={{
-                                    style: {
-                                        backgroundColor: 'rgba(206, 212, 218, 0.2)',
-                                        opacity: "90%"
-                                    }
+                            key="notes-modal"
+                            open={modalOpen}
+                            // onClose={handleCloseModal}
+                            aria-labelledby="notes-modal"
+                            BackdropProps={{
+                                style: {
+                                    backgroundColor: 'rgba(206, 212, 218, 0.2)',
+                                    opacity: "90%"
+                                }
+                            }}
+                        >
+                            <ModalBox
+                                sx={{
+                                    width: {
+                                        xs: '90%',
+                                        sm: '80%',
+                                        md: '60%',
+                                        lg: '50%'
+                                    },
+                                    maxWidth: '600px',
+                                    margin: 'auto',
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    padding: {
+                                        xs: 2,
+                                        sm: 3,
+                                        md: 4
+                                    },
+                                    overflowY: 'auto',
+                                    maxHeight: '90vh',
+                                    borderRadius: '8px'
                                 }}
                             >
-                                <ModalBox
+                                {/* Add close button */}
+                                <IconButton
+                                    onClick={handleCloseModal}
                                     sx={{
-                                        width: {
-                                            xs: '90%',
-                                            sm: '80%',
-                                            md: '60%',
-                                            lg: '50%'
-                                        },
-                                        maxWidth: '600px',
-                                        margin: 'auto',
                                         position: 'absolute',
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        padding: {
-                                            xs: 2,
-                                            sm: 3,
-                                            md: 4
-                                        }
+                                        right: 2,
+                                        top: -30,
+
+                                        color: "#fff",
                                     }}
                                 >
-                                    {/* Add close button */}
-                                    <IconButton
-                                        onClick={handleCloseModal}
-                                        sx={{
-                                            position: 'absolute',
-                                            right: 2,
-                                            top: -30,
+                                    <CloseIcon />
+                                </IconButton>
 
-                                            color: "#fff",
-                                        }}
-                                    >
-                                        <CloseIcon />
-                                    </IconButton>
+                                <NotesTypography
+                                    variant="h6"
+                                    component="h2"
+                                    sx={{
 
-                                    <NotesTypography
-                                        variant="h6"
-                                        component="h2"
-                                        sx={{
-
-                                        }}
-                                    >
-                                        Notes
-                                    </NotesTypography>
-                                    <StyledDrawerDivider />
-                                    <Box
-                                        sx={{
-                                            mb: 3,
-                                            height: "15rem",
-                                            overflowY: "auto",
-                                            padding: "1rem"
-                                        }}
-                                    >
-                                        <List>
-                                            {notes.map((note, index) => (
-                                                <ListItem
-                                                    key={index}
-                                                    sx={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'flex-start',
-                                                        // gap: 1,
-                                                        backgroundColor: '#fff',
-                                                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)',
-                                                        borderRadius: '8px',
-                                                        paddingLeft: '10px',
-                                                        mb: 1, // Adds spacing between tiles
-                                                    }}
-                                                >
-                                                    <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>
-                                                        {note?.content}
-                                                    </Typography>
-                                                    <Typography sx={{ fontSize: '0.875rem', color: 'gray' }}>
-                                                        {note?.date}&nbsp;{note?.time}&nbsp;{note?.username}
-
-                                                    </Typography>
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    </Box>
-                                    {/* <StyledDrawerDivider/> */}
-                                    <Box>
-                                        <ModalStyledTypography>Add New</ModalStyledTypography>
-                                        <Box sx={{
-                                            display: 'flex',
-                                            flexDirection: {
-                                                xs: 'column',
-                                                sm: 'row'
-                                            },
-                                            alignItems: 'center',
-                                            gap: 2
-                                        }}>
-
-                                               <MuiInput
-                                                multiline={true}
-                                                onChange={(value) => handleInputChange(`day`, value, params?.row?.id)}
-                                                value={params?.value}
-                                                rows={2}
-                                                disabled={false}
+                                    }}
+                                >
+                                    Notes
+                                </NotesTypography>
+                                <StyledDrawerDivider />
+                                <Box
+                                    sx={{
+                                        mb: 3,
+                                        height: "15rem",
+                                        overflowY: "auto",
+                                        padding: "1rem"
+                                    }}
+                                >
+                                    <List>
+                                        {notes.map((note, index) => (
+                                            <ListItem
+                                                key={index}
                                                 sx={{
-                                                    width: {
-                                                        xs: '100% !important',
-                                                        sm: '80% !important'
-                                                    },
-                                                    verticalAlign: 'unset',
-                                                    backgroundColor: "#FFFFFF",
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'flex-start',
+                                                    // gap: 1,
+                                                    backgroundColor: '#fff',
+                                                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)',
+                                                    borderRadius: '8px',
+                                                    paddingLeft: '10px',
+                                                    mb: 1, // Adds spacing between tiles
                                                 }}
-
-                                            />
-                                            <Button
-                                                variant="contained"
-                                                sx={{
-                                                    height: '40px',
-                                                    width: {
-                                                        xs: '100%',
-                                                        sm: '120px'
-                                                    },
-                                                    backgroundColor: "#ED6A15"
-                                                }}
-                                                onClick={() => handleSaveNotes()}
                                             >
-                                                Save
-                                            </Button>
-                                        </Box>
+                                                <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>
+                                                    {note?.content}
+                                                </Typography>
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'gray' }}>
+                                                    {note?.date}&nbsp;{note?.time}&nbsp;{note?.username}
+
+                                                </Typography>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Box>
+                                {/* <StyledDrawerDivider/> */}
+                                <Box>
+                                    <ModalStyledTypography>Add New</ModalStyledTypography>
+                                    <Box sx={{
+                                        display: 'flex',
+                                        flexDirection: {
+                                            xs: 'column',
+                                            sm: 'row'
+                                        },
+                                        alignItems: 'center',
+                                        gap: 2
+                                    }}>
+
+                                        <MuiInput
+                                            multiline={true}
+                                            onChange={(value) => handleInputChange(`day`, value, params?.row?.id)}
+                                            value={params?.value}
+                                            rows={2}
+                                            disabled={false}
+                                            sx={{
+                                                width: {
+                                                    xs: '100% !important',
+                                                    sm: '80% !important'
+                                                },
+                                                verticalAlign: 'unset',
+                                                backgroundColor: "#FFFFFF",
+                                            }}
+
+                                        />
+                                        <Button
+                                            variant="contained"
+                                            sx={{
+                                                height: '40px',
+                                                width: {
+                                                    xs: '100%',
+                                                    sm: '120px'
+                                                },
+                                                backgroundColor: "#ED6A15"
+                                            }}
+                                            onClick={() => handleSaveNotes()}
+                                        >
+                                            Save
+                                        </Button>
                                     </Box>
-                                </ModalBox>
-                            </Modal>
-                    </Box>
+                                </Box>
+                            </ModalBox>
+                        </Modal>
+                    </>
                 );
             },
         },
@@ -419,64 +389,3 @@ export const ReviewColumns = ({ handleInputChange, handleDelete, selectedDate })
 
     return columns;
 };
-
-
-    // {
-        //     field: 'project',
-        //     headerName: '',
-        //     flex: 0.5,
-        //     minWidth: 100,
-        //     treeField: true,
-        //     renderCell: (params) => {
-        //         const indent = params.api.getRowNode(params.id)?.depth * 10 || 0;
-        //         return (
-        //             <Box sx={{
-        //                 ml: `${indent}px`, display: "flex",
-        //                 justifyContent: "center",
-        //                 alignItems: "center",
-        //                 marginTop: "10px",
-        //             }}>
-        //                 <Typography sx={{ color: "#121212DE", fontWeight: "700", marginLeft: "-10px" }}>
-        //                     {params.value}
-        //                 </Typography>
-        //             </Box>
-        //         );
-        //     },
-        // },
-
-        // {
-        //     field: 'level',
-        //     headerName: '',
-        //     flex: 0.5,
-        //     minWidth: 150,
-        //     treeField: true,
-        //     renderCell: (params) => {
-        //         const indent = params.api.getRowNode(params.id)?.depth * 10
-        //         return (
-        //             <Box
-        //                 sx={{
-        //                     ml: `${indent}px`,
-        //                     display: "flex",
-        //                     justifyContent: "center",
-        //                     alignItems: "center",
-        //                     marginTop: "10px",
-        //                     overflowX: "auto",
-        //                     // whiteSpace: "nowrap",
-        //                     scrollbarWidth: "none", 
-        //                    '&::-webkit-scrollbar': { display: 'none' },
-        //                 }}>
-        //                 <Typography 
-        //                 sx={{ 
-        //                     color: "#0073E6DE", 
-        //                     fontWeight: "500", 
-        //                     // marginLeft:"5px",
-        //                     overflow: "hidden", 
-        //                     textOverflow: "ellipsis", 
-        //                     whiteSpace: "nowrap", 
-        //                     }}>
-        //                     {params.value}
-        //                 </Typography>
-        //             </Box>
-        //         );
-        //     },
-        // },

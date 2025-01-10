@@ -176,6 +176,11 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                         return <EmptyBox sx={{ backgroundColor: isToday ? '#FBE1D0' : 'transparent' }}></EmptyBox>;
                     }
 
+                    if (params?.row?.totalRow) {
+                        return <Typography fontWeight={700} mt={"1rem"}>{params.value}</Typography>
+
+                    }
+
                     const inputId = `${params.row.id}-day${i}`;
                     const isActive = activeInputId === inputId && !modalOpen;
 
@@ -390,6 +395,11 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                     return <EmptyBox
                         sx={{ backgroundColor: 'transparent' }}></EmptyBox>;
                 }
+                if (params?.row?.totalRow) {
+                    return <EmptyBox
+                        sx={{ backgroundColor: 'transparent' }}></EmptyBox>;
+                }
+
                 return (
                     <IconButtonStyle >
                         {/* <IconButton

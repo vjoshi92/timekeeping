@@ -2,15 +2,17 @@ import { Box, styled } from "@mui/material";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   display: "flex",
-  flexDirection: "column", 
+  flexDirection: "column",
   backgroundColor: "#FFFFFF",
-  width: "97.5%",
+  width: "100%",
   height: "auto", // Adjust height dynamically
-  minHeight: "4rem", // Maintain minimum height
+  // minHeight: "2.5rem", // Maintain minimum height
   borderRadius: "4px",
-  padding: "20px",
+  padding: "0.7rem",
+  paddingLeft:"1rem",
+  paddingRight:"1rem",
   position: "absolute",
-  bottom: 8,
+  bottom: 1,
   boxSizing: "border-box",
   boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
   [theme.breakpoints.up("sm")]: {
@@ -22,5 +24,3 @@ const StyledBox = styled(Box)(({ theme }) => ({
 export const Footer = (props) => {
   return <StyledBox>{props.children}</StyledBox>;
 };
-
-

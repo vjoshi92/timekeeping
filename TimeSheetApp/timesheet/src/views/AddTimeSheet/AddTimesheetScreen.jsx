@@ -133,12 +133,19 @@ const AddRowsScreen = () => {
 
                 tData.push(data);
                 tData.push({
-                    day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0,
+                    day0: 0,
+                    day1: 0,
+                    day2: 0,
+                    day3: 0,
+                    day4: 0,
+                    day5: 0,
+                    day6: 0,
                     project: "",
-                    level: 0,
+                    level: "Total",
                     title: '',
                     id: Math.random(),
-                    hierarchy: []
+                    hierarchy: ['Total'],
+                    totalRow: true
                 })
             } else {
                 tData.unshift(data);
@@ -179,8 +186,7 @@ const AddRowsScreen = () => {
 
 
     const handleChange = (level, value, title) => {
-        // console.log("level>>>>>>", level)
-        console.log("Value>>>>>>", value)
+
         setSelectedLevels((prevLevels) => ({
             ...prevLevels,
             [level]: value,
