@@ -38,34 +38,17 @@ const DecimalInput = (props) => {
 
     const [text, setText] = useState(value);
 
+
     const handleChange = (e) => {
         let inputValue = e.target.value;
 
-        // Remove any non-digit characters
+        // Remove any non-digit characters except for the decimal point
         inputValue = inputValue.replace(/[^\d.]/g, '');
 
-        // Remove all decimal points except the first one
+        // Remove extra decimal points
         const parts = inputValue.split('.');
         if (parts.length > 1) {
             inputValue = parts[0] + '.' + parts.slice(1).join('');
-        }
-
-        // Ensure only two digits after decimal
-        if (parts.length > 1 && parts[1].length > 2) {
-            inputValue = parts[0] + '.' + parts[1].substring(0, 2);
-        }
-
-        // Add decimal point after two digits if no decimal exists
-        if (!inputValue.includes('.') && inputValue.length > 2) {
-            inputValue = inputValue.substring(0, 2) + '.' + inputValue.substring(2);
-        }
-
-        // Ensure maximum length
-        if (inputValue.includes('.')) {
-            const [whole, decimal] = inputValue.split('.');
-            if (whole.length > 2) {
-                inputValue = whole.substring(0, 2) + '.' + (decimal || '');
-            }
         }
 
         setText(inputValue);
@@ -73,6 +56,17 @@ const DecimalInput = (props) => {
             onChange(inputValue);
         }
     };
+
+    const handleBlur = () => {
+        if (text && !text.includes('.')) {
+            const formattedValue = `${text}.00`;
+            setText(formattedValue);
+            if (onChange) {
+                onChange(formattedValue);
+            }
+        }
+    };
+
 
     return (
         <>
@@ -84,6 +78,7 @@ const DecimalInput = (props) => {
                     label={label}
                     value={text}
                     rows={rows}
+                    onBlur={handleBlur}
                     multiline={multiline}
                     onChange={handleChange}
                     disabled={false}
@@ -104,6 +99,7 @@ const DecimalInput = (props) => {
                     label={label}
                     value={text}
                     rows={rows}
+                    onBlur={handleBlur}
                     multiline={multiline}
                     onChange={handleChange}
                     disabled={true}

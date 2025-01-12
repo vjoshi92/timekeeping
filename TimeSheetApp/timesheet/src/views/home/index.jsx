@@ -33,7 +33,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import IconButton from "@mui/material/IconButton";
 import { setDateRange } from "store/slice/HomeSlice";
 import { Footer } from "components/Footer";
-import { deleteProjectDataById } from "store/slice/TimesheetSlice";
+import { deleteProjectDataById, setTotal, updateRowTotal } from "store/slice/TimesheetSlice";
 
 const style = {
   position: "absolute",
@@ -201,7 +201,7 @@ const FooterButton = styled(Button)(({ theme }) => ({
 
 const SaveTimeButton = styled(Button)(({ theme }) => ({
   border: "1px solid #ED6A15",
-  marginBottom:"0.5rem"
+  marginBottom: "0.5rem"
 }));
 
 const StyledFooterText = styled(Typography)(({ theme }) => ({
@@ -458,7 +458,6 @@ const Home = () => {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const dispatch = useDispatch();
-
   const formatDateTime = (date) => {
     const months = [
       "Jan",
@@ -486,6 +485,8 @@ const Home = () => {
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
 
+
+  console.log("projectedData", projectedData)
   const handlePreviousWeek = () => {
     let currentStartDate;
 
@@ -556,12 +557,19 @@ const Home = () => {
   ];
 
   const handleInputChange = (field, value, rowId) => {
-    let tempRows = [...rows];
-    let tempRow = tempRows[rowId];
-    tempRow = { ...tempRow, [field]: value };
-    tempRows[rowId] = tempRow;
-    // setRows(tempRows);
+    // Convert input value to a number
+    const parsedValue = parseFloat(value) || 0;
+
+    console.log("parsedValue", parsedValue)
+
+    // Dispatch the update for this specific row and field
+    dispatch(updateRowTotal({
+      rowId,
+      field,
+      value: parsedValue
+    }));
   };
+
 
   const handleDelete = (rowId) => {
     // let tempRows = [...rows];
@@ -635,8 +643,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                    .join(" - ")
+                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                  .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
@@ -701,8 +709,8 @@ const Home = () => {
           onClick={handleApproval}
           sx={{
             backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-            padding:"0.4rem",
-            marginBottom:"0.5rem"
+            padding: "0.4rem",
+            marginBottom: "0.5rem"
           }}
           disabled={
             !(
@@ -814,12 +822,12 @@ const Home = () => {
           {/* Add Close Button */}
           <StyledIconButton
             onClick={handleApprovalClose}
-            // sx={{
-            //   position: 'absolute',
-            //   right: '-10px',
-            //   top: '-30px',
-            //   zIndex: 1
-            // }}
+          // sx={{
+          //   position: 'absolute',
+          //   right: '-10px',
+          //   top: '-30px',
+          //   zIndex: 1
+          // }}
           >
             <CloseIcon sx={{ color: "#fff" }} />
           </StyledIconButton>
@@ -884,12 +892,12 @@ const Home = () => {
           />
           <StyledApprovalIconButton
             onClick={() => setIsTimesheetCreated(false)}
-            // sx={{
-            //   position: "absolute",
-            //   top: "-36px",
-            //   right: "0px",
-            //   color: "white",
-            // }}
+          // sx={{
+          //   position: "absolute",
+          //   top: "-36px",
+          //   right: "0px",
+          //   color: "white",
+          // }}
           >
             <CloseIcon sx={{ color: "#fff" }} />
           </StyledApprovalIconButton>
