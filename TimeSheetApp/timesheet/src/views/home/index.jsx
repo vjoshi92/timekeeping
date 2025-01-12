@@ -573,16 +573,62 @@ const Home = () => {
         rowSum = rowSum + parseFloat(rowObj[`day${i}`] || 0);
       } else {
         rowSum = rowSum + parsedValue;
-        rowObj = { ...rowObj, [field]: parsedValue };
+        rowObj = { ...rowObj, [field]: parsedValue.toFixed(2) };
       }
     }
-    rowObj = { ...rowObj, weekTotal: rowSum };
+    rowObj = { ...rowObj, weekTotal: parseFloat(rowSum).toFixed(2) };
 
     // Dispatch the update for this specific row and field
     dispatch(
       updateRow({
         rowIndex,
         rowObj,
+      })
+    );
+    updateTotalRow(field, rowIndex, rowObj);
+  };
+
+  const updateTotalRow = (field, rowIndex, rowObj) => {
+    const rows = [...projectedData];
+    // we are filtering the data not to get the Total row and current updated row
+    const dataRows = rows.filter(
+      (x) => x.totalRow !== true && x.id !== rowObj.id
+    );
+    const dayColumn = dataRows.map((item) => item[field]);
+    let dayTotal = dayColumn.reduce(
+      (a, c) => parseFloat(a || 0) + parseFloat(c || 0),
+      0
+    );
+    dayTotal = parseFloat(dayTotal) + parseFloat(rowObj[field]);
+
+    // get the index of total row
+    const totalRow = rows.find((x) => x.totalRow === true);
+    let totalRowObj = {
+      ...totalRow,
+    };
+    const totalRowIndex = rows.indexOf(totalRow);
+    // do the sum of total row
+    let rowSum = 0;
+    for (let i = 0; i < 7; i++) {
+      if (`day${i}` !== field) {
+        rowSum = rowSum + parseFloat(totalRowObj[`day${i}`] || 0);
+      } else {
+        rowSum = rowSum + dayTotal;
+        totalRowObj = {
+          ...totalRowObj,
+          [field]: parseFloat(dayTotal).toFixed(2),
+        };
+      }
+    }
+    totalRowObj = {
+      ...totalRowObj,
+      weekTotal: parseFloat(rowSum).toFixed(2),
+    };
+
+    dispatch(
+      updateRow({
+        rowIndex: totalRowIndex,
+        rowObj: totalRowObj,
       })
     );
   };

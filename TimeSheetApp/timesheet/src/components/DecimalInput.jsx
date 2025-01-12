@@ -78,7 +78,7 @@ const DecimalInput = (props) => {
                     label={label}
                     value={text}
                     rows={rows}
-                    onBlur={handleBlur}
+                    // onBlur={handleBlur}
                     multiline={multiline}
                     onChange={handleChange}
                     disabled={false}
@@ -99,7 +99,7 @@ const DecimalInput = (props) => {
                     label={label}
                     value={text}
                     rows={rows}
-                    onBlur={handleBlur}
+                    // onBlur={handleBlur}
                     multiline={multiline}
                     onChange={handleChange}
                     disabled={true}
