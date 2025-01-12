@@ -33,7 +33,12 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import IconButton from "@mui/material/IconButton";
 import { setDateRange } from "store/slice/HomeSlice";
 import { Footer } from "components/Footer";
-import { deleteProjectDataById, setTotal, updateRowTotal } from "store/slice/TimesheetSlice";
+import {
+  deleteProjectDataById,
+  setTotal,
+  updateRow,
+  updateRowTotal,
+} from "store/slice/TimesheetSlice";
 
 const style = {
   position: "absolute",
@@ -201,7 +206,7 @@ const FooterButton = styled(Button)(({ theme }) => ({
 
 const SaveTimeButton = styled(Button)(({ theme }) => ({
   border: "1px solid #ED6A15",
-  marginBottom: "0.5rem"
+  marginBottom: "0.5rem",
 }));
 
 const StyledFooterText = styled(Typography)(({ theme }) => ({
@@ -224,7 +229,7 @@ const StyledSaveStack = styled(Stack)(({ theme }) => ({
 const StyledSavedTimeText = styled(Typography)(({ theme }) => ({
   color: "#ED6A15",
   fontWeight: "700",
-  fontSize: "14px", // Smaller text for small screens 
+  fontSize: "14px", // Smaller text for small screens
 }));
 
 const ModalTypography = styled(Typography)(({ theme }) => ({
@@ -485,8 +490,7 @@ const Home = () => {
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
 
-
-  console.log("projectedData", projectedData)
+  console.log("projectedData", projectedData);
   const handlePreviousWeek = () => {
     let currentStartDate;
 
@@ -557,19 +561,31 @@ const Home = () => {
   ];
 
   const handleInputChange = (field, value, rowId) => {
+    const rows = [...projectedData];
+    let rowObj = rows.find((item) => item.id === rowId);
+    const rowIndex = rows.indexOf(rowObj);
     // Convert input value to a number
-    const parsedValue = parseFloat(value) || 0;
-
-    console.log("parsedValue", parsedValue)
+    let parsedValue = parseFloat(value) || 0;
+    // do the sum of the row
+    let rowSum = 0;
+    for (let i = 0; i < 7; i++) {
+      if (`day${i}` !== field) {
+        rowSum = rowSum + parseFloat(rowObj[`day${i}`] || 0);
+      } else {
+        rowSum = rowSum + parsedValue;
+        rowObj = { ...rowObj, [field]: parsedValue };
+      }
+    }
+    rowObj = { ...rowObj, weekTotal: rowSum };
 
     // Dispatch the update for this specific row and field
-    dispatch(updateRowTotal({
-      rowId,
-      field,
-      value: parsedValue
-    }));
+    dispatch(
+      updateRow({
+        rowIndex,
+        rowObj,
+      })
+    );
   };
-
 
   const handleDelete = (rowId) => {
     // let tempRows = [...rows];
@@ -643,8 +659,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                  .join(" - ")
+                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                    .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
@@ -697,10 +713,7 @@ const Home = () => {
       </StyledStack>
       <Footer>
         {projectedData && Object?.keys(projectedData)?.length > 0 && (
-          <SaveTimeButton
-            size="medium"
-            onClick={handleSaveTime}
-          >
+          <SaveTimeButton size="medium" onClick={handleSaveTime}>
             <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
           </SaveTimeButton>
         )}
@@ -710,7 +723,7 @@ const Home = () => {
           sx={{
             backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
             padding: "0.4rem",
-            marginBottom: "0.5rem"
+            marginBottom: "0.5rem",
           }}
           disabled={
             !(
@@ -771,13 +784,9 @@ const Home = () => {
           },
         }}
       >
-        <Box sx={style} >
-          <ModalTypography>
-            Do you want to copy last week's
-          </ModalTypography>
-          <ModalTypography>
-            timesheet?
-          </ModalTypography>
+        <Box sx={style}>
+          <ModalTypography>Do you want to copy last week's</ModalTypography>
+          <ModalTypography>timesheet?</ModalTypography>
           <ButtonStack direction="row" spacing={3} mt={4}>
             <CancelButton
               id="keep-mounted-modal-title"
@@ -822,12 +831,12 @@ const Home = () => {
           {/* Add Close Button */}
           <StyledIconButton
             onClick={handleApprovalClose}
-          // sx={{
-          //   position: 'absolute',
-          //   right: '-10px',
-          //   top: '-30px',
-          //   zIndex: 1
-          // }}
+            // sx={{
+            //   position: 'absolute',
+            //   right: '-10px',
+            //   top: '-30px',
+            //   zIndex: 1
+            // }}
           >
             <CloseIcon sx={{ color: "#fff" }} />
           </StyledIconButton>
@@ -892,12 +901,12 @@ const Home = () => {
           />
           <StyledApprovalIconButton
             onClick={() => setIsTimesheetCreated(false)}
-          // sx={{
-          //   position: "absolute",
-          //   top: "-36px",
-          //   right: "0px",
-          //   color: "white",
-          // }}
+            // sx={{
+            //   position: "absolute",
+            //   top: "-36px",
+            //   right: "0px",
+            //   color: "white",
+            // }}
           >
             <CloseIcon sx={{ color: "#fff" }} />
           </StyledApprovalIconButton>

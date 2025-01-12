@@ -116,6 +116,7 @@ const AddRowsScreen = () => {
             project: selectedLevels.project || "",
             level: lastSelectedLevel,
             title: lastSelectedTitle,
+            weekTotal: 0,
             id: Math.random(),
             hierarchy: [selectedLevels.project, `${lastSelectedTitle}\n${lastSelectedLevel}`],
         };
@@ -140,6 +141,7 @@ const AddRowsScreen = () => {
                     day4: 0,
                     day5: 0,
                     day6: 0,
+                    weekTotal: 0,
                     project: "",
                     level: "Total",
                     title: '',

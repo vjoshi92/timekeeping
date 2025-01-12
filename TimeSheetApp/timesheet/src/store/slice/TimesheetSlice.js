@@ -20,6 +20,9 @@ const createFormSlice = createSlice({
       // Clean up the total for deleted row
       delete state.totals[action.payload];
     },
+    updateRow: (state,action) => {
+      state.projectData[action.payload.rowIndex] = action.payload.rowObj;
+    },
     updateRowTotal: (state, action) => {
       const { rowId, field, value } = action.payload;
       if (!state.totals[rowId]) {
@@ -41,6 +44,6 @@ const createFormSlice = createSlice({
   }
 });
 
-export const { setProjectData, deleteProjectDataById, updateRowTotal } = createFormSlice.actions;
+export const { setProjectData, deleteProjectDataById, updateRowTotal, updateRow } = createFormSlice.actions;
 
 export default createFormSlice.reducer;

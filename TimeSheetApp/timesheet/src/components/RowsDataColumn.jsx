@@ -382,7 +382,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
     const columns = [
         ...weekDayColumns,
         {
-            field: 'Actions',
+            field: 'weekTotal',
             headerName: 'ACTIONS',
             flex: 0.5,
             minWidth: 100,
@@ -392,9 +392,8 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                 }
                 return (
                     <IconButtonStyle>
-                        {Object.entries(totalValue).map(([rowId, rowTotal]) => (
-                            <TotalTypography key={rowId}>{rowTotal?.total}</TotalTypography>
-                        ))}
+                       <TotalTypography>{params.value}</TotalTypography>
+                      
                         <IconButton
                             size="small"
                             color="secondary"
