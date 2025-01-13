@@ -52,14 +52,14 @@ const DecimalInput = (props) => {
         }
 
         setText(inputValue);
-        if (onChange) {
-            onChange(inputValue);
-        }
+        // if (onChange) {
+        //     onChange(inputValue);
+        // }
     };
 
     const handleBlur = () => {
         if (text && !text.includes('.')) {
-            const formattedValue = `${text}.00`;
+            const formattedValue = parseFloat(text).toFixed(2);
             setText(formattedValue);
             if (onChange) {
                 onChange(formattedValue);
@@ -78,7 +78,7 @@ const DecimalInput = (props) => {
                     label={label}
                     value={text}
                     rows={rows}
-                    // onBlur={handleBlur}
+                    onBlur={handleBlur}
                     multiline={multiline}
                     onChange={handleChange}
                     disabled={false}

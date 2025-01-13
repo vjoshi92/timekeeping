@@ -537,7 +537,7 @@ const Home = () => {
   };
 
   const handleSaveTime = () => {
-    setSaveTimeClick(true);
+    // setSaveTimeClick(true);
     const currentTime = new Date();
     setLastSavedTime(currentTime);
   };
@@ -631,6 +631,20 @@ const Home = () => {
         rowObj: totalRowObj,
       })
     );
+    // to check the total hours if equal to 40 then enable the button
+    checkForTotalHours(totalRowObj);
+  };
+
+  const checkForTotalHours = (totalRowObj) => {
+    if (
+      totalRowObj &&
+      totalRowObj?.weekTotal &&
+      parseFloat(totalRowObj?.weekTotal) >= 40
+    ) {
+      setSaveTimeClick(true);
+    } else {
+      setSaveTimeClick(false);
+    }
   };
 
   const handleDelete = (rowId) => {
