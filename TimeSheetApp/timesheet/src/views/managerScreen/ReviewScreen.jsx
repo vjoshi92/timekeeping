@@ -328,6 +328,81 @@ const StyledDropdown = styled(Dropdown)(
   })
 );
 
+const dummyReviewData = [
+  {
+    day0: "9",
+    day1: "7",
+    day2: "5",
+    day3: "4",
+    day4: "6",
+    day5: "0",
+    day6: "",
+    project: "JMA NOFO 2 O-RU",
+    level: "Mechanical Design",
+    title: "1.4.10.2.1",
+    id: 1,
+    hierarchy: ["JMA NOFO 2 O-RU", "Mechanical Design"],
+  },
+  {
+    day0: "",
+    day1: "",
+    day2: "",
+    day3: "",
+    day4: "",
+    day5: "",
+    day6: "",
+    project: "JMA NOFO 2 O-RU",
+    title: "1.4.10.2.3",
+    level: "PCB Design",
+    id: 2,
+    hierarchy: ["JMA NOFO 2 O-RU", "PCB Design"],
+  },
+  {
+    day0: "",
+    day1: "",
+    day2: "",
+    day3: "",
+    day4: "",
+    day5: "",
+    day6: "",
+    project: "Indirect",
+    title: "1.1",
+    level: "General Training",
+    id: 3,
+    hierarchy: ["Indirect", "General Training"],
+  },
+  {
+    day0: "",
+    day1: "",
+    day2: "",
+    day3: "",
+    day4: "",
+    day5: "",
+    day6: "",
+    project: "Indirect",
+    title: "1.3",
+    level: "PTO",
+    id: 4,
+    hierarchy: ["Indirect", "PTO"],
+  },
+  {
+    day0: 0,
+    day1: 0,
+    day2: 0,
+    day3: 0,
+    day4: 0,
+    day5: 0,
+    day6: 0,
+    project: "Total",
+    title: "",
+    level: "Total",
+    id: 5,
+    hierarchy: ["Total"],
+    totalRow: true,
+    isParent: false,
+  },
+];
+
 const ReviewScreen = () => {
   const { state } = useLocation();
   const { data } = state || {};
@@ -336,9 +411,19 @@ const ReviewScreen = () => {
   const selectedDate = useSelector((state) => state?.home?.daterange);
   const [open, setOpen] = React.useState(false);
   const [openApproval, setOpenApproval] = React.useState(false);
+  const [actionMsg, setActionMsg] = useState('');
   const [openRejection, setOpenRejection] = React.useState(false);
+  const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
+  const [showRelese, setShowRelease] = useState(false);
   const handleOpen = () => setOpen(true);
-  const handleApproval = () => setOpenApproval(true);
+  const handleApproval = (type) => {
+    if(type == "reject"){
+      setActionMsg("Are you sure you want to reject this timesheet?")
+    }else{
+      setActionMsg("Are you sure you want to approve this timesheet?")
+    }
+    setOpenApproval(true);
+  };
   const handleRejection = () => setOpenRejection(true);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const handelSaveNote = () => {
@@ -438,81 +523,6 @@ const ReviewScreen = () => {
     { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
   ];
 
-  const dummyReviewData = [
-    {
-      day0: "9",
-      day1: "7",
-      day2: "5",
-      day3: "4",
-      day4: "6",
-      day5: "0",
-      day6: "",
-      project: "JMA NOFO 2 SRFA 1",
-      level: "Mechanical Design",
-      title: "NOF-1.5.1.1.1",
-      id: 1,
-      hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
-    },
-    {
-      day0: "",
-      day1: "",
-      day2: "",
-      day3: "",
-      day4: "",
-      day5: "",
-      day6: "",
-      project: "JMA NOFO 2 SRFA 1",
-      title: "NOF-1.5.1.1.1",
-      level: "Technical Documentation",
-      id: 2,
-      hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
-    },
-    {
-      day0: "",
-      day1: "",
-      day2: "",
-      day3: "",
-      day4: "",
-      day5: "",
-      day6: "",
-      project: "JMA NOFO 2 SRFA 1",
-      title: "NOF-1.4.8.1.1",
-      level: "HW Verification and Validation",
-      id: 3,
-      hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
-    },
-    {
-      day0: "",
-      day1: "",
-      day2: "",
-      day3: "",
-      day4: "",
-      day5: "",
-      day6: "",
-      project: "Non-NOFO",
-      title: "NOF-1.4.8.1.1",
-      level: "PTO",
-      id: 4,
-      hierarchy: ["Non-NOFO", "PTO"],
-    },
-    {
-      day0: 0,
-      day1: 0,
-      day2: 0,
-      day3: 0,
-      day4: 0,
-      day5: 0,
-      day6: 0,
-      project: "Total",
-      title: "",
-      level: "Total",
-      id: 5,
-      hierarchy: ["Total"],
-      totalRow: true,
-      isParent: false,
-    },
-  ];
-
   const handleInputChange = (field, value, rowId) => {
     let tempRows = [...rows];
     let tempRow = tempRows[rowId];
@@ -543,12 +553,21 @@ const ReviewScreen = () => {
     isParent: false,
   });
 
+  const handleRejected = (hasNote) => {
+    if (hasNote && hasNote?.size !== 0) {
+      setTimesheetRejected(true);
+    } else {
+      setTimesheetRejected(false);
+    }
+  };
+
   const ReviewData = ReviewColumns({
     rows,
     selectedDate,
     handleInputChange,
     handleDelete,
     isParent: false,
+    handleRejected,
   });
 
   const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
@@ -741,14 +760,17 @@ const ReviewScreen = () => {
             marginBottom: "5%",
           }}
         >
-          <ReworkButton variant="contained" color="error">
-            Release Timesheet
-          </ReworkButton>
+          {showRelese && (
+            <ReworkButton variant="contained" color="error">
+              Release Timesheet
+            </ReworkButton>
+          )}
           <RejectButton
+            disabled={!isTimeSheetRejected}
             variant="contained"
             color="error"
             sx={{ width: { xs: "100%", sm: "200px" } }}
-            onClick={() => handleRejection()}
+            onClick={() => handleApproval("reject")}
           >
             Reject
           </RejectButton>
@@ -756,7 +778,7 @@ const ReviewScreen = () => {
             variant="contained"
             color="success"
             sx={{ width: { xs: "100%", sm: "200px" } }}
-            onClick={() => handleApproval()}
+            onClick={() => handleApproval("approve")}
           >
             Approve
           </ApproveButton>
@@ -844,7 +866,8 @@ const ReviewScreen = () => {
           </StyledIconButton>
 
           <DescriptionTypography>
-            Are you sure you want to approve this timesheet?
+          {actionMsg}
+            
           </DescriptionTypography>
           <NoteButtonStack direction="row" spacing={3}>
             <CancelNoteButton

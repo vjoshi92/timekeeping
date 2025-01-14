@@ -19,7 +19,7 @@ const groupingColDef = {
   headerName: "",
   pinnable: true,
   pinned: "left",
-  minWidth: 150,
+  minWidth: 180,
   flex: 1,
   renderCell: (params) => {
     return params.row.title ? (
@@ -86,8 +86,7 @@ export default function TreeGrid({ columns, density, data }) {
         treeData
         rows={data}
         columns={columns}
-        hideFooter
-        au
+        hideFooter      
         density={density || "compact"}
         apiRef={useGridApiRef()}
         getTreeDataPath={getTreeDataPath}
