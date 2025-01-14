@@ -1,4 +1,4 @@
-import { Box, styled } from "@mui/material";
+import { Box, Paper, styled } from "@mui/material";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -9,8 +9,8 @@ const StyledBox = styled(Box)(({ theme }) => ({
   // minHeight: "2.5rem", // Maintain minimum height
   borderRadius: "4px",
   padding: "0.7rem",
-  paddingLeft:"1rem",
-  paddingRight:"1rem",
+  paddingLeft: "1rem",
+  paddingRight: "1rem",
   position: "absolute",
   bottom: 1,
   boxSizing: "border-box",
@@ -22,5 +22,17 @@ const StyledBox = styled(Box)(({ theme }) => ({
   },
 }));
 export const Footer = (props) => {
-  return <StyledBox>{props.children}</StyledBox>;
+  return <Paper
+    sx={{
+      marginTop: "calc(10% + 60px)",
+      position: "fixed",
+      bottom: 0,
+      width: "100%",
+    }}
+    component="footer"
+    square
+    variant="outlined"
+  >
+    <StyledBox>{props.children}</StyledBox>
+  </Paper>;
 };

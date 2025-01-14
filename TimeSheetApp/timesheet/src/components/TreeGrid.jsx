@@ -81,13 +81,13 @@ LicenseInfo.setLicenseKey(
 export default function TreeGrid({ columns, density, data }) {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   return (
-    <Box style={{ height: "auto", width: "100%" }}>
+    <div style={{ height:450, width: "100%" }}>
       <DataGridPro
         treeData
         rows={data}
         columns={columns}
         hideFooter
-        autoHeight
+        au
         density={density || "compact"}
         apiRef={useGridApiRef()}
         getTreeDataPath={getTreeDataPath}
@@ -98,7 +98,7 @@ export default function TreeGrid({ columns, density, data }) {
         disableColumnMenu
         defaultGroupingExpansionDepth={-1}
       />
-    </Box>
+    </div>
   );
 }
 

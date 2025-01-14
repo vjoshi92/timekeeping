@@ -754,7 +754,7 @@ const Home = () => {
             </StyledButton2>
           </Stack>
         </StyledStackButton>
-        <Stack mt={2}>
+        <Stack mt={2} mb={10}>
           {projectedData && Object?.keys(projectedData)?.length > 0 ? (
             <TreeGrid
               columns={AllRowsColumns}
