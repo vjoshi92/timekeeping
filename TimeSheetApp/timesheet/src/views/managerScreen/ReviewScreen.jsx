@@ -430,7 +430,7 @@ const ReviewScreen = () => {
       setActionMsg("Are you sure you want to approve this timesheet?");
     }
     setOpenApproval(true);
-    setShowRelease(true);
+  
   };
   const handleRejection = () => setOpenRejection(true);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -441,11 +441,14 @@ const ReviewScreen = () => {
     setSnackbarOpen(true);
     if (actionMsg.indexOf("approve") >= 0) {
       setSnackBarMsg("Timesheet Approved !!");
+      setShowRelease(true);
     } else if (actionMsg.indexOf("reject") >= 0) {
       setSnackBarMsg("Timesheet Reject !!");
+      setShowRelease(true);
     } else {
       setSnackBarMsg("Timesheet Released !!");
     }
+   
     // navigate(-1);
   };
   const handleClose = () => setOpen(false);
