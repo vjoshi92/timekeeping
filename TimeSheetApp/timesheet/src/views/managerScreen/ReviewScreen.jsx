@@ -170,7 +170,7 @@ const SaveNoteTypography = styled(Typography)(({ theme }) => ({
 const CancelNoteTypography = styled(Typography)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: "700",
-  color: "#005AA6",
+  color: "#ED6A15",
 }));
 
 const CancelNoteButton = styled(Button)(({ theme }) => ({
@@ -178,7 +178,7 @@ const CancelNoteButton = styled(Button)(({ theme }) => ({
   height: "42px",
   marginRight: "10px",
   borderRadius: "6px",
-  border: "1px solid #005AA6",
+  border: "1px solid #ED6A15",
   boxShadow: 1,
 }));
 
@@ -218,7 +218,7 @@ const SaveNoteButton = styled(Button)(({ theme }) => ({
   height: "42px",
   marginRight: "10px",
   borderRadius: "6px",
-  backgroundColor: "#005AA6",
+  backgroundColor: "#ED6A15",
   boxShadow: 1,
 }));
 
@@ -330,13 +330,14 @@ const StyledDropdown = styled(Dropdown)(
 
 const dummyReviewData = [
   {
-    day0: "9",
-    day1: "7",
-    day2: "5",
-    day3: "4",
-    day4: "6",
+    day0: "2",
+    day1: "2",
+    day2: "2",
+    day3: "2",
+    day4: "2",
     day5: "0",
-    day6: "",
+    day6: "0",
+    weekTotal: 10,
     project: "JMA NOFO 2 O-RU",
     level: "Mechanical Design",
     title: "1.4.10.2.1",
@@ -344,13 +345,14 @@ const dummyReviewData = [
     hierarchy: ["JMA NOFO 2 O-RU", "Mechanical Design"],
   },
   {
-    day0: "",
-    day1: "",
-    day2: "",
-    day3: "",
-    day4: "",
-    day5: "",
-    day6: "",
+    day0: "2",
+    day1: "2",
+    day2: "2",
+    day3: "2",
+    day4: "2",
+    day5: "0",
+    day6: "0",
+    weekTotal: 10,
     project: "JMA NOFO 2 O-RU",
     title: "1.4.10.2.3",
     level: "PCB Design",
@@ -358,13 +360,14 @@ const dummyReviewData = [
     hierarchy: ["JMA NOFO 2 O-RU", "PCB Design"],
   },
   {
-    day0: "",
-    day1: "",
-    day2: "",
-    day3: "",
-    day4: "",
-    day5: "",
-    day6: "",
+    day0: "2",
+    day1: "2",
+    day2: "2",
+    day3: "2",
+    day4: "2",
+    day5: "0",
+    day6: "0",
+    weekTotal: 10,
     project: "Indirect",
     title: "1.1",
     level: "General Training",
@@ -372,13 +375,14 @@ const dummyReviewData = [
     hierarchy: ["Indirect", "General Training"],
   },
   {
-    day0: "",
-    day1: "",
-    day2: "",
-    day3: "",
-    day4: "",
-    day5: "",
-    day6: "",
+    day0: "2",
+    day1: "2",
+    day2: "2",
+    day3: "2",
+    day4: "2",
+    day5: "0",
+    day6: "0",
+    weekTotal: 10,
     project: "Indirect",
     title: "1.3",
     level: "PTO",
@@ -386,13 +390,14 @@ const dummyReviewData = [
     hierarchy: ["Indirect", "PTO"],
   },
   {
-    day0: 0,
-    day1: 0,
-    day2: 0,
-    day3: 0,
-    day4: 0,
+    day0: 8,
+    day1: 8,
+    day2: 8,
+    day3: 8,
+    day4: 8,
     day5: 0,
     day6: 0,
+    weekTotal: 40,
     project: "Total",
     title: "",
     level: "Total",
@@ -411,25 +416,37 @@ const ReviewScreen = () => {
   const selectedDate = useSelector((state) => state?.home?.daterange);
   const [open, setOpen] = React.useState(false);
   const [openApproval, setOpenApproval] = React.useState(false);
-  const [actionMsg, setActionMsg] = useState('');
+  const [actionMsg, setActionMsg] = useState("");
   const [openRejection, setOpenRejection] = React.useState(false);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [showRelese, setShowRelease] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleApproval = (type) => {
-    if(type == "reject"){
-      setActionMsg("Are you sure you want to reject this timesheet?")
-    }else{
-      setActionMsg("Are you sure you want to approve this timesheet?")
+    if (type == "reject") {
+      setActionMsg("Are you sure you want to reject this timesheet?");
+    } else if (type == "release") {
+      setActionMsg("Are you sure you want to release this timesheet?");
+    } else {
+      setActionMsg("Are you sure you want to approve this timesheet?");
     }
     setOpenApproval(true);
+    setShowRelease(true);
   };
   const handleRejection = () => setOpenRejection(true);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackBarMsg, setSnackBarMsg] = useState("");
+
   const handelSaveNote = () => {
     setOpenApproval(false);
     setSnackbarOpen(true);
-    navigate(-1);
+    if (actionMsg.indexOf("approve") >= 0) {
+      setSnackBarMsg("Timesheet Approved !!");
+    } else if (actionMsg.indexOf("reject") >= 0) {
+      setSnackBarMsg("Timesheet Reject !!");
+    } else {
+      setSnackBarMsg("Timesheet Released !!");
+    }
+    // navigate(-1);
   };
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenRejection(false);
@@ -761,12 +778,16 @@ const ReviewScreen = () => {
           }}
         >
           {showRelese && (
-            <ReworkButton variant="contained" color="error">
+            <ReworkButton
+              variant="contained"
+              color="error"
+              onClick={() => handleApproval("release")}
+            >
               Release Timesheet
             </ReworkButton>
           )}
           <RejectButton
-            disabled={!isTimeSheetRejected}
+            disabled={!isTimeSheetRejected || showRelese}
             variant="contained"
             color="error"
             sx={{ width: { xs: "100%", sm: "200px" } }}
@@ -775,6 +796,7 @@ const ReviewScreen = () => {
             Reject
           </RejectButton>
           <ApproveButton
+            disabled={showRelese}
             variant="contained"
             color="success"
             sx={{ width: { xs: "100%", sm: "200px" } }}
@@ -865,10 +887,7 @@ const ReviewScreen = () => {
             <CloseIcon />
           </StyledIconButton>
 
-          <DescriptionTypography>
-          {actionMsg}
-            
-          </DescriptionTypography>
+          <DescriptionTypography>{actionMsg}</DescriptionTypography>
           <NoteButtonStack direction="row" spacing={3}>
             <CancelNoteButton
               id="keep-mounted-modal-title"
@@ -898,10 +917,16 @@ const ReviewScreen = () => {
       >
         <Alert
           onClose={handleSnackbarClose}
-          severity="success"
+          severity={
+            snackBarMsg.indexOf("Approved") >= 0
+              ? "success"
+              : snackBarMsg.indexOf("Reject") >= 0
+                ? "error"
+                : "success"
+          }
           sx={{ width: "100%" }}
         >
-          Timesheet Approved Sucessfully !
+          {snackBarMsg}
         </Alert>
       </Snackbar>
     </StyledStack>

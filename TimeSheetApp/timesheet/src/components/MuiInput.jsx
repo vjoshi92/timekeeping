@@ -41,32 +41,32 @@ const MuiInput = (props) => {
     const handleChange = (e) => {
         let inputValue = e.target.value;
 
-        // Remove any non-digit characters
-        inputValue = inputValue.replace(/[^\d.]/g, '');
+        // // Remove any non-digit characters
+        // inputValue = inputValue.replace(/[^\d.]/g, '');
 
-        // Remove all decimal points except the first one
-        const parts = inputValue.split('.');
-        if (parts.length > 1) {
-            inputValue = parts[0] + '.' + parts.slice(1).join('');
-        }
+        // // Remove all decimal points except the first one
+        // const parts = inputValue.split('.');
+        // if (parts.length > 1) {
+        //     inputValue = parts[0] + '.' + parts.slice(1).join('');
+        // }
 
-        // Ensure only two digits after decimal
-        if (parts.length > 1 && parts[1].length > 2) {
-            inputValue = parts[0] + '.' + parts[1].substring(0, 2);
-        }
+        // // Ensure only two digits after decimal
+        // if (parts.length > 1 && parts[1].length > 2) {
+        //     inputValue = parts[0] + '.' + parts[1].substring(0, 2);
+        // }
 
-        // Add decimal point after two digits if no decimal exists
-        if (!inputValue.includes('.') && inputValue.length > 2) {
-            inputValue = inputValue.substring(0, 2) + '.' + inputValue.substring(2);
-        }
+        // // Add decimal point after two digits if no decimal exists
+        // if (!inputValue.includes('.') && inputValue.length > 2) {
+        //     inputValue = inputValue.substring(0, 2) + '.' + inputValue.substring(2);
+        // }
 
-        // Ensure maximum length
-        if (inputValue.includes('.')) {
-            const [whole, decimal] = inputValue.split('.');
-            if (whole.length > 2) {
-                inputValue = whole.substring(0, 2) + '.' + (decimal || '');
-            }
-        }
+        // // Ensure maximum length
+        // if (inputValue.includes('.')) {
+        //     const [whole, decimal] = inputValue.split('.');
+        //     if (whole.length > 2) {
+        //         inputValue = whole.substring(0, 2) + '.' + (decimal || '');
+        //     }
+        // }
 
         setText(inputValue);
         if (onChange) {
@@ -88,11 +88,7 @@ const MuiInput = (props) => {
                     onChange={handleChange}
                     disabled={false}
                     type="text"
-                    error={error}
-                    inputProps={{
-                        inputMode: 'decimal',
-                        pattern: '[0-9]*[.][0-9]*'
-                    }}
+                    error={error}                    
                 />
             )}
 
@@ -108,11 +104,7 @@ const MuiInput = (props) => {
                     onChange={handleChange}
                     disabled={true}
                     type="text"
-                    error={error}
-                    inputProps={{
-                        inputMode: 'decimal',
-                        pattern: '[0-9]*[.][0-9]*'
-                    }}
+                    error={error}                    
                 />
             )}
             {error && helperText && (

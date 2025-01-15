@@ -124,9 +124,9 @@ export default function ApprovalsDatagrid() {
               onClick={() => handleEyeClick(params)}
             />
           </Tooltip>
-          <Tooltip title="Approve timesheet">
+          {/* <Tooltip title="Approve timesheet">
             <ApprovalIcon sx={{ color: "#005AA6", marginRight: "10%" }} />
-          </Tooltip>
+          </Tooltip> */}
           {/* <CloseIcon color="error" style={{ cursor: 'pointer', marginRight: "10%" }} /> */}
           <Tooltip title="Approve timesheet">
             <CheckIcon color="success" style={{ cursor: "pointer" }} />
@@ -139,7 +139,7 @@ export default function ApprovalsDatagrid() {
     {
       id: 1,
       employeeId: "100190",
-      employeeName: "Jon doe",
+      employeeName: "Jon Doe",
       timesheet: "23 - 29 Sep 2024",
       totalHours: "40",
       status: "Pending",
@@ -209,7 +209,7 @@ export default function ApprovalsDatagrid() {
     {
       id: 2,
       employeeId: "100191",
-      employeeName: "Alice wok",
+      employeeName: "Alice Wok",
       timesheet: "23 - 29 Sep 2024",
       totalHours: "52",
       status: "Pending",
@@ -279,7 +279,7 @@ export default function ApprovalsDatagrid() {
     {
       id: 3,
       employeeId: "100192",
-      employeeName: "Mark doe",
+      employeeName: "Mark Doe",
       timesheet: "23 - 29 Sep 2024",
       totalHours: "40",
       status: "Pending",
@@ -349,7 +349,7 @@ export default function ApprovalsDatagrid() {
     {
       id: 4,
       employeeId: "100193",
-      employeeName: "Sara liz",
+      employeeName: "Sara Liz",
       timesheet: "23 - 29 Sep 2024",
       totalHours: "42",
       status: "Pending",
@@ -419,7 +419,7 @@ export default function ApprovalsDatagrid() {
     {
       id: 5,
       employeeId: "100194",
-      employeeName: "Paul heyman",
+      employeeName: "Paul Heyman",
       timesheet: "23 - 29 Sep 2024",
       totalHours: "40",
       status: "Pending",

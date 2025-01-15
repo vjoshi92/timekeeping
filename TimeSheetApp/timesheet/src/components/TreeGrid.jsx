@@ -2,8 +2,9 @@ import * as React from "react";
 import { DataGridPro } from "@mui/x-data-grid-pro";
 import { LicenseInfo } from "@mui/x-license";
 import { useSelector } from "react-redux";
-import { Box, Stack, styled, Tooltip, Typography } from "@mui/material";
+import { Box, Stack, Step, StepLabel, Stepper, styled, Tooltip, Typography } from "@mui/material";
 import { useGridApiRef } from "@mui/x-data-grid-premium";
+import CustomPopover from "./CustomPopover";
 
 const EmptyBox = styled(Typography)(({ theme }) => ({
   width: "100%",
@@ -13,6 +14,37 @@ const EmptyBox = styled(Typography)(({ theme }) => ({
 const getTreeDataPath = (row) => {
   if (row.isTotal) return ["Total"];
   return row?.hierarchy;
+};
+const steps = [
+  {
+    label: "JMA NOFO 2 O-RU",    
+  },
+  {
+    label: "1.4 / Phase 2",    
+  },
+  {
+    label: "1.4.10 / AT&T RU [XR35TWV4/ACT-O] C-Band 4x30W (Ph2)",    
+  },
+  {
+    label: "1.4.10.2 / Design Implementation (Second Run)",    
+  },
+  {
+    label: "1.4.10.2.1 / Mechanical Design",    
+  },
+];
+
+const customStepper = () => {
+  return (
+    <Stepper orientation="vertical" activeStep={-1}>
+      {steps.map((step, index) => (
+        <Step key={step.label}>
+          <StepLabel>
+            {step.label}
+          </StepLabel>          
+        </Step>
+      ))}
+    </Stepper>
+  );
 };
 
 const groupingColDef = {
@@ -25,9 +57,14 @@ const groupingColDef = {
     return params.row.title ? (
       <Stack ml={"1rem"}>
         <Typography fontWeight={700}>{params.row.title}</Typography>
-        <Tooltip title={params.row.level}>
+        {/* <Tooltip title={params.row.level}></Tooltip> */}
+        <CustomPopover
+          content={
+            customStepper()
+          }
+        >
           <Typography>{params.row.level}</Typography>
-        </Tooltip>
+        </CustomPopover>
       </Stack>
     ) : (
       <Typography mt={"1rem"} fontWeight={700}>
@@ -81,12 +118,12 @@ LicenseInfo.setLicenseKey(
 export default function TreeGrid({ columns, density, data }) {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   return (
-    <div style={{ height:450, width: "100%" }}>
+    <div style={{ height: 450, width: "100%" }}>
       <DataGridPro
         treeData
         rows={data}
         columns={columns}
-        hideFooter      
+        hideFooter
         density={density || "compact"}
         apiRef={useGridApiRef()}
         getTreeDataPath={getTreeDataPath}

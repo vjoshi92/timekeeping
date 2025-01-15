@@ -37,7 +37,7 @@ const PendingApprovals = () => {
                 <ApprovalsDatagrid />
             </Box>
             <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
-                <StyledButton
+                {/* <StyledButton
                     variant="contained"
                     color="#005AA6"
                     sx={{
@@ -49,7 +49,7 @@ const PendingApprovals = () => {
                     }}
                 >
                     Release Timesheet
-                </StyledButton>
+                </StyledButton> */}
                 {/* <StyledButton
                     variant="contained"
                     color="error"

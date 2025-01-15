@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Fade,
+  Grid2,
   Modal,
   Popper,
   Stack,
@@ -35,6 +36,7 @@ import { setDateRange } from "store/slice/HomeSlice";
 import { Footer } from "components/Footer";
 import {
   deleteProjectDataById,
+  setApprovalCount,
   setTotal,
   updateRow,
   updateRowTotal,
@@ -60,8 +62,8 @@ const ApprovalBox = styled(Box)(({ theme }) => ({
   backgroundColor: "#FFFFFF",
   display: "flex",
   borderRadius: "6px",
-  width: "320px",
-  height: "300px",
+  width: "30%",
+  // height: "300px",
   position: "relative",
   flexDirection: "column",
   padding: "20px",
@@ -409,12 +411,12 @@ const StyledApprovalBox = styled(Box)(({ theme }) => ({
   boxShadow: 3,
 }));
 
-const StyledApprovalIconButton = styled(IconButton)(({ theme }) => ({
-  position: "absolute",
-  top: "-36px",
-  right: "0px",
-  color: "white",
-}));
+// const StyledApprovalIconButton = styled(IconButton)(({ theme }) => ({
+//   position: "absolute",
+//   // top: "-36px",
+//   right: "0px",
+//   color: "white",
+// }));
 
 const StyledStack = styled(Box)(({ theme }) => ({
   backgroundColor: "#FFFFFF",
@@ -445,22 +447,40 @@ const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
   const selectedDate = useSelector((state) => state?.home?.daterange);
+  const approvalCount = useSelector(
+    (state) => state?.CreateForm?.approvalCount
+  );
   const [open, setOpen] = React.useState(false);
+  const [approvalMsg, setApprovalMsg] = useState();
   const [openApproval, setOpenApproval] = React.useState(false);
   const [saveTimeClick, setSaveTimeClick] = useState(false);
   const [isTimesheetCreated, setIsTimesheetCreated] = useState(false);
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
-  const handleApproval = () => setOpenApproval(true);
+  const handleApproval = () => {
+    if (approvalCount == 0) {
+      setApprovalMsg(
+        "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
+      );
+    } else {
+      setApprovalMsg(
+        "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
+      );
+    }
+    setOpenApproval(true);
+  };
   const handelSaveNote = () => {
     setOpenApproval(false);
     setIsTimesheetCreated(true);
+    let aCount = approvalCount + 1;
+    dispatch(setApprovalCount(aCount));
   };
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenApproval(false);
   const navigate = useNavigate();
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
+
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const dispatch = useDispatch();
   const formatDateTime = (date) => {
@@ -889,28 +909,37 @@ const Home = () => {
       >
         <ApprovalBox>
           {/* Add Close Button */}
-          <StyledIconButton
-            onClick={handleApprovalClose}
-            // sx={{
-            //   position: 'absolute',
-            //   right: '-10px',
-            //   top: '-30px',
-            //   zIndex: 1
-            // }}
-          >
-            <CloseIcon sx={{ color: "#fff" }} />
-          </StyledIconButton>
-          <StyledModalBox>
-            <AcknowledgeTypography>
-              <ErrorOutlineIcon sx={{ width: "50px", height: "50px" }} />
-            </AcknowledgeTypography>
-            <AcknowledgeTypography>Acknowledgement</AcknowledgeTypography>
-          </StyledModalBox>
-          <DescriptionTypography>
-            By signing this timesheet you are certifying that hours were
-            incurred on the charge and day specified in accordance with company
-            policies and procedures.
-          </DescriptionTypography>
+          <Stack direction={"row"} justifyContent={"end"}>
+            <IconButton onClick={handleApprovalClose}>
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          <Stack direction={"row"} justifyContent={"center"}>
+            <StyledModalBox>
+              <AcknowledgeTypography>
+                <ErrorOutlineIcon sx={{ width: "50px", height: "50px" }} />
+              </AcknowledgeTypography>
+              <AcknowledgeTypography>Acknowledgement</AcknowledgeTypography>
+            </StyledModalBox>
+          </Stack>
+
+          {/* <Grid2 container>
+            <Grid2 item sx={8} sm={8} md={8} lg={8} >
+              <StyledModalBox>
+                <AcknowledgeTypography>
+                  <ErrorOutlineIcon sx={{ width: "50px", height: "50px" }} />
+                </AcknowledgeTypography>
+                <AcknowledgeTypography>Acknowledgement</AcknowledgeTypography>
+              </StyledModalBox>
+            </Grid2>
+            <Grid2 item sx={4} sm={4} md={4} lg={4}>
+              <IconButton onClick={handleApprovalClose}>
+                <CloseIcon />
+              </IconButton>
+            </Grid2>
+          </Grid2> */}
+
+          <DescriptionTypography>{approvalMsg}</DescriptionTypography>
           <NoteButtonStack direction="row" spacing={3}>
             <CancelNoteButton
               id="keep-mounted-modal-title"
@@ -955,21 +984,16 @@ const Home = () => {
             },
           }}
         >
+          <Stack direction={"row"}>
+            <IconButton onClick={() => setIsTimesheetCreated(false)}>
+              <CloseIcon sx={{ color: "#fff" }} />
+            </IconButton>
+          </Stack>
           <CheckCircleOutlineIcon
             color="#41AF6E"
             sx={{ color: "#41AF6E", width: "50px", height: "50px" }}
           />
-          <StyledApprovalIconButton
-            onClick={() => setIsTimesheetCreated(false)}
-            // sx={{
-            //   position: "absolute",
-            //   top: "-36px",
-            //   right: "0px",
-            //   color: "white",
-            // }}
-          >
-            <CloseIcon sx={{ color: "#fff" }} />
-          </StyledApprovalIconButton>
+
           <TimesheetText>Your timesheet has been submitted</TimesheetText>
           <TimesheetText>for approval</TimesheetText>
           <CloseButton

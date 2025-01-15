@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const StatusColorFormatter = (status) => {
     if (status) {
         const sStatus = status.toLowerCase(); // Converts status to lowercase
@@ -48,3 +50,27 @@ export const formatDate = (dateString) => {
 
     return `${year}/${month}/${day}`;
 };
+
+export const formatFullDateString = (dateValue) => {
+    if (dateValue && dateValue !== "0000-00-00") {
+        return dayjs(dateValue).format('DD-MMM-YYYY');
+    } else {
+        if(dateValue === "0000-00-00"){
+            return null;
+        }else{
+            return dateValue;
+        }
+    }
+}
+
+export const formatFullTimeString = (dateValue) => {
+    if (dateValue && dateValue !== "0000-00-00") {
+        return dayjs(dateValue).format('HH:mm:ss');
+    } else {
+        if(dateValue === "0000-00-00"){
+            return null;
+        }else{
+            return dateValue;
+        }
+    }
+}
