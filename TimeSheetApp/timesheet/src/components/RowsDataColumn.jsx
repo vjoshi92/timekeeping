@@ -17,7 +17,7 @@ import RejectModal from './RejectModal';
 const HeaderStyledBox = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     height: '100%',
     width: "100%",
 }));
@@ -31,7 +31,7 @@ const StyledDrawerDivider = styled(Divider)({
 
 const DayBox = styled(Box)(({ theme }) => ({
     fontWeight: '700',
-    textAlign: 'center'
+    textAlign: 'left'
 }));
 const EmptyBox = styled(Box)(({ theme }) => ({
     width: '100%',
@@ -41,7 +41,7 @@ const EmptyBox = styled(Box)(({ theme }) => ({
 const DateBox = styled(Box)(({ theme }) => ({
     fontWeight: '400',
     fontSize: '14px',
-    textAlign: 'center'
+    textAlign: 'left'
 }));
 const TotalTypography = styled(Typography)(({ theme }) => ({
     color: "#121212DE",
@@ -100,6 +100,7 @@ const ModalStyledTypography = styled(Box)(({ theme }) => ({
 export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [activeInputId, setActiveInputId] = useState(null);
+    const [hasNote, setHasNote] = useState(new Set());
     const totalValue = useSelector(state => state?.CreateForm?.totals);
 
     // console.log("totalvalue", totalValue)
@@ -154,7 +155,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                 borderBottom: "5px solid black",
                 headerClassName: isToday ? 'highlight-column' : '',
                 renderHeader: () => (
-                    <HeaderStyledBox
+                    <HeaderStyledBox justifyContent={'left'}
                         sx={{
                             borderBottom: isToday ? '4px solid #ED6A15' : 'none',
                             "& .MuiDataGrid-columnHeaderTitleContainer": {
@@ -192,7 +193,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
 
                     const inputId = `${params.row.id}-day${i}`;
                     const isActive = activeInputId === inputId && !modalOpen;
-
+                    const inputHasNote = hasNote.has(inputId);
                     return (
                         <InputStyleBox
                             sx={{
@@ -221,6 +222,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                         }
                                     }
                                 }}
+                                
                             />
                             <IconButton
                                 size="small"
@@ -229,7 +231,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                             >
                                 <TextSnippetOutlined sx={
                                     {
-                                        color: "grey",
+                                        color: inputHasNote ? "red" : "grey",
                                         fontWeight: "400"
                                     }
                                 } />
@@ -372,7 +374,8 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                             <RejectModal
                                 open={modalOpen}
                                 onClose={handleCloseModal}
-                                
+                                activeInputId={activeInputId}
+                                setHasNote={setHasNote}
                             />
                         </InputStyleBox>
                     );

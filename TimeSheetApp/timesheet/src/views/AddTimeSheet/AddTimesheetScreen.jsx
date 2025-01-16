@@ -161,7 +161,7 @@ const AddRowsScreen = () => {
       project: selectedLevels.project || "",
       level: lastSelectedLevel,
       title: lastSelectedTitle,
-      weekTotal: 0,
+      weekTotal: "0.00",
       id: Math.random(),
       hierarchy: [
         selectedLevels.project,
@@ -179,14 +179,14 @@ const AddRowsScreen = () => {
       if (tData && tData.length === 0) {
         tData.push(data);
         tData.push({
-          day0: 0,
-          day1: 0,
-          day2: 0,
-          day3: 0,
-          day4: 0,
-          day5: 0,
-          day6: 0,
-          weekTotal: 0,
+          day0: "0.00",
+          day1: "0.00",
+          day2: "0.00",
+          day3: "0.00",
+          day4: "0.00",
+          day5: "0.00",
+          day6: "0.00",
+          weekTotal: "0.00",
           project: "",
           level: "Total",
           title: "",

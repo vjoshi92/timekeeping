@@ -345,7 +345,7 @@ export default function Header() {
             />
             <StyledBox >
               <StyledTypography>
-                MY TEAMS'S TIMESHEETS
+                MY TEAM'S TIMESHEETS
               </StyledTypography>
               <ApprovalStyledBox direction={"row"}
                 onClick={() => { navigate("/pendingApprovals"); handleClose(); }}

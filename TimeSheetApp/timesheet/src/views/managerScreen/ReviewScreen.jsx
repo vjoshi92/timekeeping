@@ -330,14 +330,15 @@ const StyledDropdown = styled(Dropdown)(
 
 const dummyReviewData = [
   {
-    day0: "2",
-    day1: "2",
-    day2: "2",
-    day3: "2",
-    day4: "2",
-    day5: "0",
-    day6: "0",
-    weekTotal: 10,
+    day0: "2.00",
+    day1: "2.00",
+    day2: "2.00",
+    day3: "2.00",
+    day4: "2.00",
+    day5: "0.00",
+    day6: "0.00",
+    isNote: true,
+    weekTotal: "10.00",
     project: "JMA NOFO 2 O-RU",
     level: "Mechanical Design",
     title: "1.4.10.2.1",
@@ -345,14 +346,14 @@ const dummyReviewData = [
     hierarchy: ["JMA NOFO 2 O-RU", "Mechanical Design"],
   },
   {
-    day0: "2",
-    day1: "2",
-    day2: "2",
-    day3: "2",
-    day4: "2",
-    day5: "0",
-    day6: "0",
-    weekTotal: 10,
+    day0: "2.00",
+    day1: "2.00",
+    day2: "2.00",
+    day3: "2.00",
+    day4: "2.00",
+    day5: "0.00",
+    day6: "0.00",
+    weekTotal: "10.00",
     project: "JMA NOFO 2 O-RU",
     title: "1.4.10.2.3",
     level: "PCB Design",
@@ -360,14 +361,14 @@ const dummyReviewData = [
     hierarchy: ["JMA NOFO 2 O-RU", "PCB Design"],
   },
   {
-    day0: "2",
-    day1: "2",
-    day2: "2",
-    day3: "2",
-    day4: "2",
-    day5: "0",
-    day6: "0",
-    weekTotal: 10,
+    day0: "2.00",
+    day1: "2.00",
+    day2: "2.00",
+    day3: "2.00",
+    day4: "2.00",
+    day5: "0.00",
+    day6: "0.00",
+    weekTotal: "10.00",
     project: "Indirect",
     title: "1.1",
     level: "General Training",
@@ -375,14 +376,14 @@ const dummyReviewData = [
     hierarchy: ["Indirect", "General Training"],
   },
   {
-    day0: "2",
-    day1: "2",
-    day2: "2",
-    day3: "2",
-    day4: "2",
-    day5: "0",
-    day6: "0",
-    weekTotal: 10,
+    day0: "2.00",
+    day1: "2.00",
+    day2: "2.00",
+    day3: "2.00",
+    day4: "2.00",
+    day5: "0.00",
+    day6: "0.00",
+    weekTotal: "10.00",
     project: "Indirect",
     title: "1.3",
     level: "PTO",
@@ -390,14 +391,14 @@ const dummyReviewData = [
     hierarchy: ["Indirect", "PTO"],
   },
   {
-    day0: 8,
-    day1: 8,
-    day2: 8,
-    day3: 8,
-    day4: 8,
-    day5: 0,
-    day6: 0,
-    weekTotal: 40,
+    day0: "8.00",
+    day1: "8.00",
+    day2: "8.00",
+    day3: "8.00",
+    day4: "8.00",
+    day5: "0.00",
+    day6: "0.00",
+    weekTotal: "40.00",
     project: "Total",
     title: "",
     level: "Total",
@@ -430,7 +431,6 @@ const ReviewScreen = () => {
       setActionMsg("Are you sure you want to approve this timesheet?");
     }
     setOpenApproval(true);
-
   };
   const handleRejection = () => setOpenRejection(true);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -536,9 +536,9 @@ const ReviewScreen = () => {
     navigate("/addRows");
   };
 
-  const handleApprove = () => { };
+  const handleApprove = () => {};
 
-  const handleReject = () => { };
+  const handleReject = () => {};
   const rows = [
     { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
   ];
@@ -709,10 +709,10 @@ const ReviewScreen = () => {
                 value[0] === null && value[1] === null
                   ? null
                   : value
-                    .map((date) =>
-                      date ? date.format("MM/DD/YYYY") : "null"
-                    )
-                    .join(" - ")
+                      .map((date) =>
+                        date ? date.format("MM/DD/YYYY") : "null"
+                      )
+                      .join(" - ")
               }
               value={value}
               onChange={(newValue) => setValue(newValue)}
@@ -790,7 +790,7 @@ const ReviewScreen = () => {
             </ReworkButton>
           )} */}
           <RejectButton
-            disabled={!isTimeSheetRejected || showRelese}
+            disabled={!isTimeSheetRejected}
             variant="contained"
             color="error"
             sx={{ width: { xs: "100%", sm: "200px" } }}
@@ -799,7 +799,7 @@ const ReviewScreen = () => {
             Reject
           </RejectButton>
           <ApproveButton
-            disabled={showRelese}
+            disabled={isTimeSheetRejected}
             variant="contained"
             color="success"
             sx={{ width: { xs: "100%", sm: "200px" } }}

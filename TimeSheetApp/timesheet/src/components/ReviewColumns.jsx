@@ -64,7 +64,7 @@ const StyledTypography = styled(Typography)({
 });
 const DayBox = styled(Box)(({ theme }) => ({
   fontWeight: "700",
-  textAlign: "center",
+  textAlign: "left",
 }));
 const EmptyBox = styled(Box)(({ theme }) => ({
   width: "100%",
@@ -74,7 +74,7 @@ const EmptyBox = styled(Box)(({ theme }) => ({
 const DateBox = styled(Box)(({ theme }) => ({
   fontWeight: "400",
   fontSize: "14px",
-  textAlign: "center",
+  textAlign: "left",
 }));
 
 const ModalBox = styled(Box)(({ theme }) => ({
@@ -236,6 +236,7 @@ export const ReviewColumns = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [activeInputId, setActiveInputId] = useState(null);
   const [hasNote, setHasNote] = useState(new Set());
+  const [hasRejectedNote, setRejectedNote] = useState(new Set());
   const [openRejection, setOpenRejection] = React.useState(false);
   const [selectedReason, setSelectedReason] = useState(""); // Add this new state
   const notes = useSelector((state) => state?.CreateForm?.notes);
@@ -247,6 +248,7 @@ export const ReviewColumns = ({
     if (type == "submit") {
       if (activeInputId) {
         setHasNote((prev) => new Set(prev).add(activeInputId));
+        setRejectedNote((prev) => new Set(prev).add(activeInputId));
         if (hasNote?.size !== 0) {
           handleRejected(hasNote);
         } else {
@@ -258,7 +260,7 @@ export const ReviewColumns = ({
         dispatch(
           addNotes({
             id: Math.random(),
-            content: `Rejected Reason: ${selectedReason} ${otherReason ? `: ${otherReason}` : ''}`,
+            content: `Rejected Reason: ${selectedReason} ${otherReason ? `: ${otherReason}` : ""}`,
             date: cdate,
             time: ctime,
             username: "Vijay Joshi",
@@ -287,7 +289,7 @@ export const ReviewColumns = ({
       );
     }
 
-    // setActiveInputId(inputId);
+    setActiveInputId(inputId);
   };
 
   const addLocalNotes = (isRejected) => {
@@ -302,6 +304,10 @@ export const ReviewColumns = ({
         })
       );
       setNewNote("");
+
+      if (activeInputId) {
+        setHasNote((prev) => new Set(prev).add(activeInputId));
+      }
     }
   };
 
@@ -385,8 +391,10 @@ export const ReviewColumns = ({
           const inputId = `${params.row.id}-day${i}`;
           const isActive = activeInputId === inputId && !modalOpen;
           const inputHasNote = hasNote.has(inputId);
-          const isFirstInput = i === 3 && params.row.isReject && isPrevious;
+          const inputRejectedNote = hasRejectedNote.has(inputId);
 
+          const isFirstInput = i === 3 && params.row.isReject && isPrevious;
+          const isNote = i === 3 && params.row.isNote;
           return (
             <InputStyleBox>
               {!isFirstInput ? (
@@ -397,10 +405,10 @@ export const ReviewColumns = ({
                     verticalAlign: "unset",
                     backgroundColor: isFirstInput
                       ? "#ef0c0c30"
-                      : inputHasNote
+                      : inputRejectedNote
                         ? "#ef0c0c30"
                         : "#FFFFFF",
-                    border: `1px solid ${isFirstInput ? "#FF0000" : inputHasNote ? "#FF0000" : "#000000"}`,
+                    border: `1px solid ${isFirstInput ? "#FF0000" : inputRejectedNote ? "#FF0000" : "#000000"}`,
                     borderRadius: "4px",
                     padding: "0.5rem",
                     cursor: isFirstInput ? "default" : "pointer",
@@ -408,7 +416,7 @@ export const ReviewColumns = ({
                     "&:hover": {
                       borderColor: isFirstInput
                         ? "#FF0000"
-                        : inputHasNote
+                        : inputRejectedNote
                           ? "#FF0000"
                           : "#000000",
                     },
@@ -471,7 +479,13 @@ export const ReviewColumns = ({
               >
                 <TextSnippetOutlined
                   sx={{
-                    color: isFirstInput ? "red" : inputHasNote ? "red" : "grey",
+                    color: isFirstInput
+                      ? "red"
+                      : inputHasNote
+                        ? "red"
+                        : isNote
+                          ? "red"
+                          : "grey",
                     fontWeight: "400",
                   }}
                 />
@@ -620,7 +634,7 @@ export const ReviewColumns = ({
                 </Box>
                 {/* <StyledDrawerDivider/> */}
                 <Box>
-                  <ModalStyledTypography>Add New</ModalStyledTypography>
+                  <ModalStyledTypography>Add New Note</ModalStyledTypography>
                   <Box
                     sx={{
                       display: "flex",

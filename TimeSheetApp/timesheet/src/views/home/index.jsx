@@ -138,8 +138,8 @@ const ButtonStack = styled(Stack)(({ theme }) => ({
 const NoteButtonStack = styled(Stack)(({ theme }) => ({
   direction: "row",
   display: "flex",
-  justifyContent: "flex-start",
-  alignItems: "center",
+  // justifyContent: "flex-start",
+  // alignItems: "center",
   marginTop: "8%",
 }));
 
@@ -694,7 +694,7 @@ const Home = () => {
     let rowObj = rows.find((item) => item.id === rowId);
     const rowIndex = rows.indexOf(rowObj);
     // Convert input value to a number
-    let parsedValue = parseFloat(value) || 0;
+    let parsedValue = parseFloat(value || 0);
     // do the sum of the row
     let rowSum = 0;
     for (let i = 0; i < 7; i++) {
@@ -1099,7 +1099,7 @@ const Home = () => {
           </Grid2> */}
 
           <DescriptionTypography>{approvalMsg}</DescriptionTypography>
-          <NoteButtonStack direction="row" spacing={3}>
+          <NoteButtonStack direction="row" justifyContent={"space-between"} spacing={3}>
             <CancelNoteButton
               id="keep-mounted-modal-title"
               variant="h6"
