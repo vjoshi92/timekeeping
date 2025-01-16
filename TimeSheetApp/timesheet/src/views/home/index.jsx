@@ -444,7 +444,6 @@ const StyledModalBox = styled(Box)(({ theme }) => ({
   marginBottom: "5%",
 }));
 
-
 const dummyReviewData = [
   {
     day0: "2.00",
@@ -547,9 +546,15 @@ const Home = () => {
 
   const handleApproval = () => {
     if (approvalCount == 0) {
-      setApprovalMsg(
-        "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
-      );
+      if (!isCurrentWeek) {
+        setApprovalMsg(
+          "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
+        );
+      } else {
+        setApprovalMsg(
+          "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
+        );
+      }
     } else {
       setApprovalMsg(
         "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
@@ -616,7 +621,7 @@ const Home = () => {
       }
     }
     const startOfPreviousWeek = currentStartDate.subtract(7, "day");
-    const prevWeekStart = startOfPreviousWeek.format("DD")
+    const prevWeekStart = startOfPreviousWeek.format("DD");
     const endOfPreviousWeek = startOfPreviousWeek.add(6, "day");
     const newDateRange = `${startOfPreviousWeek.format("DD MMM YYYY")} - ${endOfPreviousWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
@@ -625,9 +630,7 @@ const Home = () => {
       setIsCurrentWeek(true);
     } else {
       setIsCurrentWeek(false);
-
     }
-
   };
 
   const handleNextWeek = () => {
@@ -647,18 +650,16 @@ const Home = () => {
       }
     }
     const startOfNextWeek = currentStartDate.add(7, "day");
-    const nextWeekStart = startOfNextWeek.format("DD")
+    const nextWeekStart = startOfNextWeek.format("DD");
     const endOfNextWeek = startOfNextWeek.add(6, "day");
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
-    console.log("nextWeekStart", nextWeekStart)
-    console.log("currentWeekStart", currentWeekStart)
+    console.log("nextWeekStart", nextWeekStart);
+    console.log("currentWeekStart", currentWeekStart);
     if (nextWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
-
     } else {
       setIsCurrentWeek(false);
-
     }
   };
 
@@ -681,7 +682,7 @@ const Home = () => {
   };
 
   const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
-  const currentWeekStart = startOfCurrentWeek.format("DD")
+  const currentWeekStart = startOfCurrentWeek.format("DD");
   const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
   const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
   const rows = [
@@ -795,7 +796,6 @@ const Home = () => {
     isParent: false,
   });
 
-
   const handleRejected = (hasNote) => {
     if (hasNote && hasNote?.size !== 0) {
       setTimesheetRejected(true);
@@ -811,7 +811,7 @@ const Home = () => {
     handleDelete,
     isParent: false,
     handleRejected,
-    isPrevious: true
+    isPrevious: true,
   });
 
   const handleSubmit = () => {
@@ -863,8 +863,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                  .join(" - ")
+                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                    .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
@@ -924,37 +924,39 @@ const Home = () => {
         </Stack>
       </StyledStack>
       <Footer>
-
         {!isCurrentWeek ? (
           <SaveTimeButton size="medium" onClick={handleSaveTime}>
             <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
           </SaveTimeButton>
-        ) :
-          (projectedData && Object?.keys(projectedData)?.length > 0 && (
+        ) : (
+          projectedData &&
+          Object?.keys(projectedData)?.length > 0 && (
             <SaveTimeButton size="medium" onClick={handleSaveTime}>
               <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
             </SaveTimeButton>
-          ))
-        }
+          )
+        )}
 
-        {
-          !isCurrentWeek ? <Button
+        {!isCurrentWeek ? (
+          <Button
             onClick={handleApproval}
             sx={{
               backgroundColor: "#ED6A15",
               padding: "0.4rem",
               marginBottom: "0.5rem",
             }}
-          // disabled={
-          //   !(
-          //     projectedData &&
-          //     Object?.keys(projectedData)?.length > 0 &&
-          //     saveTimeClick
-          //   )
-          // }
+            // disabled={
+            //   !(
+            //     projectedData &&
+            //     Object?.keys(projectedData)?.length > 0 &&
+            //     saveTimeClick
+            //   )
+            // }
           >
             <StyledFooterText>Submit Week for Approval</StyledFooterText>
-          </Button> : <Button
+          </Button>
+        ) : (
+          <Button
             onClick={handleApproval}
             sx={{
               backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
@@ -971,9 +973,7 @@ const Home = () => {
           >
             <StyledFooterText>Submit Week for Approval</StyledFooterText>
           </Button>
-        }
-
-
+        )}
       </Footer>
       {/* <FooterBox>
         <div className="footer-content">

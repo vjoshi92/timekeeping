@@ -196,7 +196,6 @@ const IconButtonStyle = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-
 const ProjectData = [
   { id: 1, title: "Incorrect Time Entry" },
   { id: 2, title: "Incorrect Charge Code" },
@@ -256,15 +255,25 @@ export const ReviewColumns = ({
         const cdate = formatFullDateString(new Date());
         const ctime = formatFullTimeString(new Date());
         // const noteItem = ;
-
+        dispatch(
+          addNotes({
+            id: Math.random(),
+            content: `Rejected Reason: ${selectedReason} ${otherReason ? `: ${otherReason}` : ''}`,
+            date: cdate,
+            time: ctime,
+            username: "Vijay Joshi",
+            rejected: true,
+          })
+        );
       }
     }
     setOpenRejection(false);
   };
   const handleRejection = () => setOpenRejection(true);
+
   const handleCopyModal = (inputId, isReject) => {
     setModalOpen(true);
-    const isRejectExist = notes?.filter(x => x.rejected == true);
+    const isRejectExist = notes?.filter((x) => x.rejected == true);
     if (isReject && isRejectExist && isRejectExist.length == 0) {
       dispatch(
         addNotes({
@@ -273,7 +282,7 @@ export const ReviewColumns = ({
           date: "17 Jan 2025",
           time: "10:12:00",
           username: "Vijay Joshi",
-          rejected: true
+          rejected: true,
         })
       );
     }
@@ -282,7 +291,7 @@ export const ReviewColumns = ({
   };
 
   const addLocalNotes = (isRejected) => {
-    if (newNote != '') {
+    if (newNote != "") {
       dispatch(
         addNotes({
           id: Math.random(),
@@ -294,7 +303,6 @@ export const ReviewColumns = ({
       );
       setNewNote("");
     }
-
   };
 
   const handleSaveNotes = () => {
@@ -381,39 +389,49 @@ export const ReviewColumns = ({
 
           return (
             <InputStyleBox>
-              {!isFirstInput ? <Box
-                component="div"
-                sx={{
-                  width: "87% !important",
-                  verticalAlign: "unset",
-                  backgroundColor: isFirstInput ? "#ef0c0c30" : inputHasNote ? "#ef0c0c30" : "#FFFFFF",
-                  border: `1px solid ${isFirstInput ? "#FF0000" : inputHasNote ? "#FF0000" : "#000000"}`,
-                  borderRadius: "4px",
-                  padding: "0.5rem",
-                  cursor: isFirstInput ? "default" : "pointer",
-                  height: "1.2rem",
-                  "&:hover": {
-                    borderColor: isFirstInput ? "#FF0000" : inputHasNote ? "#FF0000" : "#000000",
-                  },
-                }}
-                onClick={() => {
-                  if (!isFirstInput && !isPrevious) {
-                    setActiveInputId(inputId);
-                    handleRejection();
-                  }
-                }}
-              >
-                <Typography color="#797b79 !important">
-                  {params?.value}
-                </Typography>
-              </Box> :
+              {!isFirstInput ? (
+                <Box
+                  component="div"
+                  sx={{
+                    width: "87% !important",
+                    verticalAlign: "unset",
+                    backgroundColor: isFirstInput
+                      ? "#ef0c0c30"
+                      : inputHasNote
+                        ? "#ef0c0c30"
+                        : "#FFFFFF",
+                    border: `1px solid ${isFirstInput ? "#FF0000" : inputHasNote ? "#FF0000" : "#000000"}`,
+                    borderRadius: "4px",
+                    padding: "0.5rem",
+                    cursor: isFirstInput ? "default" : "pointer",
+                    height: "1.2rem",
+                    "&:hover": {
+                      borderColor: isFirstInput
+                        ? "#FF0000"
+                        : inputHasNote
+                          ? "#FF0000"
+                          : "#000000",
+                    },
+                  }}
+                  onClick={() => {
+                    if (!isFirstInput && !isPrevious) {
+                      setActiveInputId(inputId);
+                      handleRejection();
+                    }
+                  }}
+                >
+                  <Typography color="#797b79 !important">
+                    {params?.value}
+                  </Typography>
+                </Box>
+              ) : (
                 <DecimalInput
                   error
                   value={params?.value}
                   backgroundColor={"#ef0c0c30"}
                   disabled={false}
                 />
-              }
+              )}
               {/* <DecimalInput
                
                 inputProps={{
@@ -449,7 +467,7 @@ export const ReviewColumns = ({
               <IconButton
                 size="small"
                 onClick={() => handleCopyModal(inputId, isFirstInput)}
-              // disabled={isFirstInput}
+                // disabled={isFirstInput}
               >
                 <TextSnippetOutlined
                   sx={{
@@ -485,6 +503,7 @@ export const ReviewColumns = ({
             <IconButtonStyle>
               <TotalTypography>{params?.value}</TotalTypography>
             </IconButtonStyle>
+            {/* notes modal */}
             <Modal
               key="notes-modal"
               open={modalOpen}
@@ -566,11 +585,15 @@ export const ReviewColumns = ({
                           boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
                           borderRadius: "8px",
                           paddingLeft: "10px",
-                          mb: 1, // Adds spacing between tiles                          
+                          mb: 1, // Adds spacing between tiles
                         }}
                       >
                         {note?.rejected && (
-                          <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                          <Stack
+                            direction={"row"}
+                            spacing={1}
+                            alignItems={"center"}
+                          >
                             <WarningAmberIcon color="error" />
                             <Typography
                               fontSize={"1rem"}
