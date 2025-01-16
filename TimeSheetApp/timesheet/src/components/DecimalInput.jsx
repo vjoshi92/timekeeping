@@ -3,13 +3,14 @@ import TextField from '@mui/material/TextField';
 import styled from '@emotion/styled';
 import { Typography } from '@mui/material';
 
-const NormalInput = styled(TextField)(({ theme }) => ({
+const NormalInput = styled(TextField)(({ theme, error }) => ({
     "& .MuiOutlinedInput-input": {
         height: "22.5px",
         padding: "10px",
         fontSize: "16px",
         color: "#333",
-        fontWeight: "500"
+        fontWeight: "500",
+        backgroundColor: error ? "#ef0c0c30" : "transparent"
     },
     "& .MuiOutlinedInput-root": {
         borderRadius: "4px",
@@ -30,6 +31,7 @@ const DecimalInput = (props) => {
         onChange,
         readOnly,
         type = 'text',
+        variant,
         error,
         rows,
         helperText,

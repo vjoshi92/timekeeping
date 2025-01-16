@@ -41,6 +41,7 @@ import {
   updateRow,
   updateRowTotal,
 } from "store/slice/TimesheetSlice";
+import { ReviewColumns } from "components/ReviewColumns";
 
 const style = {
   position: "absolute",
@@ -443,10 +444,92 @@ const StyledModalBox = styled(Box)(({ theme }) => ({
   marginBottom: "5%",
 }));
 
+
+const dummyReviewData = [
+  {
+    day0: "2.00",
+    day1: "2.00",
+    day2: "2.00",
+    day3: "2.00",
+    day4: "2.00",
+    day5: "0.00",
+    day6: "0.00",
+    isReject: true,
+    weekTotal: 10,
+    project: "JMA NOFO 2 O-RU",
+    level: "Mechanical Design",
+    title: "1.4.10.2.1",
+    id: 1,
+    hierarchy: ["JMA NOFO 2 O-RU", "Mechanical Design"],
+  },
+  {
+    day0: "2.00",
+    day1: "2.00",
+    day2: "2.00",
+    day3: "2.00",
+    day4: "2.00",
+    day5: "0.00",
+    day6: "0.00",
+    weekTotal: 10,
+    project: "JMA NOFO 2 O-RU",
+    title: "1.4.10.2.3",
+    level: "PCB Design",
+    id: 2,
+    hierarchy: ["JMA NOFO 2 O-RU", "PCB Design"],
+  },
+  {
+    day0: "2.00",
+    day1: "2.00",
+    day2: "2.00",
+    day3: "2.00",
+    day4: "2.00",
+    day5: "0.00",
+    day6: "0.00",
+    weekTotal: 10,
+    project: "Indirect",
+    title: "1.1",
+    level: "General Training",
+    id: 3,
+    hierarchy: ["Indirect", "General Training"],
+  },
+  {
+    day0: "2.00",
+    day1: "2.00",
+    day2: "2.00",
+    day3: "2.00",
+    day4: "2.00",
+    day5: "0.00",
+    day6: "0.00",
+    weekTotal: 10,
+    project: "Indirect",
+    title: "1.3",
+    level: "PTO",
+    id: 4,
+    hierarchy: ["Indirect", "PTO"],
+  },
+  {
+    day0: 8,
+    day1: 8,
+    day2: 8,
+    day3: 8,
+    day4: 8,
+    day5: 0,
+    day6: 0,
+    weekTotal: 40,
+    project: "Total",
+    title: "",
+    level: "Total",
+    id: 5,
+    hierarchy: ["Total"],
+    totalRow: true,
+    isParent: false,
+  },
+];
 const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
   const selectedDate = useSelector((state) => state?.home?.daterange);
+  // console.log("selectedDate", selectedDate)
   const approvalCount = useSelector(
     (state) => state?.CreateForm?.approvalCount
   );
@@ -455,9 +538,13 @@ const Home = () => {
   const [openApproval, setOpenApproval] = React.useState(false);
   const [saveTimeClick, setSaveTimeClick] = useState(false);
   const [isTimesheetCreated, setIsTimesheetCreated] = useState(false);
+  const [isCurrentWeek, setIsCurrentWeek] = useState(true);
+  const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
+
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
+
   const handleApproval = () => {
     if (approvalCount == 0) {
       setApprovalMsg(
@@ -470,19 +557,21 @@ const Home = () => {
     }
     setOpenApproval(true);
   };
+
   const handelSaveNote = () => {
     setOpenApproval(false);
     setIsTimesheetCreated(true);
     let aCount = approvalCount + 1;
     dispatch(setApprovalCount(aCount));
   };
+
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenApproval(false);
   const navigate = useNavigate();
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
-
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const dispatch = useDispatch();
+
   const formatDateTime = (date) => {
     const months = [
       "Jan",
@@ -510,10 +599,8 @@ const Home = () => {
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
 
-  console.log("projectedData", projectedData);
   const handlePreviousWeek = () => {
     let currentStartDate;
-
     if (!selectedDate || selectedDate.length === 0) {
       currentStartDate = dayjs().startOf("week").add(1, "day");
     } else {
@@ -529,9 +616,18 @@ const Home = () => {
       }
     }
     const startOfPreviousWeek = currentStartDate.subtract(7, "day");
+    const prevWeekStart = startOfPreviousWeek.format("DD")
     const endOfPreviousWeek = startOfPreviousWeek.add(6, "day");
     const newDateRange = `${startOfPreviousWeek.format("DD MMM YYYY")} - ${endOfPreviousWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
+
+    if (prevWeekStart == currentWeekStart) {
+      setIsCurrentWeek(true);
+    } else {
+      setIsCurrentWeek(false);
+
+    }
+
   };
 
   const handleNextWeek = () => {
@@ -551,9 +647,19 @@ const Home = () => {
       }
     }
     const startOfNextWeek = currentStartDate.add(7, "day");
+    const nextWeekStart = startOfNextWeek.format("DD")
     const endOfNextWeek = startOfNextWeek.add(6, "day");
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
+    console.log("nextWeekStart", nextWeekStart)
+    console.log("currentWeekStart", currentWeekStart)
+    if (nextWeekStart == currentWeekStart) {
+      setIsCurrentWeek(true);
+
+    } else {
+      setIsCurrentWeek(false);
+
+    }
   };
 
   const handleSaveTime = () => {
@@ -567,6 +673,7 @@ const Home = () => {
     setSaveTimeClick(false);
     // setIsTimesheetCreated(true);
   };
+
   const handleTimesheetModalClose = () => setIsTimesheetCreated(false);
 
   const handleAlignment = (event, newAlignment) => {
@@ -574,6 +681,7 @@ const Home = () => {
   };
 
   const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+  const currentWeekStart = startOfCurrentWeek.format("DD")
   const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
   const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
   const rows = [
@@ -610,7 +718,6 @@ const Home = () => {
 
   const updateTotalRow = (field, rowIndex, rowObj) => {
     const rows = [...projectedData];
-    // we are filtering the data not to get the Total row and current updated row
     const dataRows = rows.filter(
       (x) => x.totalRow !== true && x.id !== rowObj.id
     );
@@ -620,14 +727,11 @@ const Home = () => {
       0
     );
     dayTotal = parseFloat(dayTotal) + parseFloat(rowObj[field]);
-
-    // get the index of total row
     const totalRow = rows.find((x) => x.totalRow === true);
     let totalRowObj = {
       ...totalRow,
     };
     const totalRowIndex = rows.indexOf(totalRow);
-    // do the sum of total row
     let rowSum = 0;
     for (let i = 0; i < 7; i++) {
       if (`day${i}` !== field) {
@@ -682,12 +786,32 @@ const Home = () => {
     handleInputChange,
     handleDelete,
   });
+
   const AllRowsColumns = RowsDataColumns({
     rows,
     selectedDate,
     handleInputChange,
     handleDelete,
     isParent: false,
+  });
+
+
+  const handleRejected = (hasNote) => {
+    if (hasNote && hasNote?.size !== 0) {
+      setTimesheetRejected(true);
+    } else {
+      setTimesheetRejected(false);
+    }
+  };
+
+  const ReviewData = ReviewColumns({
+    rows,
+    selectedDate,
+    handleInputChange,
+    handleDelete,
+    isParent: false,
+    handleRejected,
+    isPrevious: true
   });
 
   const handleSubmit = () => {
@@ -739,8 +863,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                    .join(" - ")
+                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                  .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
@@ -775,46 +899,81 @@ const Home = () => {
           </Stack>
         </StyledStackButton>
         <Stack mt={2} mb={10}>
-          {projectedData && Object?.keys(projectedData)?.length > 0 ? (
-            <TreeGrid
-              columns={AllRowsColumns}
-              density={"standard"}
-              data={projectedData}
-            />
+          {isCurrentWeek ? (
+            projectedData && Object?.keys(projectedData)?.length > 0 ? (
+              <TreeGrid
+                columns={AllRowsColumns}
+                density={"standard"}
+                data={projectedData}
+              />
+            ) : (
+              <MuiDataGrid
+                disableColumnMenu={true}
+                columns={AllDaysColumns}
+                rows={rows}
+                density={"standard"}
+              />
+            )
           ) : (
-            <MuiDataGrid
-              disableColumnMenu={true}
-              columns={AllDaysColumns}
-              rows={rows}
+            <TreeGrid
+              columns={ReviewData}
               density={"standard"}
+              data={dummyReviewData}
             />
           )}
         </Stack>
       </StyledStack>
       <Footer>
-        {projectedData && Object?.keys(projectedData)?.length > 0 && (
+
+        {!isCurrentWeek ? (
           <SaveTimeButton size="medium" onClick={handleSaveTime}>
             <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
           </SaveTimeButton>
-        )}
+        ) :
+          (projectedData && Object?.keys(projectedData)?.length > 0 && (
+            <SaveTimeButton size="medium" onClick={handleSaveTime}>
+              <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
+            </SaveTimeButton>
+          ))
+        }
 
-        <Button
-          onClick={handleApproval}
-          sx={{
-            backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-            padding: "0.4rem",
-            marginBottom: "0.5rem",
-          }}
-          disabled={
-            !(
-              projectedData &&
-              Object?.keys(projectedData)?.length > 0 &&
-              saveTimeClick
-            )
-          }
-        >
-          <StyledFooterText>Submit Week for Approval</StyledFooterText>
-        </Button>
+        {
+          !isCurrentWeek ? <Button
+            onClick={handleApproval}
+            sx={{
+              backgroundColor: "#ED6A15",
+              padding: "0.4rem",
+              marginBottom: "0.5rem",
+            }}
+          // disabled={
+          //   !(
+          //     projectedData &&
+          //     Object?.keys(projectedData)?.length > 0 &&
+          //     saveTimeClick
+          //   )
+          // }
+          >
+            <StyledFooterText>Submit Week for Approval</StyledFooterText>
+          </Button> : <Button
+            onClick={handleApproval}
+            sx={{
+              backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+              padding: "0.4rem",
+              marginBottom: "0.5rem",
+            }}
+            disabled={
+              !(
+                projectedData &&
+                Object?.keys(projectedData)?.length > 0 &&
+                saveTimeClick
+              )
+            }
+          >
+            <StyledFooterText>Submit Week for Approval</StyledFooterText>
+          </Button>
+        }
+
+
       </Footer>
       {/* <FooterBox>
         <div className="footer-content">

@@ -12,6 +12,7 @@ import {
 } from '@mui/x-data-grid-premium';
 import DecimalInput from './DecimalInput';
 import { useSelector } from 'react-redux';
+import RejectModal from './RejectModal';
 
 const HeaderStyledBox = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -101,13 +102,15 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
     const [activeInputId, setActiveInputId] = useState(null);
     const totalValue = useSelector(state => state?.CreateForm?.totals);
 
-    console.log("totalvalue", totalValue)
+    // console.log("totalvalue", totalValue)
 
 
     const handleCopyModal = (inputId) => {
         setModalOpen(true);
         setActiveInputId(inputId);
     };
+
+
 
     const notes = [
         { id: 1, content: "Discuss project deadlines and deliverables.", date: "10/01/2024", time: "05.30pm", username: "Jon doe" },
@@ -142,6 +145,7 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
         for (let i = 0; i < 7; i++) {
             const currentDate = dayjs(startDate).add(i, 'day');
             const isToday = currentDate?.isSame(dayjs(), 'date');
+            // console.log("currentDate>>>>>>>>", currentDate)
             weekDays.push({
                 field: `day${i}`,
                 headerName: currentDate?.format('ddd'),
@@ -230,10 +234,9 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                     }
                                 } />
                             </IconButton>
-                            <Modal
+                            {/* <Modal
                                 key="notes-modal"
                                 open={modalOpen}
-                                // onClose={handleCloseModal}
                                 aria-labelledby="notes-modal"
                                 BackdropProps={{
                                     style: {
@@ -263,7 +266,6 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                         }
                                     }}
                                 >
-                                    {/* Add close button */}
                                     <IconButton
                                         onClick={handleCloseModal}
                                         sx={{
@@ -303,12 +305,11 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                                         display: 'flex',
                                                         flexDirection: 'column',
                                                         alignItems: 'flex-start',
-                                                        // gap: 1,
                                                         backgroundColor: '#fff',
                                                         boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)',
                                                         borderRadius: '8px',
                                                         paddingLeft: '10px',
-                                                        mb: 1, // Adds spacing between tiles
+                                                        mb: 1, 
                                                     }}
                                                 >
                                                     <Typography sx={{ fontSize: '1rem', fontWeight: '600' }}>
@@ -322,7 +323,6 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                             ))}
                                         </List>
                                     </Box>
-                                    {/* <StyledDrawerDivider/> */}
                                     <Box>
                                         <ModalStyledTypography>Add New</ModalStyledTypography>
                                         <Box sx={{
@@ -368,7 +368,12 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                                         </Box>
                                     </Box>
                                 </ModalBox>
-                            </Modal>
+                            </Modal> */}
+                            <RejectModal
+                                open={modalOpen}
+                                onClose={handleCloseModal}
+                                
+                            />
                         </InputStyleBox>
                     );
                 },
@@ -392,9 +397,9 @@ export const RowsDataColumns = ({ handleInputChange, handleDelete, selectedDate 
                 }
                 return (
                     <IconButtonStyle>
-                       <TotalTypography>{params.value}</TotalTypography>
-                      
-                       {!params.row.totalRow && <IconButton
+                        <TotalTypography>{params.value}</TotalTypography>
+
+                        {!params.row.totalRow && <IconButton
                             size="small"
                             color="secondary"
                             onClick={() => handleDelete(params.row.id)}
