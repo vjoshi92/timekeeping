@@ -125,7 +125,7 @@ export default function DatePickerWithButtonField() {
             const endOfWeek = dayjs(newValue).endOf('week').add(1, "day");
             const formattedDateRange = `${startOfWeek.format('DD MMM YYYY')} - ${endOfWeek.format('DD MMM YYYY')}`;
 
-            console.log("formattedDateRange", formattedDateRange)
+            // console.log("formattedDateRange", formattedDateRange)
             dispatch(setDateRange(formattedDateRange));
         } else {
             console.log('Invalid date selected');

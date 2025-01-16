@@ -430,7 +430,7 @@ const ReviewScreen = () => {
       setActionMsg("Are you sure you want to approve this timesheet?");
     }
     setOpenApproval(true);
-  
+
   };
   const handleRejection = () => setOpenRejection(true);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -448,7 +448,7 @@ const ReviewScreen = () => {
     } else {
       setSnackBarMsg("Timesheet Released !!");
     }
-   
+
     // navigate(-1);
   };
   const handleClose = () => setOpen(false);
@@ -536,9 +536,9 @@ const ReviewScreen = () => {
     navigate("/addRows");
   };
 
-  const handleApprove = () => {};
+  const handleApprove = () => { };
 
-  const handleReject = () => {};
+  const handleReject = () => { };
   const rows = [
     { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
   ];
@@ -709,10 +709,10 @@ const ReviewScreen = () => {
                 value[0] === null && value[1] === null
                   ? null
                   : value
-                      .map((date) =>
-                        date ? date.format("MM/DD/YYYY") : "null"
-                      )
-                      .join(" - ")
+                    .map((date) =>
+                      date ? date.format("MM/DD/YYYY") : "null"
+                    )
+                    .join(" - ")
               }
               value={value}
               onChange={(newValue) => setValue(newValue)}
@@ -780,7 +780,7 @@ const ReviewScreen = () => {
             marginBottom: "5%",
           }}
         >
-          {showRelese && (
+          {/* {showRelese && (
             <ReworkButton
               variant="contained"
               color="error"
@@ -788,7 +788,7 @@ const ReviewScreen = () => {
             >
               Release Timesheet
             </ReworkButton>
-          )}
+          )} */}
           <RejectButton
             disabled={!isTimeSheetRejected || showRelese}
             variant="contained"

@@ -62,7 +62,7 @@ const createFormSlice = createSlice({
     addNotes: (state, action) => {
       state.notes.push(action.payload);
     },
-    setApprovalCount: (state,action) => {
+    setApprovalCount: (state, action) => {
       state.approvalCount = action.payload;
     }
   },

@@ -6,8 +6,8 @@ import MuiInput from './MuiInput';
 import dayjs from 'dayjs';
 
 const StyledTypography = styled(Typography)({
-   fontWeight:"700" , 
-   marginTop:"10px"
+    fontWeight: "700",
+    marginTop: "10px"
 });
 
 // const StyledBox = styled(Box)({
@@ -24,13 +24,13 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }));
 
 const StyledIconButton = styled(IconButton)({
-    marginBottom: "10px" 
+    marginBottom: "10px"
 });
 
 export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedDate }) => {
     const getWeekDays = () => {
         let startDate;
-        
+
         if (Array?.isArray(selectedDate) && selectedDate?.length === 0) {
             startDate = dayjs().startOf('week').add(1, 'day');
         }
@@ -44,12 +44,12 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
         } else {
             startDate = dayjs().startOf('week').add(1, 'day');
         }
-    
+
         const weekDays = [];
         for (let i = 0; i < 7; i++) {
             const currentDate = dayjs(startDate).add(i, 'day');
             const isToday = currentDate.isSame(dayjs(), 'date');
-    
+
             weekDays.push({
                 field: `day${i}`,
                 headerName: currentDate.format('ddd'),
@@ -57,7 +57,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
                 minWidth: 120,
                 renderHeader: () => (
                     <StyledBox
-                        sx={{                            
+                        sx={{
                             borderBottom: isToday ? '4px solid #ED6A15' : 'none',
                         }}
                     >
@@ -79,6 +79,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
                 ),
             });
         }
+
         return weekDays;
     };
 
@@ -100,7 +101,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
                 //     }}
                 //     value="Total"
                 //     style={{ fontWeight: 'bold' }}
-                    
+
                 // />
                 <StyledTypography>Total</StyledTypography>
             ),
