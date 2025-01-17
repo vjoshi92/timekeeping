@@ -39,7 +39,7 @@ import { setDateRange } from "store/slice/HomeSlice";
 import { setProjectData } from "store/slice/TimesheetSlice";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Dropdown from "components/Dropdown";
-import { StatusColorFormatter } from "utils/AppUtil";
+import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
 const style = {
   position: "absolute",
   top: "50%",
@@ -425,16 +425,12 @@ const ReviewScreen = () => {
   const [newStatus, setNewStatus] = useState("")
   const handleOpen = () => setOpen(true);
   const handleApproval = (type) => {
-    console.log("type>>>>>", type)
     if (type == "reject") {
-      setActionMsg("Are you sure you want to reject this timesheet?");
-      setNewStatus("Rejected")
+      setActionMsg("Are you sure you want to reject this timesheet?");      
     } else if (type == "release") {
-      setActionMsg("Are you sure you want to release this timesheet?");
-      setNewStatus("Release")
+      setActionMsg("Are you sure you want to release this timesheet?");      
     } else if (type == "approve") {
-      setActionMsg("Are you sure you want to approve this timesheet?");
-      setNewStatus("Approved")
+      setActionMsg("Are you sure you want to approve this timesheet?");      
     } else {
       setNewStatus("Pending for Approval")
     }
@@ -450,11 +446,15 @@ const ReviewScreen = () => {
     if (actionMsg.indexOf("approve") >= 0) {
       setSnackBarMsg("Timesheet Approved !!");
       setShowRelease(true);
+      setNewStatus("Approved")
     } else if (actionMsg.indexOf("reject") >= 0) {
       setSnackBarMsg("Timesheet Reject !!");
+      setNewStatus("Rejected")
       setShowRelease(true);
     } else {
       setSnackBarMsg("Timesheet Released !!");
+      // setNewStatus("Release")
+      setNewStatus("Pending for Approval")
     }
 
     // navigate(-1);
@@ -671,7 +671,7 @@ const ReviewScreen = () => {
             }}
           >
             <HeaderTypography>Status</HeaderTypography>
-            <HeaderSubTypography style={{ color: StatusColorFormatter(newStatus || data?.status) }}>{!newStatus ? data?.status : newStatus}</HeaderSubTypography>
+            <HeaderSubTypography style={{ color: StatusColorFormatter(newStatus || data?.status) }}>{StatusCaseFormatting(!newStatus ? data?.status : newStatus)}</HeaderSubTypography>
           </Stack>
         </HeaderStack>
       </HeaderBox>

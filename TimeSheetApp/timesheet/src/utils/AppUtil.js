@@ -78,3 +78,11 @@ export const formatFullTimeString = (dateValue) => {
         }
     }
 }
+
+export const StatusCaseFormatting = (status) => {
+    if(status){
+        return status.toUpperCase();
+    }else{
+        return status;
+    }
+}

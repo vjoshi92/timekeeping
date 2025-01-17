@@ -43,7 +43,7 @@ import {
   updateRowTotal,
 } from "store/slice/TimesheetSlice";
 import { ReviewColumns } from "components/ReviewColumns";
-import { StatusColorFormatter } from "utils/AppUtil";
+import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
 
 const style = {
   position: "absolute",
@@ -913,7 +913,7 @@ const Home = () => {
             <HeaderTypography>STATUS :</HeaderTypography>
 
             <HeaderSubTypography style={{ color: StatusColorFormatter(status) }}>
-              {status}
+              {StatusCaseFormatting(status)}
             </HeaderSubTypography>
           </Stack>
           {/* </StyledDateTypography> */}
