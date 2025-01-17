@@ -39,6 +39,7 @@ import { setDateRange } from "store/slice/HomeSlice";
 import { setProjectData } from "store/slice/TimesheetSlice";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Dropdown from "components/Dropdown";
+import { StatusColorFormatter } from "utils/AppUtil";
 const style = {
   position: "absolute",
   top: "50%",
@@ -229,7 +230,7 @@ const HeaderTypography = styled(Typography)(({ theme }) => ({
 }));
 
 const HeaderSubTypography = styled(Typography)(({ theme }) => ({
-  fontWeight: "400",
+  fontWeight: "600",
   fontSize: { xs: "14px", sm: "16px" },
   color: "#121212DE",
 }));
@@ -421,14 +422,21 @@ const ReviewScreen = () => {
   const [openRejection, setOpenRejection] = React.useState(false);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [showRelese, setShowRelease] = useState(false);
+  const [newStatus, setNewStatus] = useState("")
   const handleOpen = () => setOpen(true);
   const handleApproval = (type) => {
+    console.log("type>>>>>", type)
     if (type == "reject") {
       setActionMsg("Are you sure you want to reject this timesheet?");
+      setNewStatus("Rejected")
     } else if (type == "release") {
       setActionMsg("Are you sure you want to release this timesheet?");
-    } else {
+      setNewStatus("Release")
+    } else if (type == "approve") {
       setActionMsg("Are you sure you want to approve this timesheet?");
+      setNewStatus("Approved")
+    } else {
+      setNewStatus("Pending for Approval")
     }
     setOpenApproval(true);
   };
@@ -536,9 +544,9 @@ const ReviewScreen = () => {
     navigate("/addRows");
   };
 
-  const handleApprove = () => {};
+  const handleApprove = () => { };
 
-  const handleReject = () => {};
+  const handleReject = () => { };
   const rows = [
     { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
   ];
@@ -663,7 +671,7 @@ const ReviewScreen = () => {
             }}
           >
             <HeaderTypography>Status</HeaderTypography>
-            <HeaderSubTypography>{data?.status}</HeaderSubTypography>
+            <HeaderSubTypography style={{ color: StatusColorFormatter(newStatus || data?.status) }}>{!newStatus ? data?.status : newStatus}</HeaderSubTypography>
           </Stack>
         </HeaderStack>
       </HeaderBox>
@@ -709,10 +717,10 @@ const ReviewScreen = () => {
                 value[0] === null && value[1] === null
                   ? null
                   : value
-                      .map((date) =>
-                        date ? date.format("MM/DD/YYYY") : "null"
-                      )
-                      .join(" - ")
+                    .map((date) =>
+                      date ? date.format("MM/DD/YYYY") : "null"
+                    )
+                    .join(" - ")
               }
               value={value}
               onChange={(newValue) => setValue(newValue)}

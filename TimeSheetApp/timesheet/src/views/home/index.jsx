@@ -37,11 +37,13 @@ import { Footer } from "components/Footer";
 import {
   deleteProjectDataById,
   setApprovalCount,
+  setStatus,
   setTotal,
   updateRow,
   updateRowTotal,
 } from "store/slice/TimesheetSlice";
 import { ReviewColumns } from "components/ReviewColumns";
+import { StatusColorFormatter } from "utils/AppUtil";
 
 const style = {
   position: "absolute",
@@ -99,6 +101,18 @@ const StyledDateTypography = styled(Typography)(({ theme }) => ({
   fontWeight: "500",
   padding: "0 8px",
   borderRadius: "4px",
+}));
+
+const HeaderTypography = styled(Typography)(({ theme }) => ({
+  fontWeight: "600",
+  fontSize: { xs: "12px", sm: "14px" },
+  color: "#121212DE",
+}));
+
+const HeaderSubTypography = styled(Typography)(({ theme }) => ({
+  fontWeight: "600",
+  fontSize: { xs: "14px", sm: "16px" },
+  color: "#121212DE",
 }));
 
 const SaveTypography = styled(Typography)(({ theme }) => ({
@@ -433,6 +447,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
   zIndex: 2,
   display: "flex",
   flexDirection: "row",
+  justifyContent: "space-between",
   alignItems: "center",
 }));
 
@@ -528,10 +543,11 @@ const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
   const selectedDate = useSelector((state) => state?.home?.daterange);
-  // console.log("selectedDate", selectedDate)
+  const status = useSelector((state) => state?.CreateForm?.status);
   const approvalCount = useSelector(
     (state) => state?.CreateForm?.approvalCount
   );
+
   const [open, setOpen] = React.useState(false);
   const [approvalMsg, setApprovalMsg] = useState();
   const [openApproval, setOpenApproval] = React.useState(false);
@@ -561,13 +577,40 @@ const Home = () => {
       );
     }
     setOpenApproval(true);
+    if (approvalCount > 0) {
+      dispatch(setStatus("Pending for approval"))
+    }
   };
+  const handlePrevWeekApproval = (approvalCount) => {
+    if (approvalCount == 0) {
+      if (!isCurrentWeek) {
+        setApprovalMsg(
+          "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
+        );
+      } else {
+        setApprovalMsg(
+          "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
+        );
+      }
+    } else {
+      setApprovalMsg(
+        "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
+      );
+    }
+    setOpenApproval(true);
+    // if (approvalCount >= 0) {
+    //   dispatch(setStatus("Pending for approval"))
+    // }
+  }
 
   const handelSaveNote = () => {
     setOpenApproval(false);
     setIsTimesheetCreated(true);
     let aCount = approvalCount + 1;
     dispatch(setApprovalCount(aCount));
+    if (approvalCount >= 0) {
+      dispatch(setStatus("Pending for approval"))
+    }
   };
 
   const handleClose = () => setOpen(false);
@@ -625,9 +668,14 @@ const Home = () => {
     const endOfPreviousWeek = startOfPreviousWeek.add(6, "day");
     const newDateRange = `${startOfPreviousWeek.format("DD MMM YYYY")} - ${endOfPreviousWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
+    dispatch(setStatus("Rejected"))
 
     if (prevWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
+      dispatch(setStatus("New"))
+      if (approvalCount > 0) {
+        dispatch(setStatus("Pending for approval"))
+      }
     } else {
       setIsCurrentWeek(false);
     }
@@ -654,10 +702,13 @@ const Home = () => {
     const endOfNextWeek = startOfNextWeek.add(6, "day");
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
-    console.log("nextWeekStart", nextWeekStart);
-    console.log("currentWeekStart", currentWeekStart);
+    dispatch(setStatus("Rejected"))
     if (nextWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
+      dispatch(setStatus("New"))
+      if (approvalCount > 0) {
+        dispatch(setStatus("Pending for approval"))
+      }
     } else {
       setIsCurrentWeek(false);
     }
@@ -824,34 +875,48 @@ const Home = () => {
         padding={{ xs: 1, sm: 2 }}
         height={{ xs: "80vh", sm: "80vh", md: "90vh", lg: "80vh" }}
       >
-        <StyledBox>
-          <StyledToggleButtonGroup
-            value={alignment}
-            exclusive
-            onChange={handleAlignment}
-            aria-label="text alignment"
+        <StyledBox justifyContent={"space-between"}>
+          <Stack direction={"row"} alignItems={"center"}>
+            <StyledToggleButtonGroup
+              value={alignment}
+              exclusive
+              onChange={handleAlignment}
+              aria-label="text alignment"
+            >
+              <ToggleButton
+                value="left"
+                aria-label="left aligned"
+                onClick={() => handlePreviousWeek()}
+              >
+                <ArrowBackIcon />
+              </ToggleButton>
+              <ToggleButton
+                value="justify"
+                aria-label="justified"
+                onClick={() => handleNextWeek()}
+              >
+                <ArrowForwardIcon />
+              </ToggleButton>
+            </StyledToggleButtonGroup>
+            <StyledDateTypography>
+              {Array.isArray(selectedDate) && selectedDate.length === 0
+                ? formattedDateRange
+                : selectedDate || formattedDateRange}
+            </StyledDateTypography>
+          </Stack>
+          {/* <StyledDateTypography> */}
+          <Stack
+            direction={"row"}
+            spacing={1}
+            marginRight={"1rem"}
           >
-            <ToggleButton
-              value="left"
-              aria-label="left aligned"
-              onClick={() => handlePreviousWeek()}
-            >
-              <ArrowBackIcon />
-            </ToggleButton>
-            <ToggleButton
-              value="justify"
-              aria-label="justified"
-              onClick={() => handleNextWeek()}
-            >
-              <ArrowForwardIcon />
-            </ToggleButton>
-          </StyledToggleButtonGroup>
+            <HeaderTypography>STATUS :</HeaderTypography>
 
-          <StyledDateTypography>
-            {Array.isArray(selectedDate) && selectedDate.length === 0
-              ? formattedDateRange
-              : selectedDate || formattedDateRange}
-          </StyledDateTypography>
+            <HeaderSubTypography style={{ color: StatusColorFormatter(status) }}>
+              {status}
+            </HeaderSubTypography>
+          </Stack>
+          {/* </StyledDateTypography> */}
         </StyledBox>
         <StyledStackButton
           direction={"row"}
@@ -863,8 +928,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                    .join(" - ")
+                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                  .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
@@ -945,13 +1010,13 @@ const Home = () => {
               padding: "0.4rem",
               marginBottom: "0.5rem",
             }}
-            // disabled={
-            //   !(
-            //     projectedData &&
-            //     Object?.keys(projectedData)?.length > 0 &&
-            //     saveTimeClick
-            //   )
-            // }
+          // disabled={
+          //   !(
+          //     projectedData &&
+          //     Object?.keys(projectedData)?.length > 0 &&
+          //     saveTimeClick
+          //   )
+          // }
           >
             <StyledFooterText>Submit Week for Approval</StyledFooterText>
           </Button>
