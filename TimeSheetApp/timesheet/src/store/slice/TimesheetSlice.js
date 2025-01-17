@@ -20,6 +20,7 @@ const initialState = {
       username: "Paul heyman",
     },
   ],
+  status: "New",
 };
 
 const createFormSlice = createSlice({
@@ -28,6 +29,9 @@ const createFormSlice = createSlice({
   reducers: {
     setProjectData: (state, action) => {
       state.projectData = action.payload;
+    },
+    setStatus: (state, action) => {
+      state.status = action.payload
     },
     deleteProjectDataById: (state, action) => {
       state.projectData = state.projectData.filter(
@@ -74,6 +78,7 @@ export const {
   updateRowTotal,
   updateRow,
   addNotes,
+  setStatus,
   setApprovalCount
 } = createFormSlice.actions;
 

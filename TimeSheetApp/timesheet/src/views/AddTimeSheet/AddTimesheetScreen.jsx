@@ -14,7 +14,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Dropdown from "../../components/Dropdown";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setProjectData } from "store/slice/TimesheetSlice";
+import { setProjectData, setStatus } from "store/slice/TimesheetSlice";
 import TitleDropdown from "components/TitleDropdown";
 
 const StyledTypography = styled(Typography)({
@@ -198,6 +198,7 @@ const AddRowsScreen = () => {
         tData.unshift(data);
       }
       dispatch(setProjectData(tData));
+      
       setAddProjectOpen(true);
       navigate(-1);
     } else {
