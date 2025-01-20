@@ -1,6 +1,6 @@
-import { Box, Button, styled, Typography } from '@mui/material';
+import { Alert, Box, Button, Snackbar, styled, Typography } from '@mui/material';
 import ApprovalsDatagrid from 'views/managerScreen/ApprovalsDatagrid';
-import React from 'react';
+import React, { useState } from 'react';
 
 const StyledBox = styled(Box)(({ theme }) => ({
     padding: theme.spacing(5),
@@ -28,6 +28,14 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const PendingApprovals = () => {
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === "clickaway") {
+          return;
+        }
+        setSnackbarOpen(false);
+      };
+
     return (
         <StyledBox>
             <StyledTypography>
@@ -58,6 +66,7 @@ const PendingApprovals = () => {
                     Reject
                 </StyledButton> */}
                 <StyledButton
+                    onClick={() => setSnackbarOpen(true)}
                     variant="contained"
                     // color="success"
                     sx={{ width: { xs: "100%", sm: "200px" }, fontWeight: 700, backgroundColor: "green" }}
@@ -65,6 +74,21 @@ const PendingApprovals = () => {
                     Approve
                 </StyledButton>
             </StyledMainBox>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+                <Alert
+                    onClose={handleSnackbarClose}
+                    severity={"success"}
+                    sx={{ width: "100%" }}
+                >
+                    Timesheet approved successfully.
+                </Alert>
+            </Snackbar>
         </StyledBox>
     );
 };

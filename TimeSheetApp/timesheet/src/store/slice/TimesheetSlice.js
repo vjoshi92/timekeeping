@@ -4,22 +4,29 @@ const initialState = {
   projectData: [],
   total: {},
   approvalCount: 0,
-  notes: [
-    {
-      id: 1,
-      content: "Discuss project deadlines and deliverables.",
-      date: "10 Jan 2025",
-      time: "05:30:00",
-      username: "Jon doe",
-    },
-    {
-      id: 2,
-      content: "Complete the UI design for the dashboard.",
-      date: "10 Jan 2025",
-      time: "10:12:00",
-      username: "Paul heyman",
-    },
-  ],
+  notes: [{
+        id: 1,
+        content: "Notes go here",
+        date: "10-Jan-2025",
+        time: "05:30:00",
+        username: "Jon Doe",
+      },],
+  // notes: [
+  //   {
+  //     id: 1,
+  //     content: "Discuss project deadlines and deliverables.",
+  //     date: "10 Jan 2025",
+  //     time: "05:30:00",
+  //     username: "Jon doe",
+  //   },
+  //   {
+  //     id: 2,
+  //     content: "Complete the UI design for the dashboard.",
+  //     date: "10 Jan 2025",
+  //     time: "10:12:00",
+  //     username: "Paul heyman",
+  //   },
+  // ],
   status: "New",
 };
 
@@ -38,7 +45,7 @@ const createFormSlice = createSlice({
         (item) => item.id !== action.payload
       );
       // Clean up the total for deleted row
-      delete state.totals[action.payload];
+      delete state?.projectData[action.payload];
     },
     updateRow: (state, action) => {
       state.projectData[action.payload.rowIndex] = action.payload.rowObj;

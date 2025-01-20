@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Backdrop,
   Box,
   Button,
@@ -7,6 +8,7 @@ import {
   Grid2,
   Modal,
   Popper,
+  Snackbar,
   Stack,
   ToggleButton,
   Typography,
@@ -469,7 +471,7 @@ const dummyReviewData = [
     day5: "0.00",
     day6: "0.00",
     isReject: true,
-    weekTotal: 10,
+    weekTotal: "10.00",
     project: "JMA NOFO 2 O-RU",
     level: "Mechanical Design",
     title: "1.4.10.2.1",
@@ -484,7 +486,7 @@ const dummyReviewData = [
     day4: "2.00",
     day5: "0.00",
     day6: "0.00",
-    weekTotal: 10,
+    weekTotal: "10.00",
     project: "JMA NOFO 2 O-RU",
     title: "1.4.10.2.3",
     level: "PCB Design",
@@ -499,7 +501,7 @@ const dummyReviewData = [
     day4: "2.00",
     day5: "0.00",
     day6: "0.00",
-    weekTotal: 10,
+    weekTotal: "10.00",
     project: "Indirect",
     title: "1.1",
     level: "General Training",
@@ -514,7 +516,7 @@ const dummyReviewData = [
     day4: "2.00",
     day5: "0.00",
     day6: "0.00",
-    weekTotal: 10,
+    weekTotal: "10.00",
     project: "Indirect",
     title: "1.3",
     level: "PTO",
@@ -522,14 +524,14 @@ const dummyReviewData = [
     hierarchy: ["Indirect", "PTO"],
   },
   {
-    day0: 8,
-    day1: 8,
-    day2: 8,
-    day3: 8,
-    day4: 8,
-    day5: 0,
-    day6: 0,
-    weekTotal: 40,
+    day0: "8.00",
+    day1: "8.00",
+    day2: "8.00",
+    day3: "8.00",
+    day4: "8.00",
+    day5: "0.00",
+    day6: "0.00",
+    weekTotal: "40.00",
     project: "Total",
     title: "",
     level: "Total",
@@ -555,6 +557,7 @@ const Home = () => {
   const [isTimesheetCreated, setIsTimesheetCreated] = useState(false);
   const [isCurrentWeek, setIsCurrentWeek] = useState(true);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
@@ -718,6 +721,7 @@ const Home = () => {
     // setSaveTimeClick(true);
     const currentTime = new Date();
     setLastSavedTime(currentTime);
+    setSnackbarOpen(true);
   };
 
   const handleYes = () => {
@@ -737,7 +741,7 @@ const Home = () => {
   const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
   const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
   const rows = [
-    { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
+    { id: 1, day0: "0.00", day1: "0.00", day2: "0.00", day3: "0.00", day4: "0.00", day5: "0.00", day6: "0.00", day7: "0.00" },
   ];
 
   const handleInputChange = (field, value, rowId) => {
@@ -855,6 +859,15 @@ const Home = () => {
     }
   };
 
+ 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+
   const ReviewData = ReviewColumns({
     rows,
     selectedDate,
@@ -910,7 +923,7 @@ const Home = () => {
             spacing={1}
             marginRight={"1rem"}
           >
-            <HeaderTypography>STATUS :</HeaderTypography>
+            <HeaderTypography>Status :</HeaderTypography>
 
             <HeaderSubTypography style={{ color: StatusColorFormatter(status) }}>
               {StatusCaseFormatting(status)}
@@ -1233,6 +1246,20 @@ const Home = () => {
           </CloseButton>
         </StyledApprovalBox>
       </Modal>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={"success"}
+          sx={{ width: "100%" }}
+        >
+          Timesheet saved successfully.
+        </Alert>
+      </Snackbar>
     </>
   );
 };

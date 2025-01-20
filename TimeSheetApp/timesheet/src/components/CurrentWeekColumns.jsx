@@ -75,7 +75,7 @@ export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedD
                     //     onChange={(value) => handleInputChange(`day${i}`, value, params?.row?.id)}
                     //     value={params?.value || 0}
                     // />
-                    <StyledTypography >0</StyledTypography>
+                    <StyledTypography >{params?.value}</StyledTypography>
                 ),
             });
         }
