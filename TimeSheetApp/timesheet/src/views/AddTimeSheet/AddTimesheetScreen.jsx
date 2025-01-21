@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setProjectData, setStatus } from "store/slice/TimesheetSlice";
 import TitleDropdown from "components/TitleDropdown";
-import { useGetWbsDataQuery } from "api/timesheetApi";
+import { useGetProjectDataQuery, useGetWbsDataQuery } from "api/timesheetApi";
 
 const StyledTypography = styled(Typography)({
   color: "#0073E6",
@@ -140,9 +140,13 @@ const AddRowsScreen = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
 
-  const {data : wbsData} = useGetWbsDataQuery()
+  console.log("levels", levels)
 
-  console.log("wbsData" , wbsData)
+  const { data: wbsData } = useGetWbsDataQuery()
+  const { data: projectAllData } = useGetProjectDataQuery()
+
+  console.log("wbsData", wbsData?.results)
+  console.log("projectAllData", projectAllData?.results)
 
   const handleProjectData = () => {
     const levels = ["levelOne"];
@@ -203,7 +207,7 @@ const AddRowsScreen = () => {
         tData.unshift(data);
       }
       dispatch(setProjectData(tData));
-      
+
       setAddProjectOpen(true);
       navigate(-1);
     } else {
@@ -225,17 +229,32 @@ const AddRowsScreen = () => {
     setAddProjectOpen(false);
   };
 
-  const handleChange = (level, value, title) => {
-    if (level == "project") {
-      const filteredLevels = LevelOneOptions.filter((x) => x.project === value);
+  const handleChange = (level, value) => {
+    if (level === "project") {
+      // When project is selected, find the matching PSPID from the selected POSID_DESC
+      const selectedProject = wbsData?.results?.find(
+        (item) => item.POSID_DESC === value
+      );
+
+      // Filter projectAllData based on matching PSPID
+      const filteredLevels = projectAllData?.results?.filter(
+        (x) => x?.PSPID === selectedProject?.PSPID
+      );
+
       setLevels(filteredLevels);
+      setSelectedLevels((prevLevels) => ({
+        ...prevLevels,
+        [level]: value,
+      }));
+    } else {
+      setSelectedLevels((prevLevels) => ({
+        ...prevLevels,
+        [level]: value?.value,
+        [`${level}Title`]: value?.label,
+      }));
     }
-    setSelectedLevels((prevLevels) => ({
-      ...prevLevels,
-      [level]: value,
-      [`${level}Title`]: title,
-    }));
   };
+
 
   return (
     <Box
@@ -270,24 +289,33 @@ const AddRowsScreen = () => {
         <StyledLabelTypography>Select Project</StyledLabelTypography>
         <StyledDropdown
           name="project"
-          options={ProjectData.map((option) => option?.title)}
+          options={wbsData?.results?.map((option) => option?.POSID_DESC)}
           onChange={(event, value) => handleChange("project", value)}
           value={selectedLevels.project || "--"}
         />
       </StyledFormControl>
+
+      {/* <StyledDropdown
+    name="project"
+    options={
+      wbsData?.results
+        ?.map((item) => item.POSID_DESC) // Map over POSID_DESC
+        ?.filter(Boolean) // Remove any undefined/null values
+    }
+    onChange={(event, value) => handleChange("project", value)}
+    value={selectedLevels.project || "--"}
+  /> */}
 
       {selectedLevels?.project && (
         <StyledFormControl>
           <StyledLabelTypography>Enter WBS Code or Task</StyledLabelTypography>
           <TitleDropdown
             name="levelOne"
-            options={levels.map((option) => ({
-              label: `${option.title}`,
-              value: option.value,
+            options={levels?.map((option) => ({
+              label: option?.PSPID,
+              value: option?.PSPID_DESC,
             }))}
-            onChange={(event, value) =>
-              handleChange("levelOne", value?.value, value.label)
-            }
+            onChange={(event, value) => handleChange("levelOne", value)}
             value={selectedLevels.levelOne ? `${selectedLevels.levelOneTitle} - ${selectedLevels.levelOne}` : null}
           />
         </StyledFormControl>

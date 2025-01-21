@@ -46,7 +46,7 @@ import {
 } from "store/slice/TimesheetSlice";
 import { ReviewColumns } from "components/ReviewColumns";
 import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
-import {  useGetUserDataQuery } from 'api/timesheetApi';
+import { useGetUserDataQuery } from 'api/timesheetApi';
 
 const style = {
   position: "absolute",
@@ -724,10 +724,8 @@ const Home = () => {
     setLastSavedTime(currentTime);
     setSnackbarOpen(true);
   };
-const { data :userData} = useGetUserDataQuery()  
-const employeeData = userData?.d?.results[0];
+ 
 
-console.log("employeeData" , employeeData)
 
   const handleYes = () => {
     setOpen(false);
@@ -864,7 +862,7 @@ console.log("employeeData" , employeeData)
     }
   };
 
- 
+
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;

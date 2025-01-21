@@ -14,6 +14,8 @@ const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 export default function TimeSheetsDatagrid() {
   const navigate = useNavigate();
+  const [pageSize, setPageSize] = React.useState(5);
+  const [page, setPage] = React.useState(0);
   const handleEyeClick = (params) => {
     const allData = params.row;
     navigate("/Review/false", { state: { data: allData } });
@@ -35,7 +37,7 @@ export default function TimeSheetsDatagrid() {
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: 600, color: StatusColorFormatter(params.value) }}
+          sx={{ fontWeight: 600, color: StatusColorFormatter(params.value), marginTop: "2%" }}
         >
           {params.value}
         </Typography>
@@ -99,7 +101,7 @@ export default function TimeSheetsDatagrid() {
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: 600, color: StatusColorFormatter(params.value) }}
+          sx={{ fontWeight: 600, color: StatusColorFormatter(params.value), marginTop: "3%" }}
         >
           {params.value}
         </Typography>
@@ -191,5 +193,16 @@ export default function TimeSheetsDatagrid() {
   const { isManager } = useParams();
   const columns = isManager == "true" ? ManagerColumns : MyColumns;
 
-  return <MuiDataGrid rows={rows} columns={columns} />;
+  return (
+    <MuiDataGrid
+      rows={rows}
+      columns={columns}
+      pageSize={pageSize}
+      page={page}
+      onPageChange={(newPage) => setPage(newPage)}
+      onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+      rowsPerPageOptions={[5, 10, 20]}
+      pagination
+    />
+  )
 }

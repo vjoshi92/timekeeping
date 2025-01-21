@@ -32,6 +32,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { setDateRange } from "store/slice/HomeSlice";
+import { useGetUserDataQuery } from "api/timesheetApi";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -159,12 +160,22 @@ export default function Header() {
   const [details, setDetails] = React.useState([]);
   const [drawer, setDrawer] = React.useState(false)
   const navigate = useNavigate();
-  const userData = useSelector((state) => state.home.userDetails);
   const dispatch = useDispatch();
   const params = useParams();
   const isManager = true;
+  const { data: userData } = useGetUserDataQuery();
+  const [employeeDatas, setEmployeeDatas] = React.useState([]); // Initialize state as an empty array
 
-  const settings = ["Welcome Vijay Joshi", "Logout"];
+  React.useEffect(() => {
+    if (userData?.results) {
+      const employees = userData.results.map((employee) => employee?.EmployeeName?.FirstName) // Ensure no null/undefined
+      setEmployeeDatas(employees);
+    }
+  }, [userData]); // Runs when userData changes
+
+  const settings = ["Logout"];
+  settings.unshift(...employeeDatas);
+
   // const handleCreateNew = () => {
   //   dispatch(resetForm());
   //   navigate("/CapEx_Request");
@@ -298,14 +309,18 @@ export default function Header() {
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
-            {settings.map((setting, index) => (
-              <MenuItem
-                key={index}
-                onClick={() => handleMenuItemClick(setting)}
-              >
-                {setting}
-              </MenuItem>
-            ))}
+            <MenuItem
+       
+            >
+              Welcome {employeeDatas}
+            </MenuItem>
+            <MenuItem
+            // key={index}
+            // onClick={() => handleMenuItemClick(setting)}
+            >
+              Logout
+            </MenuItem>
+
           </Menu>
 
           <MuiDrawer

@@ -404,13 +404,16 @@ const rows = [
 
 export default function ApprovalsDatagrid() {
   const navigate = useNavigate();
+  const [pageSize, setPageSize] = React.useState(5);
+  const [page, setPage] = React.useState(0);
+  // const [isChecked, setIsChecked] = useState(false);
   const columns = [
     {
       field: "Check",
       headerName: "",
       sortable: false,
       width: 50,
-      renderCell: () => (
+      renderCell: (params) => (
         <Box
           sx={{
             display: "flex",
@@ -422,6 +425,10 @@ export default function ApprovalsDatagrid() {
         >
           <Checkbox
             {...label}
+            // checked={isChecked ? setApproveDisable(true) : null}
+            onChange={(event) => {
+              // setIsChecked(event.target.checked);
+            }}
             sx={{
               padding: 0,
               margin: 0,
@@ -484,16 +491,30 @@ export default function ApprovalsDatagrid() {
       ),
     },
   ];
-  
+
   const handleEyeClick = (params) => {
     const allData = params.row;
     navigate("/Review/true", { state: { data: allData } });
   };
 
 
+
   return (
-    <Box sx={{ width: "100%" }}>
-      <MuiDataGrid rows={rows} columns={columns} />
+    <Box sx={{ height: 400, width: '100%' }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
+        pageSizeOptions={[5, 10, 25]}
+        checkboxSelection={false}
+        disableRowSelectionOnClick
+      />
     </Box>
   );
 }

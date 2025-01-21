@@ -29,12 +29,14 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 const PendingApprovals = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [approveDisable, setApproveDisable] = useState(false);
+
     const handleSnackbarClose = (event, reason) => {
         if (reason === "clickaway") {
-          return;
+            return;
         }
         setSnackbarOpen(false);
-      };
+    };
 
     return (
         <StyledBox>
@@ -42,7 +44,7 @@ const PendingApprovals = () => {
                 Pending Approvals
             </StyledTypography>
             <Box sx={{ marginTop: "20px", marginBottom: "40px" }}>
-                <ApprovalsDatagrid />
+                <ApprovalsDatagrid setApproveDisable={setApproveDisable} approveDisable={approveDisable} />
             </Box>
             <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
                 {/* <StyledButton
@@ -68,6 +70,7 @@ const PendingApprovals = () => {
                 <StyledButton
                     onClick={() => setSnackbarOpen(true)}
                     variant="contained"
+
                     // color="success"
                     sx={{ width: { xs: "100%", sm: "200px" }, fontWeight: 700, backgroundColor: "green" }}
                 >

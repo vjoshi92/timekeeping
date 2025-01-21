@@ -13,23 +13,25 @@ export const TimesheetApi = createApi({
         }),
         getWbsData: builder.query({
             query: () => {
-                // Access the baseUrl from baseQuery configuration
-                const baseUrl = baseQuery.baseUrl;
-                const endpointUrl = "ZCATS_NOFO_TIMESHEET_SRV/WBSSet?$format=json";
-                const fullUrl = `${baseUrl}${endpointUrl}`;
-
-                console.log("Base URL:", baseUrl);
-                console.log("Endpoint URL:", endpointUrl);
-                console.log("Full constructed URL:", fullUrl);
-
+                const URL = "ZCATS_NOFO_TIMESHEET_SRV/WBSSet?$format=json";
                 return {
-                    url: endpointUrl,
+                    url: URL,
                     method: "GET",
-                    header:("Accept", "*/*")
+                    header: ("Accept", "*/*")
+                }
+            }
+        }),
+        getProjectData: builder.query({
+            query: () => {
+                const URL = "ZCATS_NOFO_TIMESHEET_SRV/ProjectsSet?$format=json";
+                return {
+                    url: URL,
+                    method: "GET",
+                    header: ("Accept", "*/*")
                 }
             }
         })
     })
 })
 
-export const { useGetUserDataQuery, useGetWbsDataQuery } = TimesheetApi;
+export const { useGetUserDataQuery, useGetWbsDataQuery , useGetProjectDataQuery } = TimesheetApi;
