@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setProjectData, setStatus } from "store/slice/TimesheetSlice";
 import TitleDropdown from "components/TitleDropdown";
+import { useGetWbsDataQuery } from "api/timesheetApi";
 
 const StyledTypography = styled(Typography)({
   color: "#0073E6",
@@ -138,6 +139,10 @@ const AddRowsScreen = () => {
   const [projectDataArray, setProjectDataArray] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
+
+  const {data : wbsData} = useGetWbsDataQuery()
+
+  console.log("wbsData" , wbsData)
 
   const handleProjectData = () => {
     const levels = ["levelOne"];

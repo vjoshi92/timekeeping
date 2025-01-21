@@ -1,12 +1,16 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-export const baseUrl = '/sap/opu/odata/sap/ZCO_CAPEX_V1_SRV/';
+export const baseUrl = 'sap/opu/odata/sap/';
+
+// https://jmwwdad1.jmawireless.com/sap/opu/odata/sap/HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json
+
+console.log("baseUrl" , baseUrl)
 
 const customBaseQuery = fetchBaseQuery({
     baseUrl,
     prepareHeaders: async (headers, { type }) => {
         if (type === "mutation") {
             const response = await fetch(
-                `${baseUrl}/User_DetailsSet`,
+                `${baseUrl}HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json`,
                 {
                     method: "GET",
                     headers: {
@@ -26,6 +30,8 @@ const customBaseQuery = fetchBaseQuery({
 export const baseQuery = async (args, api, extraOptions = {}) => {
     try {
         const response = await customBaseQuery(args, api, extraOptions);
+
+        console.log("response" ,response)
 
         return {
             data: response?.data?.d ?? response.data,
