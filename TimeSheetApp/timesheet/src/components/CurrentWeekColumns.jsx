@@ -27,7 +27,7 @@ const StyledIconButton = styled(IconButton)({
     marginBottom: "10px"
 });
 
-export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedDate }) => {
+export const DaysColumns = ({ handleInputChange, handleDelete, isEdit, selectedDate, dateWiseData }) => {
     const getWeekDays = () => {
         let startDate;
 

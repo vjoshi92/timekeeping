@@ -3,11 +3,14 @@ import { combineReducers } from 'redux';
 import HomeSlice from './slice/HomeSlice';
 import CreateFormSlice from './slice/TimesheetSlice';
 import { TimesheetApi } from 'api/timesheetApi';
+import { TimesheetDashboardApi } from 'api/timesheetDashboardApi';
+
 
 const reducer = combineReducers({
   home: HomeSlice,
   CreateForm: CreateFormSlice,
-  [TimesheetApi.reducerPath] : TimesheetApi.reducer
+  [TimesheetApi.reducerPath]: TimesheetApi.reducer,
+  [TimesheetDashboardApi.reducerPath]: TimesheetDashboardApi.reducer
 });
 
 const store = configureStore({
@@ -17,6 +20,7 @@ const store = configureStore({
       immutableCheck: false,
       serializableCheck: false,
     })
-    .concat(TimesheetApi.middleware)
+      .concat(TimesheetApi.middleware)
+      .concat(TimesheetDashboardApi.middleware)
 });
 export default store;

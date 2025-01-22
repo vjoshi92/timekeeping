@@ -46,7 +46,8 @@ import {
 } from "store/slice/TimesheetSlice";
 import { ReviewColumns } from "components/ReviewColumns";
 import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
-import {  useGetUserDataQuery } from 'api/timesheetApi';
+import { useGetUserDataQuery } from 'api/timesheetApi';
+import { useGetDateWiseDetailsQuery } from "api/timesheetDashboardApi";
 
 const style = {
   position: "absolute",
@@ -559,10 +560,17 @@ const Home = () => {
   const [isCurrentWeek, setIsCurrentWeek] = useState(true);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
+  const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+  const currentWeekStart = startOfCurrentWeek.format("DD");
+  const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
+  const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
+  const { data: dateWiseData, isSuccess: dateWiseDataSuccessful } = useGetDateWiseDetailsQuery({
+    startDate: startOfCurrentWeek,
+    endDate: endOfCurrentWeek
+  });
 
   const handleApproval = () => {
     if (approvalCount == 0) {
@@ -724,10 +732,8 @@ const Home = () => {
     setLastSavedTime(currentTime);
     setSnackbarOpen(true);
   };
-const { data :userData} = useGetUserDataQuery()  
-const employeeData = userData?.d?.results[0];
 
-console.log("employeeData" , employeeData)
+
 
   const handleYes = () => {
     setOpen(false);
@@ -741,10 +747,7 @@ console.log("employeeData" , employeeData)
     setAlignment(newAlignment);
   };
 
-  const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
-  const currentWeekStart = startOfCurrentWeek.format("DD");
-  const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
-  const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
+
   const rows = [
     { id: 1, day0: "0.00", day1: "0.00", day2: "0.00", day3: "0.00", day4: "0.00", day5: "0.00", day6: "0.00", day7: "0.00" },
   ];
@@ -846,6 +849,7 @@ console.log("employeeData" , employeeData)
     selectedDate,
     handleInputChange,
     handleDelete,
+    dateWiseData
   });
 
   const AllRowsColumns = RowsDataColumns({
@@ -854,6 +858,7 @@ console.log("employeeData" , employeeData)
     handleInputChange,
     handleDelete,
     isParent: false,
+    dateWiseData
   });
 
   const handleRejected = (hasNote) => {
@@ -864,7 +869,7 @@ console.log("employeeData" , employeeData)
     }
   };
 
- 
+
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -872,6 +877,14 @@ console.log("employeeData" , employeeData)
     setSnackbarOpen(false);
   };
 
+
+
+  useEffect(() => {
+    if (dateWiseDataSuccessful && dateWiseData) {
+      // Handle successful data fetch
+      console.log("dateWiseData", dateWiseData);
+    }
+  }, [dateWiseDataSuccessful, dateWiseData]);
 
   const ReviewData = ReviewColumns({
     rows,

@@ -41,16 +41,11 @@ const TitleDropdown = ({
               key={"itemText" + renderProps["data-option-index"]}
               disableTypography={true}
               primary={
-                <Typography variant="subtitle2" fontWeight={400}   textTransform={"uppercase"}>
-                  {option?.label}
+                <Typography variant="subtitle2" fontWeight={400} textTransform={"uppercase"}>
+                  {option?.value} - {option?.label}
                 </Typography>
               }
-              secondary={
-                <Typography variant="caption" textTransform={"uppercase"}>
-                  {option?.value}
-                </Typography>
-              }
-              onClick={() => {}}
+              onClick={() => { }}
             ></ListItemText>
           </ListItem>
         </List>
@@ -62,6 +57,7 @@ const TitleDropdown = ({
       <Autocomplete
         key={value}
         disablePortal
+        loading
         options={options || []}
         disabled={readOnly}
         filterOptions={(options, { inputValue }) =>

@@ -7,29 +7,45 @@ export const TimesheetApi = createApi({
     endpoints: (builder) => ({
         getUserData: builder.query({
             query: () => ({
-                url: "/HCMFAB_COMMON_SRV/EmployeeDetailSet",
+                url: "/HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json",
                 method: "GET",
             })
         }),
         getWbsData: builder.query({
             query: () => {
-                // Access the baseUrl from baseQuery configuration
-                const baseUrl = baseQuery.baseUrl;
-                const endpointUrl = "ZCATS_NOFO_TIMESHEET_SRV/WBSSet?$format=json";
-                const fullUrl = `${baseUrl}${endpointUrl}`;
-
-                console.log("Base URL:", baseUrl);
-                console.log("Endpoint URL:", endpointUrl);
-                console.log("Full constructed URL:", fullUrl);
-
+                const URL = "ZCATS_NOFO_TIMESHEET_SRV/WBSSet?$format=json";
                 return {
-                    url: endpointUrl,
+                    url: URL,
                     method: "GET",
-                    header:("Accept", "*/*")
+                    header: ("Accept", "*/*")
                 }
             }
-        })
+        }),
+        getProjectData: builder.query({
+            query: () => {
+                const URL = "ZCATS_NOFO_TIMESHEET_SRV/ProjectsSet?$format=json";
+                return {
+                    url: URL,
+                    method: "GET",
+                    header: ("Accept", "*/*")
+                }
+            }
+        }),
+        makeBatchCall: builder.mutation({
+            query: ({ body }) => {
+                return {
+                    url: "$batch",
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'multipart/mixed; boundary=batch'
+                    },
+
+                    body: body,
+                };
+            },
+        }),
+
     })
 })
 
-export const { useGetUserDataQuery, useGetWbsDataQuery } = TimesheetApi;
+export const { useGetUserDataQuery, useGetWbsDataQuery, useGetProjectDataQuery, useMakeBatchCallMutation } = TimesheetApi;
