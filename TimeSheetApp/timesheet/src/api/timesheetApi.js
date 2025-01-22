@@ -7,7 +7,7 @@ export const TimesheetApi = createApi({
     endpoints: (builder) => ({
         getUserData: builder.query({
             query: () => ({
-                url: "/HCMFAB_COMMON_SRV/EmployeeDetailSet",
+                url: "/HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json",
                 method: "GET",
             })
         }),
@@ -30,8 +30,22 @@ export const TimesheetApi = createApi({
                     header: ("Accept", "*/*")
                 }
             }
-        })
+        }),
+        makeBatchCall: builder.mutation({
+            query: ({ body }) => {
+                return {
+                    url: "$batch",
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'multipart/mixed; boundary=batch'
+                    },
+
+                    body: body,
+                };
+            },
+        }),
+
     })
 })
 
-export const { useGetUserDataQuery, useGetWbsDataQuery , useGetProjectDataQuery } = TimesheetApi;
+export const { useGetUserDataQuery, useGetWbsDataQuery, useGetProjectDataQuery, useMakeBatchCallMutation } = TimesheetApi;

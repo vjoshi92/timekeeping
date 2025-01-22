@@ -9,14 +9,14 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Dropdown from "../../components/Dropdown";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setProjectData, setStatus } from "store/slice/TimesheetSlice";
 import TitleDropdown from "components/TitleDropdown";
-import { useGetProjectDataQuery, useGetWbsDataQuery } from "api/timesheetApi";
+import { useGetProjectDataQuery, useGetWbsDataQuery, useMakeBatchCallMutation } from "api/timesheetApi";
 
 const StyledTypography = styled(Typography)({
   color: "#0073E6",
@@ -140,13 +140,107 @@ const AddRowsScreen = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
 
-  console.log("levels", levels)
+  // console.log("levels", levels)
 
   const { data: wbsData } = useGetWbsDataQuery()
   const { data: projectAllData } = useGetProjectDataQuery()
+  const [makeBatchCall, { isSucess: batchCallIsSuccess, error: batchCallIsError }] = useMakeBatchCallMutation();
 
-  console.log("wbsData", wbsData?.results)
-  console.log("projectAllData", projectAllData?.results)
+  const createBatchPayload = (personnelNumber) => {
+    const timeEntryData = {
+      __metadata: {
+        type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry"
+      },
+      TimeEntryDataFields: {
+        __metadata: {
+          type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields"
+        },
+        Pernr: "09000993",
+        Counter: "",
+        RejReason: "",
+        RejReasondesc: "",
+        Status: "",
+        RefCounter: "",
+        CatsDocNo: "",
+        TimeEntryOperation: "C",
+        CheckOnly: "X",
+        AllowRelease: "",
+        AllowEdit: "",
+        AssignmentId: "0.0000000 ",
+        AssignmentName: "",
+        RecRowNo: "1",
+        ApproverId: "00000000",
+        ApproverName: "",
+        ErrorMsg: "",
+        Message1: "",
+        Message1Type: "",
+        Message2: "",
+        Message2Type: "",
+        Message3: "",
+        Message3Type: "",
+        CustomMessage: "",
+        CustomMessageType: "",
+        CustomMessage1: "",
+        CustomMessage1Type: "",
+        CustomMessage2: "",
+        CustomMessage2Type: "",
+        MessageClass1: "",
+        MessageNumber1: "",
+        MessageClass2: "",
+        MessageNumber2: "",
+        MessageClass3: "",
+        MessageNumber3: "",
+        ErrorMessageClass: "",
+        ErrorMessageType: ""
+      }
+    };
+
+    const batchPayload = [
+      "--batch",
+      'Content-Type: multipart/mixed; boundary=changeset',
+      '',
+      '--changeset',
+      'Content-Type: application/http',
+      'Content-Transfer-Encoding: binary',
+      '',
+      'POST TimeEntryCollection?sap-client=100 HTTP/1.1',
+      'Content-Type: application/json',
+      '',
+      JSON.stringify(timeEntryData, null, 2),
+      '--changeset--',
+      '',
+      '--batch--'
+    ].join('\n');
+
+    return batchPayload;
+  };
+
+
+  const handleBatchCall = async () => {
+    try {
+      const bodyPayload = createBatchPayload();
+      const response = await makeBatchCall({ body: bodyPayload })
+      console.log('Batch call successful:', response);
+    } catch (error) {
+      console.error('Error making batch call:', error);
+      // Handle specific error types if needed
+      if (error.name === 'FetchError') {
+        // Handle network errors
+        console.error('Network error occurred');
+      }
+    }
+  };
+  // Move the success handling to useEffect
+  useEffect(() => {
+    if (batchCallIsSuccess) {
+      console.log("batch success");
+      // Add any success handling logic here
+    }
+    if (batchCallIsError) {
+      console.error("Batch call failed:", batchCallIsError);
+      // Add any error handling logic here
+    }
+  }, [batchCallIsSuccess, batchCallIsError]);
 
   const handleProjectData = () => {
     const levels = ["levelOne"];
@@ -311,6 +405,7 @@ const AddRowsScreen = () => {
           <StyledLabelTypography>Enter WBS Code or Task</StyledLabelTypography>
           <TitleDropdown
             name="levelOne"
+
             options={levels?.map((option) => ({
               label: option?.PSPID,
               value: option?.PSPID_DESC,
@@ -330,6 +425,9 @@ const AddRowsScreen = () => {
         >
           <StyledButton onClick={handleProjectData}>
             <SaveTypography>Save</SaveTypography>
+          </StyledButton>
+          <StyledButton onClick={handleBatchCall}>
+            <SaveTypography>Post Save</SaveTypography>
           </StyledButton>
         </Box>
       )}

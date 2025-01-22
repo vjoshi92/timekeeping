@@ -402,11 +402,11 @@ const rows = [
   },
 ];
 
-export default function ApprovalsDatagrid() {
+export default function ApprovalsDatagrid({ setCheckboxChecked }) {
   const navigate = useNavigate();
   const [pageSize, setPageSize] = React.useState(5);
   const [page, setPage] = React.useState(0);
-  // const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = React.useState(false);
   const columns = [
     {
       field: "Check",
@@ -425,9 +425,9 @@ export default function ApprovalsDatagrid() {
         >
           <Checkbox
             {...label}
-            // checked={isChecked ? setApproveDisable(true) : null}
+            checked={isChecked ? setCheckboxChecked(true) : setCheckboxChecked(false)}
             onChange={(event) => {
-              // setIsChecked(event.target.checked);
+              setIsChecked(event.target.checked);
             }}
             sx={{
               padding: 0,

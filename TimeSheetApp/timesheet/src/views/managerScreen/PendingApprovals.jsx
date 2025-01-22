@@ -1,6 +1,6 @@
 import { Alert, Box, Button, Snackbar, styled, Typography } from '@mui/material';
 import ApprovalsDatagrid from 'views/managerScreen/ApprovalsDatagrid';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const StyledBox = styled(Box)(({ theme }) => ({
     padding: theme.spacing(5),
@@ -29,7 +29,14 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 const PendingApprovals = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [approveDisable, setApproveDisable] = useState(false);
+    const [approveDisable, setApproveDisable] = useState(true);
+    const [checkboxChecked, setCheckboxChecked] = useState(false)
+
+    console.log("checkboxChecked", checkboxChecked)
+
+    useEffect(() => {
+        setApproveDisable(!checkboxChecked);
+    }, [checkboxChecked]);
 
     const handleSnackbarClose = (event, reason) => {
         if (reason === "clickaway") {
@@ -44,7 +51,7 @@ const PendingApprovals = () => {
                 Pending Approvals
             </StyledTypography>
             <Box sx={{ marginTop: "20px", marginBottom: "40px" }}>
-                <ApprovalsDatagrid setApproveDisable={setApproveDisable} approveDisable={approveDisable} />
+                <ApprovalsDatagrid setCheckboxChecked={setCheckboxChecked} />
             </Box>
             <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
                 {/* <StyledButton
@@ -70,7 +77,7 @@ const PendingApprovals = () => {
                 <StyledButton
                     onClick={() => setSnackbarOpen(true)}
                     variant="contained"
-
+                    disabled={approveDisable}
                     // color="success"
                     sx={{ width: { xs: "100%", sm: "200px" }, fontWeight: 700, backgroundColor: "green" }}
                 >

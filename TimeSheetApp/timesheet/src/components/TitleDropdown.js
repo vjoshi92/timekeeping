@@ -57,6 +57,7 @@ const TitleDropdown = ({
       <Autocomplete
         key={value}
         disablePortal
+        loading
         options={options || []}
         disabled={readOnly}
         filterOptions={(options, { inputValue }) =>
