@@ -34,7 +34,7 @@ export const TimesheetApi = createApi({
         makeBatchCall: builder.mutation({
             query: ({ body }) => {
                 return {
-                    url: "$batch",
+                    url: "HCMFAB_TIMESHEET_MAINT_SRV/$batch",
                     method: 'POST',
                     headers: {
                         'Content-Type': 'multipart/mixed; boundary=batch'

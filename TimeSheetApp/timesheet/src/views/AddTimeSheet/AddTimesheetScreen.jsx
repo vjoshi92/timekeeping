@@ -16,7 +16,11 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setProjectData, setStatus } from "store/slice/TimesheetSlice";
 import TitleDropdown from "components/TitleDropdown";
-import { useGetProjectDataQuery, useGetWbsDataQuery, useMakeBatchCallMutation } from "api/timesheetApi";
+import {
+  useGetProjectDataQuery,
+  useGetWbsDataQuery,
+  useMakeBatchCallMutation,
+} from "api/timesheetApi";
 
 const StyledTypography = styled(Typography)({
   color: "#0073E6",
@@ -142,91 +146,198 @@ const AddRowsScreen = () => {
 
   // console.log("levels", levels)
 
-  const { data: wbsData } = useGetWbsDataQuery()
-  const { data: projectAllData } = useGetProjectDataQuery()
-  const [makeBatchCall, { isSucess: batchCallIsSuccess, error: batchCallIsError }] = useMakeBatchCallMutation();
+  const { data: wbsData } = useGetWbsDataQuery();
+  const { data: projectAllData } = useGetProjectDataQuery();
+  const [
+    makeBatchCall,
+    { isSucess: batchCallIsSuccess, error: batchCallIsError },
+  ] = useMakeBatchCallMutation();
 
   const createBatchPayload = (personnelNumber) => {
     const timeEntryData = {
       __metadata: {
-        type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry"
+        type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
       },
       TimeEntryDataFields: {
         __metadata: {
-          type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields"
+          type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
         },
-        Pernr: "09000993",
-        Counter: "",
-        RejReason: "",
-        RejReasondesc: "",
-        Status: "",
-        RefCounter: "",
-        CatsDocNo: "",
-        TimeEntryOperation: "C",
-        CheckOnly: "X",
-        AllowRelease: "",
-        AllowEdit: "",
-        AssignmentId: "0.0000000 ",
-        AssignmentName: "",
-        RecRowNo: "1",
-        ApproverId: "00000000",
-        ApproverName: "",
-        ErrorMsg: "",
-        Message1: "",
-        Message1Type: "",
-        Message2: "",
-        Message2Type: "",
-        Message3: "",
-        Message3Type: "",
-        CustomMessage: "",
-        CustomMessageType: "",
-        CustomMessage1: "",
-        CustomMessage1Type: "",
-        CustomMessage2: "",
-        CustomMessage2Type: "",
-        MessageClass1: "",
-        MessageNumber1: "",
-        MessageClass2: "",
-        MessageNumber2: "",
-        MessageClass3: "",
-        MessageNumber3: "",
-        ErrorMessageClass: "",
-        ErrorMessageType: ""
-      }
+        AWART: "0800",
+        LSTAR: "",
+        ALLDF: "",
+        PRAKN: "",
+        PRAKZ: "0000",
+        BEMOT: "",
+        CATSHOURS: "5.00",
+        PERNR: "09000993",
+        KOKRS: "PPC",
+        CPR_EXTID: "",
+        CPR_GUID: "",
+        CPR_OBJGEXTID: "",
+        CPR_OBJGUID: "",
+        CPR_OBJTYPE: "",
+        WAERS: "",
+        ENDUZ: "000000",
+        EXTAPPLICATION: "",
+        EXTDOCUMENTNO: "",
+        AUFKZ: "",
+        EXTSYSTEM: "",
+        PEDD: null,
+        AUERU: "",
+        FUNC_AREA: "",
+        FUND: "",
+        GRANT_NBR: "",
+        LONGTEXT: "",
+        RNPLNR: "",
+        VERSL: "",
+        ERUZU: "",
+        TRFGR: "",
+        TRFST: "",
+        WERKS: "",
+        SEBELP: "00000",
+        SEBELN: "",
+        PLANS: "00000000",
+        VTKEN: "",
+        CATSQUANTITY: "5.00",
+        RKOSTL: "",
+        RAUFNR: "",
+        RPRZNR: "",
+        RKSTR: "",
+        RKDPOS: "000000",
+        RKDAUF: "",
+        OFMNW: "0.0",
+        SPRZNR: "",
+        SKOSTL: "",
+        S_FUNC_AREA: "",
+        S_FUND: "",
+        S_GRANT_NBR: "",
+        LSTNR: "",
+        LTXA1: "",
+        SPLIT: "000",
+        BEGUZ: "000000",
+        STATKEYFIG: "",
+        TCURR: "",
+        REINR: "0000000000",
+        MEINH: "H",
+        UNIT: "H",
+        LGART: "",
+        WORKDATE: "2025-01-13T00:00:00",
+        WTART: "",
+        CATSAMOUNT: "0.00",
+        PRICE: "0.00",
+        RPROJ: "00000000",
+        ARBPL: "",
+        TASKTYPE: "",
+        TASKLEVEL: "",
+        TASKCOMPONENT: "",
+        VORNR: "",
+        UVORN: "",
+        KAPAR: "",
+        BWGRL: "0.00",
+        LONGTEXT_DATA: "Test from React",
+        WORKITEMID: "000000000000",
+        POSID: "NOF-0003.002",
+        RAUFPL: "0000000000",
+        RAPLZL: "00000000",
+        PAOBJNR: "0000000000",
+        BUDGET_PD: "",
+        SBUDGET_PD: "",
+        KAPID: "00000000",
+        WABLNR: "",
+        OTYPE: "",
+        ARBID: "00000000",
+        AUTYP: "00",
+        HRCOSTASG: "0",
+        HRKOSTL: "",
+        HRLSTAR: "",
+        HRFUND: "",
+        HRFUNC_AREA: "",
+        HRGRANT_NBR: "",
+        BUKRS: "",
+        HRBUDGET_PD: "",
+        ERNAM: "TEST_APP2",
+        AENAM: "TEST_APP2",
+        APNAM: "",
+        LOGSYS: "JMDCLNT100",
+        STATUS: "",
+        REFCOUNTER: "",
+        REASON: "",
+        BELNR: "",
+        TASKCOUNTER: "",
+        BEDID: "000000000000",
+        KTEXT: "",
+        ZLTXA1: "",
+      },
+      Pernr: "09000993",
+      Counter: "000000005668",
+      RejReason: "",
+      RejReasondesc: "",
+      Status: "",
+      RefCounter: "",
+      CatsDocNo: "",
+      TimeEntryOperation: "U",
+      CheckOnly: "",
+      AllowRelease: "X",
+      AllowEdit: "",
+      AssignmentId: "0.0000000 ",
+      AssignmentName: "",
+      RecRowNo: "1",
+      ApproverId: "00000000",
+      ApproverName: "",
+      ErrorMsg: "",
+      Message1: "",
+      Message1Type: "",
+      Message2: "",
+      Message2Type: "",
+      Message3: "",
+      Message3Type: "",
+      CustomMessage: "",
+      CustomMessageType: "",
+      CustomMessage1: "",
+      CustomMessage1Type: "",
+      CustomMessage2: "",
+      CustomMessage2Type: "",
+      MessageClass1: "",
+      MessageNumber1: "",
+      MessageClass2: "",
+      MessageNumber2: "",
+      MessageClass3: "",
+      MessageNumber3: "",
+      ErrorMessageClass: "",
+      ErrorMessageType: "",
     };
 
     const batchPayload = [
       "--batch",
-      'Content-Type: multipart/mixed; boundary=changeset',
-      '',
-      '--changeset',
-      'Content-Type: application/http',
-      'Content-Transfer-Encoding: binary',
-      '',
-      'POST TimeEntryCollection?sap-client=100 HTTP/1.1',
-      'Content-Type: application/json',
-      '',
+      "Content-Type: multipart/mixed; boundary=changeset",
+      "",
+      "--changeset",
+      "Content-Type: application/http",
+      "Content-Transfer-Encoding: binary",
+      "",
+      "POST TimeEntryCollection?sap-client=100 HTTP/1.1",
+      "Content-Type: application/json",
+      "",
       JSON.stringify(timeEntryData, null, 2),
-      '--changeset--',
-      '',
-      '--batch--'
-    ].join('\n');
+      "--changeset--",
+      "",
+      "--batch--",
+    ].join("\n");
 
     return batchPayload;
   };
 
-
   const handleBatchCall = async () => {
     try {
       const bodyPayload = createBatchPayload();
-      const response = await makeBatchCall({ body: bodyPayload })
-      console.log('Batch call successful:', response);
+      const response = await makeBatchCall({ body: bodyPayload });
+      console.log("Batch call successful:", response);
     } catch (error) {
-      console.error('Error making batch call:', error);
+      console.error("Error making batch call:", error);
       // Handle specific error types if needed
-      if (error.name === 'FetchError') {
+      if (error.name === "FetchError") {
         // Handle network errors
-        console.error('Network error occurred');
+        console.error("Network error occurred");
       }
     }
   };
@@ -349,7 +460,6 @@ const AddRowsScreen = () => {
     }
   };
 
-
   return (
     <Box
       sx={{
@@ -405,13 +515,16 @@ const AddRowsScreen = () => {
           <StyledLabelTypography>Enter WBS Code or Task</StyledLabelTypography>
           <TitleDropdown
             name="levelOne"
-
             options={levels?.map((option) => ({
               label: option?.PSPID,
               value: option?.PSPID_DESC,
             }))}
             onChange={(event, value) => handleChange("levelOne", value)}
-            value={selectedLevels.levelOne ? `${selectedLevels.levelOneTitle} - ${selectedLevels.levelOne}` : null}
+            value={
+              selectedLevels.levelOne
+                ? `${selectedLevels.levelOneTitle} - ${selectedLevels.levelOne}`
+                : null
+            }
           />
         </StyledFormControl>
       )}
