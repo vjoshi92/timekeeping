@@ -17,19 +17,19 @@ const getTreeDataPath = (row) => {
 };
 const steps = [
   {
-    label: "JMA NOFO 2 O-RU",    
+    label: "JMA NOFO 2 O-RU",
   },
   {
-    label: "1.4 / Phase 2",    
+    label: "1.4 / Phase 2",
   },
   {
-    label: "1.4.10 / AT&T RU [XR35TWV4/ACT-O] C-Band 4x30W (Ph2)",    
+    label: "1.4.10 / AT&T RU [XR35TWV4/ACT-O] C-Band 4x30W (Ph2)",
   },
   {
-    label: "1.4.10.2 / Design Implementation (Second Run)",    
+    label: "1.4.10.2 / Design Implementation (Second Run)",
   },
   {
-    label: "1.4.10.2.1 / Mechanical Design",    
+    label: "1.4.10.2.1 / Mechanical Design",
   },
 ];
 
@@ -40,7 +40,7 @@ const customStepper = () => {
         <Step key={step.label}>
           <StepLabel>
             {step.label}
-          </StepLabel>          
+          </StepLabel>
         </Step>
       ))}
     </Stepper>
@@ -126,7 +126,7 @@ export default function TreeGrid({ columns, density, data }) {
         hideFooter
         density={density || "compact"}
         apiRef={useGridApiRef()}
-        getTreeDataPath={getTreeDataPath}
+        getTreeDataPath={(row) => [row.name, row.id.toString()]}
         groupingColDef={groupingColDef}
         sx={customStyles}
         getRowClassName={getRowClassName}
