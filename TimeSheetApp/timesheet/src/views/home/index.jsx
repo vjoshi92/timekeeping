@@ -46,7 +46,7 @@ import {
 } from "store/slice/TimesheetSlice";
 import { ReviewColumns } from "components/ReviewColumns";
 import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
-import { useGetUserDataQuery } from 'api/timesheetApi';
+import { useGetUserDataQuery } from "api/timesheetApi";
 import { useGetDateWiseDetailsQuery } from "api/timesheetDashboardApi";
 
 const style = {
@@ -534,7 +534,7 @@ const dummyReviewData = [
 const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
-  const [allTimeData, setAllTimeData] = useState()
+  const [allTimeData, setAllTimeData] = useState();
   const selectedDate = useSelector((state) => state?.home?.daterange);
   const status = useSelector((state) => state?.CreateForm?.status);
   const approvalCount = useSelector(
@@ -549,7 +549,7 @@ const Home = () => {
   const [isCurrentWeek, setIsCurrentWeek] = useState(true);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [productTime, setProductTime] = useState([])
+  const [productTime, setProductTime] = useState([]);
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
@@ -557,11 +557,11 @@ const Home = () => {
   const currentWeekStart = startOfCurrentWeek.format("DD");
   const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
   const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
-  const { data: dateWiseData, isSuccess: dateWiseDataSuccessful } = useGetDateWiseDetailsQuery({
-    startDate: startOfCurrentWeek,
-    endDate: endOfCurrentWeek
-  });
-
+  const { data: dateWiseData, isSuccess: dateWiseDataSuccessful } =
+    useGetDateWiseDetailsQuery({
+      startDate: startOfCurrentWeek,
+      endDate: endOfCurrentWeek,
+    });
 
   // console.log("allTimeData", allTimeData)
 
@@ -593,7 +593,6 @@ const Home = () => {
 
   // console.log("ProductArray", ProductArray);
 
-
   const handleApproval = () => {
     if (approvalCount == 0) {
       if (!isCurrentWeek) {
@@ -612,7 +611,7 @@ const Home = () => {
     }
     setOpenApproval(true);
     if (approvalCount > 0) {
-      dispatch(setStatus("Pending for approval"))
+      dispatch(setStatus("Pending for approval"));
     }
   };
   const handlePrevWeekApproval = (approvalCount) => {
@@ -635,7 +634,7 @@ const Home = () => {
     // if (approvalCount >= 0) {
     //   dispatch(setStatus("Pending for approval"))
     // }
-  }
+  };
 
   const handelSaveNote = () => {
     setOpenApproval(false);
@@ -643,7 +642,7 @@ const Home = () => {
     let aCount = approvalCount + 1;
     dispatch(setApprovalCount(aCount));
     if (approvalCount >= 0) {
-      dispatch(setStatus("Pending for approval"))
+      dispatch(setStatus("Pending for approval"));
     }
   };
 
@@ -702,13 +701,13 @@ const Home = () => {
     const endOfPreviousWeek = startOfPreviousWeek.add(6, "day");
     const newDateRange = `${startOfPreviousWeek.format("DD MMM YYYY")} - ${endOfPreviousWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
-    dispatch(setStatus("Rejected"))
+    dispatch(setStatus("Rejected"));
 
     if (prevWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
-      dispatch(setStatus("New"))
+      dispatch(setStatus("New"));
       if (approvalCount > 0) {
-        dispatch(setStatus("Pending for approval"))
+        dispatch(setStatus("Pending for approval"));
       }
     } else {
       setIsCurrentWeek(false);
@@ -736,12 +735,12 @@ const Home = () => {
     const endOfNextWeek = startOfNextWeek.add(6, "day");
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
-    dispatch(setStatus("Rejected"))
+    dispatch(setStatus("Rejected"));
     if (nextWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
-      dispatch(setStatus("New"))
+      dispatch(setStatus("New"));
       if (approvalCount > 0) {
-        dispatch(setStatus("Pending for approval"))
+        dispatch(setStatus("Pending for approval"));
       }
     } else {
       setIsCurrentWeek(false);
@@ -755,8 +754,6 @@ const Home = () => {
     setSnackbarOpen(true);
   };
 
-
-
   const handleYes = () => {
     setOpen(false);
     setSaveTimeClick(false);
@@ -769,9 +766,18 @@ const Home = () => {
     setAlignment(newAlignment);
   };
 
-
   const rows = [
-    { id: 1, day0: "0.00", day1: "0.00", day2: "0.00", day3: "0.00", day4: "0.00", day5: "0.00", day6: "0.00", day7: "0.00" },
+    {
+      id: 1,
+      day0: "0.00",
+      day1: "0.00",
+      day2: "0.00",
+      day3: "0.00",
+      day4: "0.00",
+      day5: "0.00",
+      day6: "0.00",
+      day7: "0.00",
+    },
   ];
 
   const handleInputChange = (field, value, rowId) => {
@@ -871,7 +877,7 @@ const Home = () => {
     selectedDate,
     handleInputChange,
     handleDelete,
-    dateWiseData
+    dateWiseData,
   });
 
   const AllRowsColumns = RowsDataColumns({
@@ -880,7 +886,7 @@ const Home = () => {
     handleInputChange,
     handleDelete,
     isParent: false,
-    dateWiseData
+    dateWiseData,
   });
 
   const handleRejected = (hasNote) => {
@@ -891,7 +897,6 @@ const Home = () => {
     }
   };
 
-
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -899,55 +904,119 @@ const Home = () => {
     setSnackbarOpen(false);
   };
 
+  const transformToWeeklyRows = (response) => {
+    const results = response?.results; // Extract the top-level results array
+    const weekRows = []; // Array to store the transformed weekly data
+
+    results.forEach((dayData, dayIndex) => {
+      const timeEntries = dayData.TimeEntries.results; // Array of time entries for the day
+
+      timeEntries.forEach((entry, entryIndex) => {
+        // Parse work date
+        const workDate = new Date(
+          parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[0], 10)
+        );
+        const dayOfWeek = workDate.getDay(); // Get day of the week (0 = Sunday, 6 = Saturday)
+
+        // Find or create a row for this entry in weekRows
+        let weekRow = weekRows[entryIndex];
+        if (!weekRow) {
+          weekRow = {
+            weekTotal: "0.00",
+            project: `Project_${entryIndex + 1}`, // Replace with your logic if needed
+            level: "somevalue", // Replace with your logic
+            title: `Entry_${entryIndex + 1}`, // Replace with your logic
+            id: entryIndex + 1,
+            day0: "0.00",
+            day1: "0.00",
+            day2: "0.00",
+            day3: "0.00",
+            day4: "0.00",
+            day5: "0.00",
+            day6: "0.00",
+          };
+          weekRows[entryIndex] = weekRow;
+        }
+
+        // Update the hours for the correct day of the week
+        const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
+        const dayKey = `day${dayOfWeek}`;
+        weekRow[dayKey] = (parseFloat(weekRow[dayKey]) + hours).toFixed(2);
+      });
+    });
+
+    // Calculate total hours for each week row
+    weekRows.forEach((weekRow) => {
+      weekRow.weekTotal = (
+        parseFloat(weekRow.day0) +
+        parseFloat(weekRow.day1) +
+        parseFloat(weekRow.day2) +
+        parseFloat(weekRow.day3) +
+        parseFloat(weekRow.day4) +
+        parseFloat(weekRow.day5) +
+        parseFloat(weekRow.day6)
+      ).toFixed(2);
+    });
+
+    return weekRows;
+  };
+
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
-      let dayValues = {
-        day0: "0.00",
-        day1: "0.00",
-        day2: "0.00",
-        day3: "0.00",
-        day4: "0.00",
-        day5: "0.00",
-        day6: "0.00"
-      };
+      // new logic here
+      // Example usage
+      const responseData = dateWiseData;
+      const transformedData = transformToWeeklyRows(responseData);
+      console.log("transformedData>>>>>>>", transformedData);
+      // old logic
+      // let dayValues = {
+      //   day0: "0.00",
+      //   day1: "0.00",
+      //   day2: "0.00",
+      //   day3: "0.00",
+      //   day4: "0.00",
+      //   day5: "0.00",
+      //   day6: "0.00",
+      // };
 
-      let productData = [];
-      for (let i = 0; i < dateWiseData.results.length; i++) {
-        const timeEntries = dateWiseData.results[i]?.TimeEntries?.results || [];
-        for (let j = 0; j < timeEntries.length; j++) {
-          let obj = {
-            [`day${i}`]: timeEntries[j]?.TimeEntryDataFields?.CATSHOURS || "0.00",
-            TimeEntries: dateWiseData.results[i]?.TimeEntries
-          };
-          productData.push(obj);
-        }
-      }
+      // let productData = [];
+      // for (let i = 0; i < dateWiseData.results.length; i++) {
+      //   const timeEntries = dateWiseData.results[i]?.TimeEntries?.results || [];
+      //   for (let j = 0; j < timeEntries.length; j++) {
+      //     const keys = productData.keys();
+      //     let obj = {
+      //       [`day${i}`]:
+      //         timeEntries[j]?.TimeEntryDataFields?.CATSHOURS || "0.00",
+      //     };
+      //     productData.push(obj);
+      //   }
+      // }
 
-      console.log("productData", productData);
+      // console.log("productData", productData);
 
-      const productTimeDataArray = productData.map((result, index) => {
-        // Use the first time entry's data for project details
-        const firstTimeEntry = result?.TimeEntries?.results?.[0];
+      // const productTimeDataArray = productData.map((result, index) => {
+      //   // Use the first time entry's data for project details
+      //   const firstTimeEntry = result?.TimeEntries?.results?.[0];
 
-        console.log("result", result)
+      //   console.log("result", result);
 
-        return {
-          // ...dayValues,
-          ...result,
-          isReject: true,
-          weekTotal: "10.00",
-          project: firstTimeEntry?.TimeEntryDataFields?.AENAM,
-          level: firstTimeEntry?.TimeEntryDataFields?.ERNAM,
-          title: firstTimeEntry?.TimeEntryDataFields?.ERSTM,
-          id: index + 1,
-          hierarchy: [
-            firstTimeEntry?.TimeEntryDataFields?.AENAM,
-            firstTimeEntry?.TimeEntryDataFields?.ERNAM
-          ]
-        };
-      });
+      //   return {
+      //     ...dayValues,
+      //     ...result,
+      //     isReject: true,
+      //     weekTotal: "10.00",
+      //     project: firstTimeEntry?.TimeEntryDataFields?.AENAM,
+      //     level: firstTimeEntry?.TimeEntryDataFields?.ERNAM,
+      //     title: firstTimeEntry?.TimeEntryDataFields?.ERSTM,
+      //     id: index + 1,
+      //     hierarchy: [
+      //       firstTimeEntry?.TimeEntryDataFields?.AENAM,
+      //       firstTimeEntry?.TimeEntryDataFields?.ERNAM,
+      //     ],
+      //   };
+      // });
 
-      setProductTime(productTimeDataArray);
+      setProductTime(transformedData);
     }
   }, [dateWiseDataSuccessful, dateWiseData]);
 
@@ -1001,14 +1070,12 @@ const Home = () => {
             </StyledDateTypography>
           </Stack>
           {/* <StyledDateTypography> */}
-          <Stack
-            direction={"row"}
-            spacing={1}
-            marginRight={"1rem"}
-          >
+          <Stack direction={"row"} spacing={1} marginRight={"1rem"}>
             <HeaderTypography>Status :</HeaderTypography>
 
-            <HeaderSubTypography style={{ color: StatusColorFormatter(status) }}>
+            <HeaderSubTypography
+              style={{ color: StatusColorFormatter(status) }}
+            >
               {StatusCaseFormatting(status)}
             </HeaderSubTypography>
           </Stack>
@@ -1024,8 +1091,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                  .join(" - ")
+                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                    .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
@@ -1112,13 +1179,13 @@ const Home = () => {
               padding: "0.4rem",
               marginBottom: "0.5rem",
             }}
-          // disabled={
-          //   !(
-          //     projectedData &&
-          //     Object?.keys(projectedData)?.length > 0 &&
-          //     saveTimeClick
-          //   )
-          // }
+            // disabled={
+            //   !(
+            //     projectedData &&
+            //     Object?.keys(projectedData)?.length > 0 &&
+            //     saveTimeClick
+            //   )
+            // }
           >
             <StyledFooterText>Submit Week for Approval</StyledFooterText>
           </Button>
@@ -1266,7 +1333,11 @@ const Home = () => {
           </Grid2> */}
 
           <DescriptionTypography>{approvalMsg}</DescriptionTypography>
-          <NoteButtonStack direction="row" justifyContent={"space-between"} spacing={3}>
+          <NoteButtonStack
+            direction="row"
+            justifyContent={"space-between"}
+            spacing={3}
+          >
             <CancelNoteButton
               id="keep-mounted-modal-title"
               variant="h6"
