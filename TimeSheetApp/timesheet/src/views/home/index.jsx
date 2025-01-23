@@ -87,18 +87,6 @@ const SubModalstyle = styled(Box)(({ theme }) => ({
   padding: "20px",
 }));
 
-// const SubModalstyle = {
-//   width: 400,
-//   height: 100,
-//   bgcolor: '#FFFF',
-//   boxShadow: 24,
-//   p: 4,
-//   display: "flex",
-//   justifyContent: "center",
-//   alignItems: "center",
-//   flexDirection: "column"
-// };
-
 const StyledDateTypography = styled(Typography)(({ theme }) => ({
   fontSize: "22px",
   lineHeight: "26px",
@@ -546,6 +534,7 @@ const dummyReviewData = [
 const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
+  const [allTimeData, setAllTimeData] = useState()
   const selectedDate = useSelector((state) => state?.home?.daterange);
   const status = useSelector((state) => state?.CreateForm?.status);
   const approvalCount = useSelector(
@@ -560,6 +549,7 @@ const Home = () => {
   const [isCurrentWeek, setIsCurrentWeek] = useState(true);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [productTime, setProductTime] = useState([])
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
@@ -571,6 +561,38 @@ const Home = () => {
     startDate: startOfCurrentWeek,
     endDate: endOfCurrentWeek
   });
+
+
+  // console.log("allTimeData", allTimeData)
+
+  const ProductArray = [];
+
+  // // Convert allTimeData to an array if it's not already
+  // const allTimeDataArray = Array.isArray(allTimeData) ? allTimeData : Array.from(allTimeData || []);
+
+  // allTimeDataArray.map((productTimeData) => {
+
+  //   console.log("productTimeData", productTimeData)
+  //   ProductArray.push({
+  //     day0: productTimeData?.TimeEntryDataFields,
+  //     day1: productTimeData?.TimeEntryDataFields,
+  //     day2: productTimeData?.TimeEntryDataFields,
+  //     day3: productTimeData?.TimeEntryDataFields,
+  //     day4: productTimeData?.TimeEntryDataFields,
+  //     day5: productTimeData?.TimeEntryDataFields,
+  //     day6: productTimeData?.TimeEntryDataFields,
+  //     isReject: true,
+  //     weekTotal: productTimeData?.TimeEntryDataFields,
+  //     project: productTimeData?.AENAM,
+  //     level: productTimeData?.AENAM,
+  //     title: productTimeData?.AENAM,
+  //     id: 1,
+  //     hierarchy: [productTimeData?.AENAM, productTimeData?.AENAM],
+  //   });
+  // });
+
+  // console.log("ProductArray", ProductArray);
+
 
   const handleApproval = () => {
     if (approvalCount == 0) {
@@ -877,12 +899,55 @@ const Home = () => {
     setSnackbarOpen(false);
   };
 
-
-
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
-      // Handle successful data fetch
-      console.log("dateWiseData", dateWiseData);
+      let dayValues = {
+        day0: "0.00",
+        day1: "0.00",
+        day2: "0.00",
+        day3: "0.00",
+        day4: "0.00",
+        day5: "0.00",
+        day6: "0.00"
+      };
+
+      let productData = [];
+      for (let i = 0; i < dateWiseData.results.length; i++) {
+        const timeEntries = dateWiseData.results[i]?.TimeEntries?.results || [];
+        for (let j = 0; j < timeEntries.length; j++) {
+          let obj = {
+            [`day${i}`]: timeEntries[j]?.TimeEntryDataFields?.CATSHOURS || "0.00",
+            TimeEntries: dateWiseData.results[i]?.TimeEntries
+          };
+          productData.push(obj);
+        }
+      }
+
+      console.log("productData", productData);
+
+      const productTimeDataArray = productData.map((result, index) => {
+        // Use the first time entry's data for project details
+        const firstTimeEntry = result?.TimeEntries?.results?.[0];
+
+        console.log("result", result)
+
+        return {
+          // ...dayValues,
+          ...result,
+          isReject: true,
+          weekTotal: "10.00",
+          project: firstTimeEntry?.TimeEntryDataFields?.AENAM,
+          level: firstTimeEntry?.TimeEntryDataFields?.ERNAM,
+          title: firstTimeEntry?.TimeEntryDataFields?.ERSTM,
+          id: index + 1,
+          hierarchy: [
+            firstTimeEntry?.TimeEntryDataFields?.AENAM,
+            firstTimeEntry?.TimeEntryDataFields?.ERNAM
+          ]
+        };
+      });
+
+      setProductTime(productTimeDataArray);
     }
   }, [dateWiseDataSuccessful, dateWiseData]);
 
@@ -1006,9 +1071,15 @@ const Home = () => {
               <MuiDataGrid
                 disableColumnMenu={true}
                 columns={AllDaysColumns}
-                rows={rows}
+                rows={productTime}
                 density={"standard"}
               />
+
+              //   <TreeGrid
+              //   columns={AllRowsColumns}
+              //   density={"standard"}
+              //   data={productTime}
+              // />
             )
           ) : (
             <TreeGrid
