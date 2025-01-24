@@ -113,9 +113,7 @@ const StyledDivider = styled(Divider)({
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   position: "static",
   background: "linear-gradient(to right, #005AA6, #0A2240)",
-  // height: "50px",
   justifyContent: "center",
-  // px: { xs: 1, sm: 2 },
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({

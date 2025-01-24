@@ -272,21 +272,21 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
 }));
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   mr: 1,
-  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
   transition: "box-shadow 0.3s ease-in-out",
 
   "&:hover": {
-    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
+    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
   },
   "& .MuiToggleButton-root.Mui-selected": {
     backgroundColor: "#FFFFFF",
     "&:hover": {
       backgroundColor: "#FFFFFF",
     },
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     transition: "box-shadow 0.3s ease-in-out",
     "&:hover": {
-      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
+      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     },
   },
 }));
@@ -550,6 +550,7 @@ const Home = () => {
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [productTime, setProductTime] = useState([]);
+  const [disableToggel, setDisableToggel] = useState(false)
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
@@ -696,6 +697,7 @@ const Home = () => {
         currentStartDate = dayjs().startOf("week").add(1, "day");
       }
     }
+
     const startOfPreviousWeek = currentStartDate.subtract(7, "day");
     const prevWeekStart = startOfPreviousWeek.format("DD");
     const endOfPreviousWeek = startOfPreviousWeek.add(6, "day");
@@ -737,13 +739,18 @@ const Home = () => {
     dispatch(setDateRange(newDateRange));
     dispatch(setStatus("Rejected"));
     if (nextWeekStart == currentWeekStart) {
+      setDisableToggel(true)
+    };
+    if (nextWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
+
       dispatch(setStatus("New"));
       if (approvalCount > 0) {
         dispatch(setStatus("Pending for approval"));
       }
     } else {
       setIsCurrentWeek(false);
+
     }
   };
 
@@ -913,6 +920,8 @@ const Home = () => {
 
       timeEntries.forEach((entry, entryIndex) => {
         // Parse work date
+
+        console.log("entry", entry)
         const workDate = new Date(
           parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[0], 10)
         );
@@ -923,9 +932,9 @@ const Home = () => {
         if (!weekRow) {
           weekRow = {
             weekTotal: "0.00",
-            project: `Project_${entryIndex + 1}`, // Replace with your logic if needed
-            level: "somevalue", // Replace with your logic
-            title: `Entry_${entryIndex + 1}`, // Replace with your logic
+            project: entry?.TimeEntryDataFields?.AENAM,
+            level: entry?.TimeEntryDataFields?.ERNAM,
+            title: entry?.TimeEntryDataFields?.ERSTM,
             id: entryIndex + 1,
             day0: "0.00",
             day1: "0.00",
@@ -1058,6 +1067,7 @@ const Home = () => {
               <ToggleButton
                 value="justify"
                 aria-label="justified"
+                disabled={disableToggel}
                 onClick={() => handleNextWeek()}
               >
                 <ArrowForwardIcon />
@@ -1091,8 +1101,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                    .join(" - ")
+                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                  .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
@@ -1135,18 +1145,18 @@ const Home = () => {
                 data={projectedData}
               />
             ) : (
-              <MuiDataGrid
-                disableColumnMenu={true}
-                columns={AllDaysColumns}
-                rows={productTime}
-                density={"standard"}
-              />
-
-              //   <TreeGrid
-              //   columns={AllRowsColumns}
+              // <MuiDataGrid
+              //   disableColumnMenu={true}
+              //   columns={AllDaysColumns}
+              //   rows={productTime}
               //   density={"standard"}
-              //   data={productTime}
               // />
+
+              <TreeGrid
+                columns={AllRowsColumns}
+                density={"standard"}
+                data={productTime}
+              />
             )
           ) : (
             <TreeGrid
@@ -1179,13 +1189,13 @@ const Home = () => {
               padding: "0.4rem",
               marginBottom: "0.5rem",
             }}
-            // disabled={
-            //   !(
-            //     projectedData &&
-            //     Object?.keys(projectedData)?.length > 0 &&
-            //     saveTimeClick
-            //   )
-            // }
+          // disabled={
+          //   !(
+          //     projectedData &&
+          //     Object?.keys(projectedData)?.length > 0 &&
+          //     saveTimeClick
+          //   )
+          // }
           >
             <StyledFooterText>Submit Week for Approval</StyledFooterText>
           </Button>

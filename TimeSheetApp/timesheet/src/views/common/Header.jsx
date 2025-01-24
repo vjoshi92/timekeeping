@@ -80,7 +80,7 @@ const AllStyledBox = styled(Box)({
 const HeadingTypography = styled(Typography)({
   flexGrow: 1,
   fontSize: "16px",
-  fontWeight: "400",
+  fontWeight: "800",
   mt: 1,
 });
 const ApprovalsTypography = styled(Typography)({
@@ -116,7 +116,11 @@ const StyledDrawerDivider = styled(Divider)({
 });
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  position: "static",
+  position: "sticky", // Change from "static" to "fixed"
+  top: 0, // Stick to the top of the page
+  left: 0, // Ensure it spans full width
+  right: 0, // Ensure it spans full width
+  zIndex: theme.zIndex.appBar,
   background: "linear-gradient(to right, #005AA6, #0A2240)",
   // height: "50px",
   justifyContent: "center",
@@ -268,7 +272,7 @@ export default function Header() {
             component="div"
             sx={{
               display: { sm: "block" },
-              marginLeft: "10px", // Adjusted for equal spacing
+              marginLeft: "10px",
             }}
           >
             CATS 2.0
@@ -310,7 +314,7 @@ export default function Header() {
             onClose={handleCloseUserMenu}
           >
             <MenuItem
-       
+
             >
               Welcome {employeeDatas}
             </MenuItem>

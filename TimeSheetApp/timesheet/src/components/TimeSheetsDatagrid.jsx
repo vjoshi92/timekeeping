@@ -80,12 +80,12 @@ export default function TimeSheetsDatagrid() {
       minWidth: 190,
       flex: 1,
     },
-    {
-      field: "employeeId",
-      headerName: "EMPLOYEE ID",
-      minWidth: 170,
-      flex: 1,
-    },
+    // {
+    //   field: "employeeId",
+    //   headerName: "EMPLOYEE ID",
+    //   minWidth: 170,
+    //   flex: 1,
+    // },
     {
       field: "timesheet",
       headerName: "TIMESHEET",
@@ -147,7 +147,7 @@ export default function TimeSheetsDatagrid() {
     {
       id: 1,
       employeeId: "100190",
-      employeeName: "Jon doe",
+      employeeName: "Jon Doe",
       timesheet: "23 - 29 Sep 2024",
       status: "PENDING",
       totalHours: "40",
@@ -156,7 +156,7 @@ export default function TimeSheetsDatagrid() {
     {
       id: 2,
       employeeId: "100191",
-      employeeName: "Alice wok",
+      employeeName: "Alice Wok",
       timesheet: "16 - 22 Sep 2024",
       status: "REJECTED",
       totalHours: "40",
@@ -165,7 +165,7 @@ export default function TimeSheetsDatagrid() {
     {
       id: 3,
       employeeId: "100192",
-      employeeName: "Mark doe",
+      employeeName: "Mark Doe",
       timesheet: "09 - 15 Sep 2024",
       status: "APPROVED",
       totalHours: "40",
@@ -174,7 +174,7 @@ export default function TimeSheetsDatagrid() {
     {
       id: 4,
       employeeId: "100193",
-      employeeName: "Sara liz",
+      employeeName: "Sara Liz",
       timesheet: "02 - 08 Sep 2024",
       status: "APPROVED",
       totalHours: "52",
@@ -183,7 +183,7 @@ export default function TimeSheetsDatagrid() {
     {
       id: 5,
       employeeId: "100194",
-      employeeName: "Paul heyman",
+      employeeName: "Paul Heyman",
       timesheet: "26 Aug 2024 - 01 Sep 2024",
       status: "LOCKED",
       totalHours: "40",

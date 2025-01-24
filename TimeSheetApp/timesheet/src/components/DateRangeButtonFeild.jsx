@@ -22,10 +22,14 @@ const theme = createTheme({
             styleOverrides: {
                 header: {
                     color: '#ED6A15',
+                    fontFamily: 'Montserrat, sans-serif',
                 },
                 weekDayLabel: {
                     color: '#ED6A15',
-
+                    fontFamily: 'Montserrat, sans-serif',
+                },
+                dayLabel: {  // Add this to target day numbers
+                    fontFamily: 'Montserrat, sans-serif',
                 },
                 root: {
                     '& .Mui-selected': {
@@ -33,7 +37,9 @@ const theme = createTheme({
                         '&:hover': {
                             backgroundColor: '#ED6A15'
                         }
-
+                    },
+                    '& .MuiPickersDay-root': {
+                        fontFamily: 'Montserrat, sans-serif',
                     },
                     '& .MuiPickersDay-today': {
                         backgroundColor: '#ED6A15',
