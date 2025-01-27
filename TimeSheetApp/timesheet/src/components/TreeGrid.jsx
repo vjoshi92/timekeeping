@@ -39,7 +39,9 @@ const customStepper = () => {
       {steps.map((step, index) => (
         <Step key={step.label}>
           <StepLabel>
-            {step.label}
+            <Typography sx={{ fontWeight: index === steps.length - 1 ? "bold" : "normal", color: index === steps.length - 1 ? "orange" : "null" }}>
+              {step.label}
+            </Typography>
           </StepLabel>
         </Step>
       ))}

@@ -144,6 +144,7 @@ export default function DatePickerWithButtonField() {
                 label={value ? `Week: ${dayjs(value).startOf('week').add(1, 'day').format('DD MMM YYYY')} - ${dayjs(value).endOf('week').format('DD MMM YYYY')}` : null}
                 value={value}
                 onChange={handleDateChange}
+                maxDate={dayjs()}
             />
         </LocalizationProvider>
     );

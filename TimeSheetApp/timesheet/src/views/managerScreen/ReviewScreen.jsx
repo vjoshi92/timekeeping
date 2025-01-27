@@ -27,9 +27,11 @@ import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeil
 import { useNavigate, useParams } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import dayjs from "dayjs";
 import { DaysColumns } from "components/CurrentWeekColumns";
 import { RowsDataColumns } from "components/RowsDataColumn";
+
 import TreeGrid from "components/TreeGrid";
 import MuiInput from "components/MuiInput";
 import { useLocation } from "react-router-dom";
@@ -421,9 +423,12 @@ const ReviewScreen = () => {
   const [actionMsg, setActionMsg] = useState("");
   const [openRejection, setOpenRejection] = React.useState(false);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
+  const [removeRejection, handleRemoveRejection] = useState()
   const [showRelese, setShowRelease] = useState(false);
   const [newStatus, setNewStatus] = useState("")
   const handleOpen = () => setOpen(true);
+
+  console.log("data", data)
   const handleApproval = (type) => {
     if (type == "reject") {
       setActionMsg("Are you sure you want to reject this timesheet?");
@@ -625,6 +630,16 @@ const ReviewScreen = () => {
         >
           <StyledTypography>Back</StyledTypography>
         </Button>
+        <Button
+          sx={{
+            marginBottom: { xs: 2, sm: 3 },
+            padding: { xs: 1, sm: 1.5 },
+          }}
+          endIcon={<ArrowForwardIosIcon sx={{ color: "#0073E6" }} />}
+          onClick={() => navigate(-1)}
+        >
+          <StyledTypography>NEXT</StyledTypography>
+        </Button>
         {/* <ArrowBackIosNew
                     sx={{
                         color: "#005AA6",
@@ -800,8 +815,9 @@ const ReviewScreen = () => {
           <RejectButton
             disabled={!isTimeSheetRejected}
             variant="contained"
-            color="error"
-            sx={{ width: { xs: "100%", sm: "200px" } }}
+            color="#DD133F"
+            backgroundColor="#DD133F"
+            sx={{ width: { xs: "100%", sm: "200px" }, backgroundColor: "#DD133F", color: "#fff" }}
             onClick={() => handleApproval("reject")}
           >
             Reject
@@ -846,6 +862,7 @@ const ReviewScreen = () => {
               value={selectedReason || "--"}
             />
           </RejectionMainBox>
+
           {selectedReason === "Other" && (
             <MuiInput
               rows={2}

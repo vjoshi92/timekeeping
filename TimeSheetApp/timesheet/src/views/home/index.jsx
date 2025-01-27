@@ -550,7 +550,14 @@ const Home = () => {
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [productTime, setProductTime] = useState([]);
-  const [disableToggel, setDisableToggel] = useState(false)
+  const [disableToggel, setDisableToggel] = useState(false);
+  const handleClose = () => setOpen(false);
+  const handleApprovalClose = () => setOpenApproval(false);
+  const navigate = useNavigate();
+  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
+  const [lastSavedTime, setLastSavedTime] = useState(null);
+  const dispatch = useDispatch();
+
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
@@ -647,12 +654,7 @@ const Home = () => {
     }
   };
 
-  const handleClose = () => setOpen(false);
-  const handleApprovalClose = () => setOpenApproval(false);
-  const navigate = useNavigate();
-  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
-  const [lastSavedTime, setLastSavedTime] = useState(null);
-  const dispatch = useDispatch();
+
 
   const formatDateTime = (date) => {
     const months = [
@@ -679,6 +681,24 @@ const Home = () => {
     const formattedHours = hours % 12 || 12;
 
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
+  };
+
+  const isSelectedDateGreaterThanCurrent = () => {
+    // Return false if selectedDate is null, undefined, or not a string
+    if (!selectedDate || typeof selectedDate !== 'string') return false;
+    try {
+      const selectedStartDate = dayjs(selectedDate.split(' - ')[0], 'DD MMM YYYY');
+      const formattedStartDate = dayjs(formattedDateRange.split(' - ')[0], 'DD MMM YYYY');
+
+      if (!selectedStartDate.isValid() || !formattedStartDate.isValid()) {
+        return false;
+      }
+
+      return selectedStartDate.isAfter(formattedStartDate);
+    } catch (error) {
+      console.error('Error parsing dates:', error);
+      return false;
+    }
   };
 
   const handlePreviousWeek = () => {
@@ -732,27 +752,36 @@ const Home = () => {
         currentStartDate = dayjs().startOf("week").add(1, "day");
       }
     }
+
     const startOfNextWeek = currentStartDate.add(7, "day");
-    const nextWeekStart = startOfNextWeek.format("DD");
     const endOfNextWeek = startOfNextWeek.add(6, "day");
+    const today = dayjs(); // Get the current date
+
+    // Validation: Prevent selecting a future week beyond the current date
+    if (startOfNextWeek.isAfter(today)) {
+      <Alert severity="warning">This is a warning Alert.</Alert>
+      return;
+    }
+
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
     dispatch(setStatus("Rejected"));
-    if (nextWeekStart == currentWeekStart) {
-      setDisableToggel(true)
-    };
-    if (nextWeekStart == currentWeekStart) {
-      setIsCurrentWeek(true);
 
+    if (startOfNextWeek.isSame(currentStartDate, 'day')) {
+      setDisableToggel(true);
+    }
+
+    if (startOfNextWeek.isSame(currentStartDate, 'day')) {
+      setIsCurrentWeek(true);
       dispatch(setStatus("New"));
       if (approvalCount > 0) {
         dispatch(setStatus("Pending for approval"));
       }
     } else {
       setIsCurrentWeek(false);
-
     }
   };
+
 
   const handleSaveTime = () => {
     // setSaveTimeClick(true);
@@ -1108,6 +1137,23 @@ const Home = () => {
             onChange={(newValue) => setValue(newValue)}
           />
 
+          {isSelectedDateGreaterThanCurrent() && (
+            <Alert
+              severity="warning"
+              sx={{
+                position: 'absolute',
+                top: '100%',
+                left: '0',
+                right: '0',
+                zIndex: 1,
+                marginTop: '8px'
+              }}
+            >
+              You cannot select a date beyond the current week.
+            </Alert>
+          )}
+
+
           <Stack direction={"row"}>
             <StyledButton2
               size="small"
@@ -1167,58 +1213,79 @@ const Home = () => {
           )}
         </Stack>
       </StyledStack>
-      <Footer>
-        {!isCurrentWeek ? (
-          <SaveTimeButton size="medium" onClick={handleSaveTime}>
-            <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
-          </SaveTimeButton>
-        ) : (
-          projectedData &&
-          Object?.keys(projectedData)?.length > 0 && (
-            <SaveTimeButton size="medium" onClick={handleSaveTime}>
+      <Footer
+        sx={{
+          display: 'flex',
+          justifyContent: { xs: 'center', md: 'space-between' },
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 2,
+          width: '100%'
+        }}
+      >
+        <Box sx={{ width: { xs: '100%', md: 'auto' }, display: 'flex', justifyContent: 'center' }}>
+          {!isCurrentWeek ? (
+            <SaveTimeButton
+              size="medium"
+              onClick={handleSaveTime}
+              fullWidth
+            >
               <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
             </SaveTimeButton>
-          )
-        )}
+          ) : (
+            projectedData &&
+            Object?.keys(projectedData)?.length > 0 && (
+              <SaveTimeButton
+                size="medium"
+                onClick={handleSaveTime}
+                fullWidth
+              >
+                <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
+              </SaveTimeButton>
+            )
+          )}
+        </Box>
 
-        {!isCurrentWeek ? (
-          <Button
-            onClick={handleApproval}
-            sx={{
-              backgroundColor: "#ED6A15",
-              padding: "0.4rem",
-              marginBottom: "0.5rem",
-            }}
-          // disabled={
-          //   !(
-          //     projectedData &&
-          //     Object?.keys(projectedData)?.length > 0 &&
-          //     saveTimeClick
-          //   )
-          // }
-          >
-            <StyledFooterText>Submit Week for Approval</StyledFooterText>
-          </Button>
-        ) : (
-          <Button
-            onClick={handleApproval}
-            sx={{
-              backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-              padding: "0.4rem",
-              marginBottom: "0.5rem",
-            }}
-            disabled={
-              !(
+        <Box
+          sx={{
+            width: { xs: '100%', md: 'auto' },
+            display: 'flex',
+            justifyContent: { xs: 'center', md: 'flex-end' }
+          }}
+        >
+          {!isCurrentWeek ? (
+            <Button
+              onClick={handleApproval}
+              fullWidth
+              sx={{
+                backgroundColor: "#ED6A15",
+                padding: "0.4rem",
+                marginBottom: "0.5rem",
+              }}
+            >
+              <StyledFooterText>Submit Week for Approval</StyledFooterText>
+            </Button>
+          ) : (
+            <Button
+              onClick={handleApproval}
+              fullWidth
+              sx={{
+                backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+                padding: "0.4rem",
+                marginBottom: "0.5rem",
+              }}
+              disabled={!(
                 projectedData &&
                 Object?.keys(projectedData)?.length > 0 &&
                 saveTimeClick
-              )
-            }
-          >
-            <StyledFooterText>Submit Week for Approval</StyledFooterText>
-          </Button>
-        )}
+              )}
+            >
+              <StyledFooterText>Submit Week for Approval</StyledFooterText>
+            </Button>
+          )}
+        </Box>
       </Footer>
+
+
       {/* <FooterBox>
         <div className="footer-content">
           {projectedData && Object?.keys(projectedData)?.length > 0 && (

@@ -517,13 +517,13 @@ const AddRowsScreen = () => {
           <TitleDropdown
             name="levelOne"
             options={levels?.map((option) => ({
-              label: option?.PSPID,
-              value: option?.PSPID_DESC,
+              label: option?.PSPID_DESC,
+              value: option?.PSPID,
             }))}
             onChange={(event, value) => handleChange("levelOne", value)}
             value={
               selectedLevels.levelOne
-                ? `${selectedLevels.levelOneTitle} - ${selectedLevels.levelOne}`
+                ? `${selectedLevels.levelOne} - ${selectedLevels.levelOneTitle}`
                 : null
             }
           />
@@ -540,9 +540,9 @@ const AddRowsScreen = () => {
           <StyledButton onClick={handleProjectData}>
             <SaveTypography>Save</SaveTypography>
           </StyledButton>
-          <StyledButton onClick={handleBatchCall}>
+          {/* <StyledButton onClick={handleBatchCall}>
             <SaveTypography>Post Save</SaveTypography>
-          </StyledButton>
+          </StyledButton> */}
         </Box>
       )}
 

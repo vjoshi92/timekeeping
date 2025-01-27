@@ -18,7 +18,7 @@ const HeaderStyledBox = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     // justifyContent: 'space-between',
-    height: '100%',
+    // height: '100%',
     width: "100%",
 }));
 
@@ -66,7 +66,7 @@ const IconButtonStyle = styled(Box)(({ theme }) => ({
 }));
 const InputStyleBox = styled(Box)(({ theme }) => ({
     width: '100%',
-    height: '100%',
+    // height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -76,6 +76,8 @@ const InputStyleBox = styled(Box)(({ theme }) => ({
     "& .MuiDataGrid-root": {
         fontWeight: "700",
         fontSize: "16px",
+
+        border: "none",
     },
 }));
 

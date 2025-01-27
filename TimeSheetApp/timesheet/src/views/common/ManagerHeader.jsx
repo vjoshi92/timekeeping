@@ -111,8 +111,8 @@ const StyledDivider = styled(Divider)({
 });
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  position: "static",
-  background: "linear-gradient(to right, #005AA6, #0A2240)",
+  position: "sticky",
+  background: "#0a2240",
   justifyContent: "center",
 }));
 
@@ -233,86 +233,84 @@ export default function ManagerHeader() {
     );
   };
   return (
-    <Box sx={{ flexGrow: 1, justifyContent: "center" }}>
-      <StyledAppBar>
-        <Toolbar>
-          <img
-            src={CapexLogo}
-            alt="Logo"
-            loading="lazy"
-            onClick={() => navigate("/home")}
-            style={{
-              cursor: "pointer",
-              marginRight: "10px",
-              marginBottom: "15px"
-            }}
-          />
+    <StyledAppBar>
+      <Toolbar>
+        <img
+          src={CapexLogo}
+          alt="Logo"
+          loading="lazy"
+          onClick={() => navigate("/home")}
+          style={{
+            cursor: "pointer",
+            marginRight: "10px",
+            marginBottom: "15px"
+          }}
+        />
 
-          <StyledDivider
-            orientation="vertical"
-            variant="middle"
-            flexItem
-            sx={{
-              display: { sm: "block" },
-              marginX: "12px",
-              marginY: "20px"
-            }}
-          />
+        <StyledDivider
+          orientation="vertical"
+          variant="middle"
+          flexItem
+          sx={{
+            display: { sm: "block" },
+            marginX: "12px",
+            marginY: "20px"
+          }}
+        />
 
-          <HeadingTypography
-            variant="h6"
-            component="div"
-            sx={{
-              display: { sm: "block" },
-              marginLeft: "10px",
-            }}
+        <HeadingTypography
+          variant="h6"
+          component="div"
+          sx={{
+            display: { sm: "block" },
+            marginLeft: "10px",
+          }}
+        >
+          CATS 2.0
+        </HeadingTypography>
+        <HeaderBox>
+          <HeaderDropdowns name="My TimeSheet" backgroundColor="white" color="white" sx={{ marginRight: "10px" }} />
+          <HeaderDropdowns name="My Team" backgroundColor="white" sx={{ marginRight: "10px" }} />
+        </HeaderBox>
+
+        <Tooltip title="Open settings">
+          <StyledIconButton
+            size="small"
+            onClick={handleOpenUserMenu}
           >
-            CATS 2.0
-          </HeadingTypography>
-          <HeaderBox>
-            <HeaderDropdowns name="My TimeSheet" backgroundColor="white" color="white" sx={{ marginRight: "10px" }} />
-            <HeaderDropdowns name="My Team" backgroundColor="white" sx={{ marginRight: "10px" }} />
-          </HeaderBox>
+            <Avatar
+              alt={userData?.Fullname}
+              src="/static/images/avatar/2.jpg"
+            />
+          </StyledIconButton>
+        </Tooltip>
 
-          <Tooltip title="Open settings">
-            <StyledIconButton
-              size="small"
-              onClick={handleOpenUserMenu}
+        <Menu
+          sx={{ mt: "35px" }}
+          id="menu-appbar"
+          anchorEl={anchorElUser}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          open={Boolean(anchorElUser)}
+          onClose={handleCloseUserMenu}
+        >
+          {settings.map((setting, index) => (
+            <MenuItem
+              key={index}
+              onClick={() => handleMenuItemClick(setting)}
             >
-              <Avatar
-                alt={userData?.Fullname}
-                src="/static/images/avatar/2.jpg"
-              />
-            </StyledIconButton>
-          </Tooltip>
-
-          <Menu
-            sx={{ mt: "35px" }}
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-          >
-            {settings.map((setting, index) => (
-              <MenuItem
-                key={index}
-                onClick={() => handleMenuItemClick(setting)}
-              >
-                {setting}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Toolbar>
-      </StyledAppBar>
-    </Box>
+              {setting}
+            </MenuItem>
+          ))}
+        </Menu>
+      </Toolbar>
+    </StyledAppBar>
   );
 }
