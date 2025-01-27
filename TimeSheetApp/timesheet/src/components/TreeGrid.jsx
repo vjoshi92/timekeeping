@@ -39,7 +39,7 @@ const customStepper = () => {
       {steps.map((step, index) => (
         <Step key={step.label}>
           <StepLabel>
-            <Typography sx={{ fontWeight: index === steps.length - 1 ? "bold" : "normal", color: index === steps.length - 1 ? "orange" : "null" }}>
+            <Typography sx={{ fontWeight: index === steps.length - 1 ? "bold" : "normal"}}>
               {step.label}
             </Typography>
           </StepLabel>          
@@ -57,16 +57,17 @@ const groupingColDef = {
   flex: 1,
   renderCell: (params) => {
     return params.row.title ? (
-      <Stack ml={"1rem"}>
-        <Typography fontWeight={700}>{params.row.title}</Typography>
+      <Stack ml={"1rem"} mt={"0.1rem"}>
+        
         {/* <Tooltip title={params.row.level}></Tooltip> */}
         <CustomPopover
           content={
             customStepper()
           }
         >
-          <Typography>{params.row.level}</Typography>
+          <Typography fontSize={"0.9rem"}>{params.row.level}</Typography>
         </CustomPopover>
+        <Typography fontWeight={700}>{params.row.title}</Typography>
       </Stack>
     ) : (
       <Typography mt={"1rem"} fontWeight={700}>
@@ -81,7 +82,7 @@ const customStyles = {
     backgroundColor: "#FFFF",
   },
   "& .MuiDataGrid-columnSeparator": {
-    color: "#CCC", // This will change the column divider color to green
+    color: "#CCC !important", // This will change the column divider color to green
   },
   "& .MuiDataGrid-columnHeaderTitle .Mui-groupHeader": {
     display: "none",

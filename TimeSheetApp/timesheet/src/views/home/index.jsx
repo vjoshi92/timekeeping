@@ -549,6 +549,8 @@ const Home = () => {
   const [isCurrentWeek, setIsCurrentWeek] = useState(true);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+
   const [productTime, setProductTime] = useState([]);
   const [disableToggel, setDisableToggel] = useState(false);
   const handleClose = () => setOpen(false);
@@ -759,6 +761,7 @@ const Home = () => {
 
     // Validation: Prevent selecting a future week beyond the current date
     if (startOfNextWeek.isAfter(today)) {
+      setAlertOpen(true);
       <Alert severity="warning">This is a warning Alert.</Alert>
       return;
     }
@@ -1495,6 +1498,20 @@ const Home = () => {
           sx={{ width: "100%" }}
         >
           Timesheet saved successfully.
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={3000}
+        onClose={() => setAlertOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlertOpen(false)}
+          severity={"warning"}
+          sx={{ width: "100%" }}
+        >
+          You can not submit time for future date.
         </Alert>
       </Snackbar>
     </>

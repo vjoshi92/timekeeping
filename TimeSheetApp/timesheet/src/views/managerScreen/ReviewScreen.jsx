@@ -152,6 +152,7 @@ const ReworkButton = styled(Button)(({ theme }) => ({
 }));
 const ApproveButton = styled(Button)(({ theme }) => ({
   height: "42px",
+  backgroundColor: "#41af6e"
 }));
 
 const ButtonStack = styled(Box)(({ theme }) => ({
