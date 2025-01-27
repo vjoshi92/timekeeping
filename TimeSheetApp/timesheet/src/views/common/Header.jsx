@@ -116,12 +116,10 @@ const StyledDrawerDivider = styled(Divider)({
 });
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  position: "sticky", // Change from "static" to "fixed"
-  top: 0, // Stick to the top of the page
-  left: 0, // Ensure it spans full width
-  right: 0, // Ensure it spans full width
+  position: "sticky",
+  top: "1px",
   zIndex: theme.zIndex.appBar,
-  background: "linear-gradient(to right, #005AA6, #0A2240)",
+  background: "#0a2240",
   // height: "50px",
   justifyContent: "center",
   // px: { xs: 1, sm: 2 },
@@ -240,149 +238,149 @@ export default function Header() {
   //   );
   // };
   return (
-    <Box sx={{ flexGrow: 1, justifyContent: "center" }}>
-      <StyledAppBar>
-        <Toolbar>
-          <img
-            src={CapexLogo}
-            alt="Logo"
-            loading="lazy"
-            onClick={() => navigate("/home")}
-            style={{
-              cursor: "pointer",
-              marginRight: "10px",
-              marginBottom: "10px",
-              width: "4rem"
-            }}
-          />
 
-          <StyledDivider
-            orientation="vertical"
-            variant="middle"
-            flexItem
+    <StyledAppBar >
+      <Toolbar>
+        <img
+          src={CapexLogo}
+          alt="Logo"
+          loading="lazy"
+          onClick={() => navigate("/home")}
+          style={{
+            cursor: "pointer",
+            marginRight: "10px",
+            marginBottom: "10px",
+            width: "4rem"
+          }}
+        />
+
+        <StyledDivider
+          orientation="vertical"
+          variant="middle"
+          flexItem
+          sx={{
+            display: { sm: "block" },
+            marginX: "12px",
+            marginY: "20px"
+          }}
+        />
+
+        <HeadingTypography
+          variant="h6"
+          component="div"
+          sx={{
+            display: { sm: "block" },
+            marginLeft: "10px",
+          }}
+        >
+          CATS 2.0
+        </HeadingTypography>
+
+        <IconButton aria-label="delete" sx={{ color: "white", marginRight: "1rem" }} onClick={() => handleDrawer()} >
+          <MenuIcon fontSize="large" />
+        </IconButton>
+
+        <Tooltip title="Open settings">
+          <IconButton
+            size="small"
+            onClick={handleOpenUserMenu}
             sx={{
-              display: { sm: "block" },
-              marginX: "12px",
-              marginY: "20px"
-            }}
-          />
-
-          <HeadingTypography
-            variant="h6"
-            component="div"
-            sx={{
-              display: { sm: "block" },
-              marginLeft: "10px",
+              width: { xs: "25px", sm: "30px" },
+              height: { xs: "25px", sm: "30px" },
             }}
           >
-            CATS 2.0
-          </HeadingTypography>
-
-          <IconButton aria-label="delete" sx={{ color: "white", marginRight: "1rem" }} onClick={() => handleDrawer()} >
-            <MenuIcon fontSize="large" />
-          </IconButton>
-
-          <Tooltip title="Open settings">
-            <IconButton
-              size="small"
-              onClick={handleOpenUserMenu}
-              sx={{
-                width: { xs: "25px", sm: "30px" },
-                height: { xs: "25px", sm: "30px" },
-              }}
-            >
-              <Avatar
-                alt={userData?.Fullname}
-                src="/static/images/avatar/2.jpg"
-              />
-            </IconButton>
-          </Tooltip>
-          <Menu
-            sx={{ mt: "35px" }}
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-          >
-            <MenuItem
-
-            >
-              Welcome {employeeDatas}
-            </MenuItem>
-            <MenuItem
-            // key={index}
-            // onClick={() => handleMenuItemClick(setting)}
-            >
-              Logout
-            </MenuItem>
-
-          </Menu>
-
-          <MuiDrawer
-            open={drawer}
-            handleClose={handleClose}
-            resizable={true}
-          // minWidth={"720px"}
-          >
-            <IconBox >
-              <CloseIcon sx={{ cursor: "pointer", marginRight: "10px", color: "#FFFF", marginTop: "10px" }} onClick={() => setDrawer(false)} />
-            </IconBox>
-            {
-              isManager == true ?
-                <Box sx={{ padding: "20px" }}>
-
-                  <StyledTypography >MY TIMESHEETS</StyledTypography>
-                  <ApprovalStyledBox direction={"row"}
-                    onClick={handleCurrentWeekClick}
-                  >
-                    <ApprovalsTypography >
-                      Current Week
-                    </ApprovalsTypography>
-
-                  </ApprovalStyledBox>
-                  <AllStyledBox onClick={() => { navigate("/AllTimesheet/false"); handleClose(); }}>
-                    <ApprovalsTypography>
-                      All
-                    </ApprovalsTypography>
-                  </AllStyledBox>
-                </Box>
-                : null
-            }
-            <StyledDrawerDivider
-              orientation="horizontal"
-              variant="middle"
-
+            <Avatar
+              alt={userData?.Fullname}
+              src="/static/images/avatar/2.jpg"
             />
-            <StyledBox >
-              <StyledTypography>
-                MY TEAM'S TIMESHEETS
-              </StyledTypography>
-              <ApprovalStyledBox direction={"row"}
-                onClick={() => { navigate("/pendingApprovals"); handleClose(); }}
-              >
-                <ApprovalsTypography >
-                  Pending Approvals
-                </ApprovalsTypography>
-                <StyledChip label="5" variant="filled" sx={{}} />
-              </ApprovalStyledBox>
-              <AllStyledBox
-                onClick={() => { navigate("/AllTimesheet/true"); handleClose(); }}>
-                <AllTypography >All</AllTypography>
-              </AllStyledBox>
-            </StyledBox>
+          </IconButton>
+        </Tooltip>
+        <Menu
+          sx={{ mt: "35px" }}
+          id="menu-appbar"
+          anchorEl={anchorElUser}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          open={Boolean(anchorElUser)}
+          onClose={handleCloseUserMenu}
+        >
+          <MenuItem
 
-          </MuiDrawer>
-        </Toolbar>
-      </StyledAppBar>
-    </Box>
+          >
+            Welcome {employeeDatas}
+          </MenuItem>
+          <MenuItem
+          // key={index}
+          // onClick={() => handleMenuItemClick(setting)}
+          >
+            Logout
+          </MenuItem>
+
+        </Menu>
+
+        <MuiDrawer
+          open={drawer}
+          handleClose={handleClose}
+          resizable={true}
+        // minWidth={"720px"}
+        >
+          <IconBox >
+            <CloseIcon sx={{ cursor: "pointer", marginRight: "10px", color: "#FFFF", marginTop: "10px" }} onClick={() => setDrawer(false)} />
+          </IconBox>
+          {
+            isManager == true ?
+              <Box sx={{ padding: "20px" }}>
+
+                <StyledTypography >MY TIMESHEETS</StyledTypography>
+                <ApprovalStyledBox direction={"row"}
+                  onClick={handleCurrentWeekClick}
+                >
+                  <ApprovalsTypography >
+                    Current Week
+                  </ApprovalsTypography>
+
+                </ApprovalStyledBox>
+                <AllStyledBox onClick={() => { navigate("/AllTimesheet/false"); handleClose(); }}>
+                  <ApprovalsTypography>
+                    All
+                  </ApprovalsTypography>
+                </AllStyledBox>
+              </Box>
+              : null
+          }
+          <StyledDrawerDivider
+            orientation="horizontal"
+            variant="middle"
+
+          />
+          <StyledBox >
+            <StyledTypography>
+              MY TEAM'S TIMESHEETS
+            </StyledTypography>
+            <ApprovalStyledBox direction={"row"}
+              onClick={() => { navigate("/pendingApprovals"); handleClose(); }}
+            >
+              <ApprovalsTypography >
+                Pending Approvals
+              </ApprovalsTypography>
+              <StyledChip label="5" variant="filled" sx={{}} />
+            </ApprovalStyledBox>
+            <AllStyledBox
+              onClick={() => { navigate("/AllTimesheet/true"); handleClose(); }}>
+              <AllTypography >All</AllTypography>
+            </AllStyledBox>
+          </StyledBox>
+
+        </MuiDrawer>
+      </Toolbar>
+    </StyledAppBar>
+
   );
 }
