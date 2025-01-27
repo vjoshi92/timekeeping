@@ -119,7 +119,6 @@ LicenseInfo.setLicenseKey(
 );
 
 export default function TreeGrid({ columns, density, data }) {
-  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   return (
     <div style={{ height: 450, width: "100%" }}>
       <DataGridPro

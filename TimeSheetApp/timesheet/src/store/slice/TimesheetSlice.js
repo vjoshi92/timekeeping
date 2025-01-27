@@ -28,6 +28,7 @@ const initialState = {
   //   },
   // ],
   status: "New",
+  newRow: false
 };
 
 const createFormSlice = createSlice({
@@ -75,7 +76,10 @@ const createFormSlice = createSlice({
     },
     setApprovalCount: (state, action) => {
       state.approvalCount = action.payload;
-    }
+    },
+    setNewRowAdded: (state, action) => {
+      state.newRow = action.payload;
+    },
   },
 });
 
@@ -86,7 +90,8 @@ export const {
   updateRow,
   addNotes,
   setStatus,
-  setApprovalCount
+  setApprovalCount,
+  setNewRowAdded
 } = createFormSlice.actions;
 
 export default createFormSlice.reducer;

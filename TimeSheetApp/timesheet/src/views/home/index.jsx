@@ -39,6 +39,8 @@ import { Footer } from "components/Footer";
 import {
   deleteProjectDataById,
   setApprovalCount,
+  setNewRowAdded,
+  setProjectData,
   setStatus,
   setTotal,
   updateRow,
@@ -47,7 +49,10 @@ import {
 import { ReviewColumns } from "components/ReviewColumns";
 import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
 import { useGetUserDataQuery } from "api/timesheetApi";
-import { useGetDateWiseDetailsQuery } from "api/timesheetDashboardApi";
+import {
+  useGetDateWiseDetailsQuery,
+  useLazyGetDateWiseDetailsQuery,
+} from "api/timesheetDashboardApi";
 
 const style = {
   position: "absolute",
@@ -537,6 +542,7 @@ const Home = () => {
   const [allTimeData, setAllTimeData] = useState();
   const selectedDate = useSelector((state) => state?.home?.daterange);
   const status = useSelector((state) => state?.CreateForm?.status);
+  const newRow = useSelector((state) => state?.CreateForm?.newRow);
   const approvalCount = useSelector(
     (state) => state?.CreateForm?.approvalCount
   );
@@ -550,7 +556,7 @@ const Home = () => {
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [productTime, setProductTime] = useState([]);
-  const [disableToggel, setDisableToggel] = useState(false)
+  const [disableToggel, setDisableToggel] = useState(false);
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
@@ -558,41 +564,16 @@ const Home = () => {
   const currentWeekStart = startOfCurrentWeek.format("DD");
   const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
   const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
-  const { data: dateWiseData, isSuccess: dateWiseDataSuccessful } =
-    useGetDateWiseDetailsQuery({
-      startDate: startOfCurrentWeek,
-      endDate: endOfCurrentWeek,
-    });
 
-  // console.log("allTimeData", allTimeData)
-
-  const ProductArray = [];
-
-  // // Convert allTimeData to an array if it's not already
-  // const allTimeDataArray = Array.isArray(allTimeData) ? allTimeData : Array.from(allTimeData || []);
-
-  // allTimeDataArray.map((productTimeData) => {
-
-  //   console.log("productTimeData", productTimeData)
-  //   ProductArray.push({
-  //     day0: productTimeData?.TimeEntryDataFields,
-  //     day1: productTimeData?.TimeEntryDataFields,
-  //     day2: productTimeData?.TimeEntryDataFields,
-  //     day3: productTimeData?.TimeEntryDataFields,
-  //     day4: productTimeData?.TimeEntryDataFields,
-  //     day5: productTimeData?.TimeEntryDataFields,
-  //     day6: productTimeData?.TimeEntryDataFields,
-  //     isReject: true,
-  //     weekTotal: productTimeData?.TimeEntryDataFields,
-  //     project: productTimeData?.AENAM,
-  //     level: productTimeData?.AENAM,
-  //     title: productTimeData?.AENAM,
-  //     id: 1,
-  //     hierarchy: [productTimeData?.AENAM, productTimeData?.AENAM],
-  //   });
-  // });
-
-  // console.log("ProductArray", ProductArray);
+  // this is service call to get Timesheet data for selected week
+  const [
+    getTimesheetEntry,
+    {
+      data: dateWiseData,
+      isSuccess: dateWiseDataSuccessful,
+      isFetching: timeSheetDataFetching,
+    },
+  ] = useLazyGetDateWiseDetailsQuery();
 
   const handleApproval = () => {
     if (approvalCount == 0) {
@@ -714,6 +695,7 @@ const Home = () => {
     } else {
       setIsCurrentWeek(false);
     }
+    dispatch(setNewRowAdded(false));
   };
 
   const handleNextWeek = () => {
@@ -739,8 +721,8 @@ const Home = () => {
     dispatch(setDateRange(newDateRange));
     dispatch(setStatus("Rejected"));
     if (nextWeekStart == currentWeekStart) {
-      setDisableToggel(true)
-    };
+      setDisableToggel(true);
+    }
     if (nextWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
 
@@ -750,8 +732,8 @@ const Home = () => {
       }
     } else {
       setIsCurrentWeek(false);
-
     }
+    dispatch(setNewRowAdded(false));
   };
 
   const handleSaveTime = () => {
@@ -871,11 +853,6 @@ const Home = () => {
   };
 
   const handleDelete = (rowId) => {
-    // let tempRows = [...rows];
-    // tempRows.splice(rowId, 1);
-    // setRows(tempRows)
-    // dispatch(setEstimates(tempRows));
-    // updateCount(tempRows);
     dispatch(deleteProjectDataById(rowId));
   };
 
@@ -921,7 +898,7 @@ const Home = () => {
       timeEntries.forEach((entry, entryIndex) => {
         // Parse work date
 
-        console.log("entry", entry)
+        console.log("entry", entry);
         const workDate = new Date(
           parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[0], 10)
         );
@@ -932,9 +909,9 @@ const Home = () => {
         if (!weekRow) {
           weekRow = {
             weekTotal: "0.00",
-            project: entry?.TimeEntryDataFields?.AENAM,
-            level: entry?.TimeEntryDataFields?.ERNAM,
-            title: entry?.TimeEntryDataFields?.ERSTM,
+            project: entry?.TimeEntryDataFields?.CPR_EXTID,
+            level: entry?.TimeEntryDataFields?.TASKLEVEL,
+            title: entry?.TimeEntryDataFields?.POSID,
             id: entryIndex + 1,
             day0: "0.00",
             day1: "0.00",
@@ -943,6 +920,10 @@ const Home = () => {
             day4: "0.00",
             day5: "0.00",
             day6: "0.00",
+            hierarchy: [
+              entry?.TimeEntryDataFields?.CPR_EXTID,
+              entry?.TimeEntryDataFields?.POSID,
+            ],
           };
           weekRows[entryIndex] = weekRow;
         }
@@ -972,62 +953,15 @@ const Home = () => {
 
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
-      // new logic here
-      // Example usage
-      const responseData = dateWiseData;
-      const transformedData = transformToWeeklyRows(responseData);
-      console.log("transformedData>>>>>>>", transformedData);
-      // old logic
-      // let dayValues = {
-      //   day0: "0.00",
-      //   day1: "0.00",
-      //   day2: "0.00",
-      //   day3: "0.00",
-      //   day4: "0.00",
-      //   day5: "0.00",
-      //   day6: "0.00",
-      // };
-
-      // let productData = [];
-      // for (let i = 0; i < dateWiseData.results.length; i++) {
-      //   const timeEntries = dateWiseData.results[i]?.TimeEntries?.results || [];
-      //   for (let j = 0; j < timeEntries.length; j++) {
-      //     const keys = productData.keys();
-      //     let obj = {
-      //       [`day${i}`]:
-      //         timeEntries[j]?.TimeEntryDataFields?.CATSHOURS || "0.00",
-      //     };
-      //     productData.push(obj);
-      //   }
-      // }
-
-      // console.log("productData", productData);
-
-      // const productTimeDataArray = productData.map((result, index) => {
-      //   // Use the first time entry's data for project details
-      //   const firstTimeEntry = result?.TimeEntries?.results?.[0];
-
-      //   console.log("result", result);
-
-      //   return {
-      //     ...dayValues,
-      //     ...result,
-      //     isReject: true,
-      //     weekTotal: "10.00",
-      //     project: firstTimeEntry?.TimeEntryDataFields?.AENAM,
-      //     level: firstTimeEntry?.TimeEntryDataFields?.ERNAM,
-      //     title: firstTimeEntry?.TimeEntryDataFields?.ERSTM,
-      //     id: index + 1,
-      //     hierarchy: [
-      //       firstTimeEntry?.TimeEntryDataFields?.AENAM,
-      //       firstTimeEntry?.TimeEntryDataFields?.ERNAM,
-      //     ],
-      //   };
-      // });
-
-      setProductTime(transformedData);
+      if (!newRow) {
+        const responseData = dateWiseData;
+        const transformedData = transformToWeeklyRows(responseData);
+        console.log("transformedData>>>>>>>", transformedData);
+        // setProductTime(transformedData);
+        dispatch(setProjectData(transformedData));
+      }
     }
-  }, [dateWiseDataSuccessful, dateWiseData]);
+  }, [timeSheetDataFetching]);
 
   const ReviewData = ReviewColumns({
     rows,
@@ -1042,6 +976,20 @@ const Home = () => {
   const handleSubmit = () => {
     navigate("/addRows");
   };
+
+  useEffect(() => {
+    if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
+      const dates = selectedDate.split(" - ");
+      const sDate = new Date(dates[0]);
+      const eDate = new Date(dates[1]);
+      const formattedStartDate = sDate.toISOString().split(".")[0];
+      const formattedEndDate = eDate.toISOString().split(".")[0];
+      getTimesheetEntry({
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+      });
+    }
+  }, [selectedDate]);
 
   return (
     <>
@@ -1067,7 +1015,7 @@ const Home = () => {
               <ToggleButton
                 value="justify"
                 aria-label="justified"
-                disabled={disableToggel}
+                // disabled={disableToggel}
                 onClick={() => handleNextWeek()}
               >
                 <ArrowForwardIcon />
@@ -1101,8 +1049,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                  .join(" - ")
+                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                    .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
@@ -1137,34 +1085,11 @@ const Home = () => {
           </Stack>
         </StyledStackButton>
         <Stack mt={2} mb={10}>
-          {isCurrentWeek ? (
-            projectedData && Object?.keys(projectedData)?.length > 0 ? (
-              <TreeGrid
-                columns={AllRowsColumns}
-                density={"standard"}
-                data={projectedData}
-              />
-            ) : (
-              // <MuiDataGrid
-              //   disableColumnMenu={true}
-              //   columns={AllDaysColumns}
-              //   rows={productTime}
-              //   density={"standard"}
-              // />
-
-              <TreeGrid
-                columns={AllRowsColumns}
-                density={"standard"}
-                data={productTime}
-              />
-            )
-          ) : (
-            <TreeGrid
-              columns={ReviewData}
-              density={"standard"}
-              data={dummyReviewData}
-            />
-          )}
+          <TreeGrid
+            columns={AllRowsColumns}
+            density={"standard"}
+            data={projectedData}
+          />
         </Stack>
       </StyledStack>
       <Footer>
@@ -1189,13 +1114,13 @@ const Home = () => {
               padding: "0.4rem",
               marginBottom: "0.5rem",
             }}
-          // disabled={
-          //   !(
-          //     projectedData &&
-          //     Object?.keys(projectedData)?.length > 0 &&
-          //     saveTimeClick
-          //   )
-          // }
+            // disabled={
+            //   !(
+            //     projectedData &&
+            //     Object?.keys(projectedData)?.length > 0 &&
+            //     saveTimeClick
+            //   )
+            // }
           >
             <StyledFooterText>Submit Week for Approval</StyledFooterText>
           </Button>

@@ -14,7 +14,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Dropdown from "../../components/Dropdown";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setProjectData, setStatus } from "store/slice/TimesheetSlice";
+import { setNewRowAdded, setProjectData, setStatus } from "store/slice/TimesheetSlice";
 import TitleDropdown from "components/TitleDropdown";
 import {
   useGetProjectDataQuery,
@@ -402,7 +402,7 @@ const AddRowsScreen = () => {
           day5: "0.00",
           day6: "0.00",
           weekTotal: "0.00",
-          project: "",
+          project: "Total",
           level: "Total",
           title: "",
           id: Math.random(),
@@ -413,6 +413,7 @@ const AddRowsScreen = () => {
         tData.unshift(data);
       }
       dispatch(setProjectData(tData));
+      dispatch(setNewRowAdded(true));
 
       setAddProjectOpen(true);
       navigate(-1);
@@ -438,19 +439,19 @@ const AddRowsScreen = () => {
   const handleChange = (level, value) => {
     if (level === "project") {
       // When project is selected, find the matching PSPID from the selected POSID_DESC
-      const selectedProject = wbsData?.results?.find(
-        (item) => item.POSID_DESC === value
-      );
+      // const selectedProject = wbsData?.results?.find(
+      //   (item) => item.POSID_DESC === value
+      // );
 
       // Filter projectAllData based on matching PSPID
-      const filteredLevels = projectAllData?.results?.filter(
-        (x) => x?.PSPID === selectedProject?.PSPID
+      const filteredLevels = wbsData?.results?.filter(
+        (x) => x?.PSPID === value?.value
       );
 
       setLevels(filteredLevels);
       setSelectedLevels((prevLevels) => ({
         ...prevLevels,
-        [level]: value,
+        [level]: value?.value,
       }));
     } else {
       setSelectedLevels((prevLevels) => ({
@@ -486,30 +487,28 @@ const AddRowsScreen = () => {
 
       <StyledBox>
         <StyledHeaderTypography>
-          Add row to  {formattedDateRange}
+          Add row to {formattedDateRange}
         </StyledHeaderTypography>
       </StyledBox>
 
       <StyledFormControl>
         <StyledLabelTypography>Select Project</StyledLabelTypography>
-        <StyledDropdown
+        {/* <StyledDropdown
           name="project"
-          options={wbsData?.results?.map((option) => option?.POSID_DESC)}
+          options={projectAllData?.results?.map((option) => option?.PSPID_DESC)}
+          onChange={(event, value) => handleChange("project", value)}
+          value={selectedLevels.project || "--"}
+        /> */}
+        <TitleDropdown
+          name="project"
+          options={projectAllData?.results?.map((option) => ({
+            label: option?.PSPID_DESC,
+            value: option?.PSPID,
+          }))}
           onChange={(event, value) => handleChange("project", value)}
           value={selectedLevels.project || "--"}
         />
       </StyledFormControl>
-
-      {/* <StyledDropdown
-    name="project"
-    options={
-      wbsData?.results
-        ?.map((item) => item.POSID_DESC) // Map over POSID_DESC
-        ?.filter(Boolean) // Remove any undefined/null values
-    }
-    onChange={(event, value) => handleChange("project", value)}
-    value={selectedLevels.project || "--"}
-  /> */}
 
       {selectedLevels?.project && (
         <StyledFormControl>
@@ -517,13 +516,13 @@ const AddRowsScreen = () => {
           <TitleDropdown
             name="levelOne"
             options={levels?.map((option) => ({
-              label: option?.PSPID,
-              value: option?.PSPID_DESC,
+              label: option?.POSID_DESC,
+              value: option?.POSID,
             }))}
             onChange={(event, value) => handleChange("levelOne", value)}
             value={
               selectedLevels.levelOne
-                ? `${selectedLevels.levelOneTitle} - ${selectedLevels.levelOne}`
+                ? `${selectedLevels.levelOne} - ${selectedLevels.levelOneTitle}`
                 : null
             }
           />
@@ -540,9 +539,9 @@ const AddRowsScreen = () => {
           <StyledButton onClick={handleProjectData}>
             <SaveTypography>Save</SaveTypography>
           </StyledButton>
-          <StyledButton onClick={handleBatchCall}>
+          {/* <StyledButton onClick={handleBatchCall}>
             <SaveTypography>Post Save</SaveTypography>
-          </StyledButton>
+          </StyledButton> */}
         </Box>
       )}
 

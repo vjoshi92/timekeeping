@@ -7,10 +7,7 @@ export const TimesheetDashboardApi = createApi({
     endpoints: (builder) => ({
         getDateWiseDetails: builder.query({
             query: ({ startDate, endDate }) => {
-                const formattedStartDate = startDate.format("YYYY-MM-DD[T]00:00:00");
-                const formattedEndDate = endDate.format("YYYY-MM-DD[T]00:00:00");
-
-                const URL = `HCMFAB_TIMESHEET_MAINT_SRV/WorkCalendarCollection?$expand=TimeEntries&$filter=StartDate eq datetime'${formattedStartDate}' and EndDate eq datetime'${formattedEndDate}' and Pernr eq '09000993' and ProfileId eq 'ZJMA1'&$format=json`;
+               const URL = `HCMFAB_TIMESHEET_MAINT_SRV/WorkCalendarCollection?$expand=TimeEntries&$filter=StartDate eq datetime'${startDate}' and EndDate eq datetime'${endDate}' and Pernr eq '09000993' and ProfileId eq 'ZJMA1'&$format=json`;
 
                 return {
                     url: URL,
@@ -24,4 +21,4 @@ export const TimesheetDashboardApi = createApi({
     })
 });
 
-export const { useGetDateWiseDetailsQuery } = TimesheetDashboardApi;
+export const { useGetDateWiseDetailsQuery,useLazyGetDateWiseDetailsQuery } = TimesheetDashboardApi;
