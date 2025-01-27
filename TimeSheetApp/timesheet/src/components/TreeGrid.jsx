@@ -90,7 +90,7 @@ const customStyles = {
   "& .MuiDataGrid-columnHeader": {
     color: "#121212DE",
     fontWeight: "700",
-    fontSize: "16px",
+    fontSize: "14px",
     backgroundColor: "#EEEEEE",
   },
   "& .MuiOutlinedInput-input": {
