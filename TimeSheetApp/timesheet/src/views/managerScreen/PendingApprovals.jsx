@@ -29,14 +29,16 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 const PendingApprovals = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [approveDisable, setApproveDisable] = useState(true);
+    // const [approveDisable, setApproveDisable] = useState(true);
     const [checkboxChecked, setCheckboxChecked] = useState(false)
+    const [showApproveAll, setShowApproveAll] = useState(false)
 
     console.log("checkboxChecked", checkboxChecked)
+    console.log("showApproveAll", showApproveAll)
 
-    useEffect(() => {
-        setApproveDisable(!checkboxChecked);
-    }, [checkboxChecked]);
+    // useEffect(() => {
+    //     setApproveDisable(!checkboxChecked);
+    // }, [checkboxChecked]);
 
     const handleSnackbarClose = (event, reason) => {
         if (reason === "clickaway") {
@@ -51,7 +53,7 @@ const PendingApprovals = () => {
                 Pending Approvals
             </StyledTypography>
             <Box sx={{ marginTop: "20px", marginBottom: "40px" }}>
-                <ApprovalsDatagrid setCheckboxChecked={setCheckboxChecked} />
+                <ApprovalsDatagrid setCheckboxChecked={setCheckboxChecked} setShowApproveAll={setShowApproveAll} />
             </Box>
             <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
                 {/* <StyledButton
@@ -77,11 +79,10 @@ const PendingApprovals = () => {
                 <StyledButton
                     onClick={() => setSnackbarOpen(true)}
                     variant="contained"
-                    disabled={approveDisable}
-                    // color="success"
-                    sx={{ width: { xs: "100%", sm: "200px" }, fontWeight: 700, backgroundColor: "green" }}
+                    disabled={!checkboxChecked && !showApproveAll}
+                    sx={{ width: { xs: "100%", sm: "200px" }, fontWeight: 700, backgroundColor: "#41af6e" }}
                 >
-                    Approve
+                    {checkboxChecked ? "Approve" : showApproveAll ? "Approve All" : "Approve"}
                 </StyledButton>
             </StyledMainBox>
 

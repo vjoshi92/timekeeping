@@ -21,6 +21,7 @@ import {
   useGetWbsDataQuery,
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
+import dayjs from "dayjs";
 
 const StyledTypography = styled(Typography)({
   color: "#0073E6",
@@ -143,9 +144,10 @@ const AddRowsScreen = () => {
   const [projectDataArray, setProjectDataArray] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
-
-  // console.log("levels", levels)
-
+  const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+  const currentWeekStart = startOfCurrentWeek.format("DD");
+  const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
+  const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
   const { data: wbsData } = useGetWbsDataQuery();
   const { data: projectAllData } = useGetProjectDataQuery();
   const [
@@ -383,7 +385,6 @@ const AddRowsScreen = () => {
       ],
     };
 
-    // console.log("data", data)
     const isDuplicate = projectedData.some(
       (item) => item.project === data.project && item.level === data.level
     );
@@ -485,7 +486,7 @@ const AddRowsScreen = () => {
 
       <StyledBox>
         <StyledHeaderTypography>
-          Add row to this timesheet
+          Add row to  {formattedDateRange}
         </StyledHeaderTypography>
       </StyledBox>
 

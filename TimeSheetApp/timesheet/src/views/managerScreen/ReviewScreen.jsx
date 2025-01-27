@@ -426,11 +426,11 @@ const ReviewScreen = () => {
   const handleOpen = () => setOpen(true);
   const handleApproval = (type) => {
     if (type == "reject") {
-      setActionMsg("Are you sure you want to reject this timesheet?");      
+      setActionMsg("Are you sure you want to reject this timesheet?");
     } else if (type == "release") {
-      setActionMsg("Are you sure you want to release this timesheet?");      
+      setActionMsg("Are you sure you want to release this timesheet?");
     } else if (type == "approve") {
-      setActionMsg("Are you sure you want to approve this timesheet?");      
+      setActionMsg("Are you sure you want to approve this timesheet?");
     } else {
       setNewStatus("Pending for Approval")
     }

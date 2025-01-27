@@ -78,6 +78,9 @@ const customStyles = {
   "& .MuiDataGrid-cell": {
     backgroundColor: "#FFFF",
   },
+  "& .MuiDataGrid-columnSeparator": {
+    color: "#CCC", // This will change the column divider color to green
+  },
   "& .MuiDataGrid-columnHeaderTitle .Mui-groupHeader": {
     display: "none",
   },
