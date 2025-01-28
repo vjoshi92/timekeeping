@@ -797,7 +797,7 @@ export const ReviewColumns = ({
 
                     }
 
-                    {
+                    {/* {
                       hasNote ? <IconButton
                         onClick={handleRemoveClick}
                         sx={{
@@ -809,7 +809,7 @@ export const ReviewColumns = ({
                       >
                         <RemoveCircleIcon />
                       </IconButton> : null
-                    }
+                    } */}
 
                   </Stack>
                 </RejectionMainBox>
@@ -845,6 +845,18 @@ export const ReviewColumns = ({
                         <CancelNoteTypography>Cancel</CancelNoteTypography>
                       </CancelNoteButton>
                   }
+                  {hasNote && <CancelNoteButton
+                    onClick={handleRemoveClick}
+                    sx={{
+                      right: 0,
+                      top: 0,
+                      color: "#DD133F",
+                      display: hasRejectedNote.has(activeInputId) ? 'block' : 'none' // Only show when rejected
+                    }}
+                  >
+                    {/* <RemoveCircleIcon /> */}
+                    <CancelNoteTypography>Remove</CancelNoteTypography>
+                  </CancelNoteButton>}
                   {
                     isPrevious ? <SaveNoteButton
                       id="keep-mounted-modal-description"

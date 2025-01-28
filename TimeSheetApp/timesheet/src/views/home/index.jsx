@@ -583,7 +583,8 @@ const Home = () => {
     const filtered = dummyReviewData?.filter(
       (item) =>
         item?.level?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
-        item?.title?.toLowerCase()?.includes(searchQuery.toLowerCase())
+        item?.title?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+        item?.project?.toLowerCase()?.includes(searchQuery.toLowerCase())
     );
     // console.log("filtered>>>>>>>>>>>>>", filtered);
     setFilteredData(filtered);
@@ -1197,7 +1198,7 @@ const Home = () => {
 
           <Stack direction={"row"}>
             <Box sx={{ marginRight: "2%" }}>
-              <Search dummyReviewData={dummyReviewData} label={"Search"} onSearch={handleSearch} />
+              <Search dummyReviewData={dummyReviewData} onSearch={handleSearch} />
             </Box>
             <StyledButton2
               size="small"
