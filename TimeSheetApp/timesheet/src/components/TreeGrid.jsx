@@ -56,15 +56,16 @@ const groupingColDef = {
   renderCell: (params) => {
     return params.row.title ? (
       <Stack ml={"1rem"}>
-        <Typography fontWeight={700}>{params.row.title}</Typography>
+        
         {/* <Tooltip title={params.row.level}></Tooltip> */}
         <CustomPopover
           content={
             customStepper()
           }
         >
-          <Typography>{params.row.level}</Typography>
+          <Typography fontSize={"0.9rem"}>{params.row.level}</Typography>
         </CustomPopover>
+        <Typography fontWeight={700}>{params.row.title}</Typography>
       </Stack>
     ) : (
       <Typography mt={"1rem"} fontWeight={700}>

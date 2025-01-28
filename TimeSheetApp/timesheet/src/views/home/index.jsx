@@ -751,7 +751,7 @@ const Home = () => {
 
   const prepareTimesheetPayload = () => {
     const timesheetEntries = projectedData.filter(
-      (item) => item.totalRow !== true
+      (item) => item?.totalRow !== true
     );
     let entries = [];
     timesheetEntries.forEach((entry) => {
@@ -768,10 +768,16 @@ const Home = () => {
         const payloadDate = currentDate.$d.toISOString().split(".")[0];
         if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
           const temp = {
+            __metadata: {
+              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+            },
             TimeEntryDataFields: {
+              __metadata: {
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+              },
               CATSHOURS: entry[`day${i}`],
               PERNR: userData?.results[0].EmployeeNumber,
-              CATSQUANTITY: entry?.day0,
+              CATSQUANTITY: entry[`day${i}`],
               LTXA1: "",
               MEINH: "H",
               UNIT: "H",
@@ -781,6 +787,9 @@ const Home = () => {
             },
             Pernr: userData?.results[0].EmployeeNumber,
             TimeEntryOperation: "C",
+            Counter: "",
+            AllowRelease: "",
+            RecRowNo: (entries.length + 1).toString(),
           };
           entries.push(temp);
         }
