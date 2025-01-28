@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
+  Autocomplete,
   Backdrop,
   Box,
   Button,
@@ -48,6 +49,7 @@ import { ReviewColumns } from "components/ReviewColumns";
 import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
 import { useGetUserDataQuery } from "api/timesheetApi";
 import { useGetDateWiseDetailsQuery } from "api/timesheetDashboardApi";
+import Search from "components/Search";
 
 const style = {
   position: "absolute",
@@ -131,6 +133,7 @@ const CancelNoteTypography = styled(Typography)(({ theme }) => ({
 
 const StyledStackButton = styled(Stack)(({ theme }) => ({
   direction: "row",
+  height: "34px",
 }));
 
 const ButtonStack = styled(Stack)(({ theme }) => ({
@@ -279,11 +282,12 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
     boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
   },
   "& .MuiToggleButton-root.Mui-selected": {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "white",
     "&:hover": {
-      backgroundColor: "#FFFFFF",
+      // backgroundColor: "#FFFFFF",
+      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     },
-    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
+    // boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     transition: "box-shadow 0.3s ease-in-out",
     "&:hover": {
       boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
@@ -572,6 +576,19 @@ const Home = () => {
       startDate: startOfCurrentWeek,
       endDate: endOfCurrentWeek,
     });
+  const [filteredData, setFilteredData] = useState(dummyReviewData);
+
+  // console.log("filteredData", filteredData)
+  const handleSearch = (searchQuery) => {
+    const filtered = dummyReviewData?.filter(
+      (item) =>
+        item?.level?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+        item?.title?.toLowerCase()?.includes(searchQuery.toLowerCase())
+    );
+    // console.log("filtered>>>>>>>>>>>>>", filtered);
+    setFilteredData(filtered);
+  };
+
 
   // console.log("allTimeData", allTimeData)
 
@@ -601,8 +618,8 @@ const Home = () => {
   //   });
   // });
 
-  // console.log("ProductArray", ProductArray);
 
+  //---------------------for showing different  modals on approvals----------------------------------------------
   const handleApproval = () => {
     if (approvalCount == 0) {
       if (!isCurrentWeek) {
@@ -624,6 +641,7 @@ const Home = () => {
       dispatch(setStatus("Pending for approval"));
     }
   };
+
   const handlePrevWeekApproval = (approvalCount) => {
     if (approvalCount == 0) {
       if (!isCurrentWeek) {
@@ -685,6 +703,8 @@ const Home = () => {
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
 
+  //-------------------for checking whether the date is greater than the current date----------------------
+
   const isSelectedDateGreaterThanCurrent = () => {
     // Return false if selectedDate is null, undefined, or not a string
     if (!selectedDate || typeof selectedDate !== 'string') return false;
@@ -703,6 +723,7 @@ const Home = () => {
     }
   };
 
+  //----------------function for handelling the previous week toggle buttons here ---------------------------
   const handlePreviousWeek = () => {
     let currentStartDate;
     if (!selectedDate || selectedDate.length === 0) {
@@ -737,6 +758,8 @@ const Home = () => {
       setIsCurrentWeek(false);
     }
   };
+
+  //----------------function for handelling the next week toggle buttons here ---------------------------
 
   const handleNextWeek = () => {
     let currentStartDate;
@@ -819,6 +842,9 @@ const Home = () => {
     },
   ];
 
+  //----------------function for handelling the change in input  ---------------------------
+
+
   const handleInputChange = (field, value, rowId) => {
     const rows = [...projectedData];
     let rowObj = rows.find((item) => item.id === rowId);
@@ -846,6 +872,8 @@ const Home = () => {
     );
     updateTotalRow(field, rowIndex, rowObj);
   };
+
+  //----------------function for handelling the updation of total rows  ---------------------------
 
   const updateTotalRow = (field, rowIndex, rowObj) => {
     const rows = [...projectedData];
@@ -890,6 +918,8 @@ const Home = () => {
     checkForTotalHours(totalRowObj);
   };
 
+  //-------------- function for checking whether the total hours are greater than 40 or not here-----------------
+
   const checkForTotalHours = (totalRowObj) => {
     if (
       totalRowObj &&
@@ -902,6 +932,7 @@ const Home = () => {
     }
   };
 
+  //  ----------------function for deleting the particular rows --------------------------
   const handleDelete = (rowId) => {
     // let tempRows = [...rows];
     // tempRows.splice(rowId, 1);
@@ -918,6 +949,8 @@ const Home = () => {
     handleDelete,
     dateWiseData,
   });
+
+  // ---------------------- for handelling the columns and its data in dashboard screen---------------------
 
   const AllRowsColumns = RowsDataColumns({
     rows,
@@ -942,6 +975,8 @@ const Home = () => {
     }
     setSnackbarOpen(false);
   };
+
+  // ------------ function for converting the rows data into columns here -------------------
 
   const transformToWeeklyRows = (response) => {
     const results = response?.results; // Extract the top-level results array
@@ -1001,6 +1036,8 @@ const Home = () => {
 
     return weekRows;
   };
+
+  // ---------- fucntion for fetching the api data to show in dahboard screens -----------
 
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
@@ -1157,7 +1194,11 @@ const Home = () => {
           )}
 
 
+
           <Stack direction={"row"}>
+            <Box sx={{ marginRight: "2%" }}>
+              <Search dummyReviewData={dummyReviewData} label={"Search"} onSearch={handleSearch} />
+            </Box>
             <StyledButton2
               size="small"
               variant="outlined"
@@ -1211,7 +1252,7 @@ const Home = () => {
             <TreeGrid
               columns={ReviewData}
               density={"standard"}
-              data={dummyReviewData}
+              data={filteredData}
             />
           )}
         </Stack>

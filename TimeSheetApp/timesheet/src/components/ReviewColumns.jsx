@@ -273,6 +273,10 @@ export const ReviewColumns = ({
     }
     setOpenRejection(false);
   };
+
+  const handleChangeEntry = () => {
+    setOpenRejection(false);
+  }
   const handleRejection = () => setOpenRejection(true);
 
   const handleCopyModal = (inputId, isReject) => {
@@ -327,7 +331,7 @@ export const ReviewColumns = ({
       newSet.delete(activeInputId);
       return newSet;
     });
-    handleRemoveRejection && handleRemoveRejection(activeInputId); // Call parent handler
+    handleRemoveRejection && handleRemoveRejection(activeInputId);
   };
 
   const handleSaveNotes = () => {
@@ -452,13 +456,42 @@ export const ReviewColumns = ({
                   </Typography>
                 </Box>
               ) : (
-                <DecimalInput
-                  error
-                  value={params?.value}
-                  backgroundColor={"#ef0c0c30"}
-                  disabled={false}
-                />
-              )}
+                <Box
+                  component="div"
+                  sx={{
+                    width: "87% !important",
+                    verticalAlign: "unset",
+                    backgroundColor: isFirstInput
+                      ? "#ef0c0c30"
+                      : inputRejectedNote
+                        ? "#ef0c0c30"
+                        : "#FFFFFF",
+                    border: `1px solid ${isFirstInput ? "#FF0000" : inputRejectedNote ? "#FF0000" : "#000000"}`,
+                    borderRadius: "4px",
+                    padding: "0.5rem",
+                    cursor: isFirstInput ? "pointer" : "pointer",
+                    height: "1.2rem",
+                    "&:hover": {
+                      borderColor: isFirstInput
+                        ? "#FF0000"
+                        : inputRejectedNote
+                          ? "#FF0000"
+                          : "#000000",
+                    },
+                  }}
+                  onClick={() => {
+                    if (isFirstInput && isPrevious) {
+                      setActiveInputId(inputId);
+                      handleRejection();
+                    }
+                  }}
+                >
+                  <Typography color="#797b79 !important">
+                    {params?.value}
+                  </Typography>
+                </Box>
+              )
+              }
               {/* <DecimalInput
                
                 inputProps={{
@@ -502,9 +535,8 @@ export const ReviewColumns = ({
                       ? "red"
                       : inputHasNote
                         ? "red"
-                        : isNote
-                          ? "red"
-                          : "grey",
+                        :
+                        "grey",
                     fontWeight: "400",
                   }}
                 />
@@ -719,15 +751,52 @@ export const ReviewColumns = ({
             >
               <RejectionBox>
                 <RejectionMainBox>
-                  <ModalTypography>Rejection Reason</ModalTypography>
-                  <Stack direction={"row"} justifyContent={"space-between"} sx={{ width: hasNote ? "95%" : "100%" }}>
-                    <StyledDropdown
-                      name="project"
-                      options={ProjectData.map((option) => option?.title)}
-                      onChange={handleReasonChange}
-                      value={selectedReason || "--"}
+                  <ModalTypography>{isPrevious ? "Change Entry" : "Rejection Reason"}</ModalTypography>
+                  <Stack direction={isPrevious ? "column" : "row"} justifyContent={"space-between"} sx={{ width: hasNote ? "95%" : "100%" }}>
+                    {
+                      isPrevious ?
+                        (<Box sx={{ width: "100%" }}>
+                          <Typography sx={{ fontWeight: "600" }}>Hours</Typography>
+                          <MuiInput
+                            onChange={(value) => setNewNote(value)}
+                            placeholder="Please specify the reason"
+                            sx={{
+                              width: "100%",
+                              marginTop: "20px",
+                              height: "30px",
+                              padding: "5px",
+                              lineHeight: "1",
+                            }}
+                            value={newNote}
+                          />
+                        </Box>)
+                        :
+                        (<StyledDropdown
+                          name="project"
+                          options={ProjectData.map((option) => option?.title)}
+                          onChange={handleReasonChange}
+                          value={selectedReason || "--"}
 
-                    />
+                        />)
+                    }
+                    {
+                      isPrevious ?
+                        <Box sx={{ width: "100%", marginTop: "2%" }}>
+                          <Typography sx={{ fontWeight: "600" }}>Reason</Typography>
+                          <MuiInput
+                            rows={1}
+                            multiline={true}
+                            onChange={(value) => setOtherReason(value)}
+                            placeholder="Please specify the reason"
+                            sx={{ width: "100%", marginTop: "20px" }}
+                            value={otherReason}
+                          />
+                        </Box>
+                        :
+                        null
+
+                    }
+
                     {
                       hasNote ? <IconButton
                         onClick={handleRemoveClick}
@@ -742,7 +811,6 @@ export const ReviewColumns = ({
                       </IconButton> : null
                     }
 
-
                   </Stack>
                 </RejectionMainBox>
                 {selectedReason === "Other" && (
@@ -756,23 +824,44 @@ export const ReviewColumns = ({
                   />
                 )}
                 <RejectButtonStack direction="row" spacing={3}>
-                  <CancelNoteButton
-                    id="keep-mounted-modal-title"
-                    variant="h6"
-                    component="h2"
-                    size="small"
-                    onClick={() => handleApprovalClose("cancel")}
-                  >
-                    <CancelNoteTypography>Cancel</CancelNoteTypography>
-                  </CancelNoteButton>
-                  <SaveNoteButton
-                    id="keep-mounted-modal-description"
-                    sx={{ mt: 2 }}
-                    size="small"
-                    onClick={() => handleApprovalClose("submit")}
-                  >
-                    <SaveNoteTypography>Submit</SaveNoteTypography>
-                  </SaveNoteButton>
+                  {
+                    isPrevious ? <CancelNoteButton
+                      id="keep-mounted-modal-title"
+                      variant="h6"
+                      component="h2"
+                      size="small"
+                      onClick={() => handleChangeEntry()}
+                    >
+                      <CancelNoteTypography>Cancel</CancelNoteTypography>
+                    </CancelNoteButton>
+                      :
+                      <CancelNoteButton
+                        id="keep-mounted-modal-title"
+                        variant="h6"
+                        component="h2"
+                        size="small"
+                        onClick={() => handleApprovalClose("cancel")}
+                      >
+                        <CancelNoteTypography>Cancel</CancelNoteTypography>
+                      </CancelNoteButton>
+                  }
+                  {
+                    isPrevious ? <SaveNoteButton
+                      id="keep-mounted-modal-description"
+                      sx={{ mt: 2 }}
+                      size="small"
+                      onClick={() => handleChangeEntry()}
+                    >
+                      <SaveNoteTypography>Save</SaveNoteTypography>
+                    </SaveNoteButton> : <SaveNoteButton
+                      id="keep-mounted-modal-description"
+                      sx={{ mt: 2 }}
+                      size="small"
+                      onClick={() => handleApprovalClose("submit")}
+                    >
+                      <SaveNoteTypography>Submit</SaveNoteTypography>
+                    </SaveNoteButton>
+                  }
                 </RejectButtonStack>
               </RejectionBox>
             </Modal>
