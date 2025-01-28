@@ -51,6 +51,7 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
 
 export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAll }) {
   const [isChecked, setIsChecked] = React.useState(false);
+  const [checkedItems, setCheckedItems] = React.useState({});
   const [checkboxClickedCount, setCheckboxClickedCount] = React.useState(0)
   const navigate = useNavigate();
 
@@ -59,30 +60,46 @@ export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAl
     navigate("/Review/true", { state: { data: allData } });
   };
 
-  const handleChecked = (event) => {
+  // Modified to handle individual checkbox states
+  const handleChecked = (event, id) => {
+    // Create new state object with the toggled value for the specific checkbox
+    const newCheckedItems = {
+      ...checkedItems,
+      [id]: !checkedItems[id]
+    };
+    setCheckedItems(newCheckedItems);
+
+    // Increment click counter for UI state tracking
     const newClickCount = checkboxClickedCount + 1;
     setCheckboxClickedCount(newClickCount);
-    const newCheckedState = !isChecked;
-    setIsChecked(newCheckedState);
 
-    if (newClickCount > 1) {
+    // Count how many checkboxes are currently checked
+    const checkedCount = Object.values(newCheckedItems).filter(Boolean).length;
 
+    // Update UI state based on number of checked items
+    if (checkedCount > 1) {
+      // Multiple items checked - show approve all button
       setShowApproveAll(true);
       setCheckboxChecked(false);
-      setIsChecked(false)
-    } else {
+    } else if (checkedCount === 1) {
+      // Single item checked - show individual approve
       setShowApproveAll(false);
       setCheckboxChecked(true);
-      setIsChecked(true)
+    } else {
+      // No items checked - reset UI
+      setShowApproveAll(false);
+      setCheckboxChecked(false);
     }
-  }
+  };
+
+
   const columns = [
     {
       field: "Check",
       headerName: "",
       sortable: false,
       width: 50,
-      renderCell: () => (
+      renderCell: (params) => (
         <Box
           sx={{
             display: "flex",
@@ -92,12 +109,11 @@ export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAl
             height: "100%",
           }}
         >
+          {/* Modified checkbox to use individual state from checkedItems object */}
           <Checkbox
             {...label}
-            checked={isChecked ? setCheckboxChecked(true) : setCheckboxChecked(false)}
-            onChange={(event) => {
-              handleChecked(event)
-            }}
+            checked={!!checkedItems[params.row.id]}
+            onChange={(event) => handleChecked(event, params.row.id)}
             sx={{
               padding: 0,
               margin: 0,

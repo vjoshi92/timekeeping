@@ -37,7 +37,7 @@ export default function TimeSheetsDatagrid() {
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: 600, color: StatusColorFormatter(params.value), marginTop: "2%" }}
+          sx={{ fontWeight: "600", color: StatusColorFormatter(params.value), marginTop: "2%", fontSize: "14px" }}
         >
           {params.value}
         </Typography>
@@ -101,7 +101,7 @@ export default function TimeSheetsDatagrid() {
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: 600, color: StatusColorFormatter(params.value), marginTop: "3%" }}
+          sx={{ fontWeight: 600, color: StatusColorFormatter(params.value), marginTop: "3%", fontSize: "14px " }}
         >
           {params.value}
         </Typography>

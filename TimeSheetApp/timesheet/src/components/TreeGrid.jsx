@@ -57,17 +57,18 @@ const groupingColDef = {
   flex: 1,
   renderCell: (params) => {
     return params.row.title ? (
+
       <Stack ml={"1rem"}>
         <Typography fontWeight={700}>{params.row.title}</Typography>
-        {/* <Tooltip title={params.row.level}></Tooltip> */}
-        <CustomPopover
-          content={
-            customStepper()
-          }
-        >
-          <Typography>{params.row.level}</Typography>
+        <CustomPopover content={customStepper()}>
+          <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
+            <Typography sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+              {params.row.level}
+            </Typography>
+          </Tooltip>
         </CustomPopover>
       </Stack>
+
     ) : (
       <Typography mt={"1rem"} fontWeight={700}>
         {params.value}
@@ -81,7 +82,7 @@ const customStyles = {
     backgroundColor: "#FFFF",
   },
   "& .MuiDataGrid-columnSeparator": {
-    color: "#CCC", // This will change the column divider color to green
+    color: "#CCC",
   },
   "& .MuiDataGrid-columnHeaderTitle .Mui-groupHeader": {
     display: "none",
@@ -122,12 +123,18 @@ LicenseInfo.setLicenseKey(
 
 export default function TreeGrid({ columns, density, data }) {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
+  const modifiedColumns = React.useMemo(() => {
+    return columns.map((col, index) => ({
+      ...col,
+      filterable: index === 0, 
+    }));
+  }, [columns]);
   return (
-    <div style={{ height: 450, width: "100%" }}>
+    <Box sx={{ height: "500px", width: "100%", border: "none" }}>
       <DataGridPro
         treeData
         rows={data}
-        columns={columns}
+        columns={modifiedColumns}
         hideFooter
         density={density || "compact"}
         apiRef={useGridApiRef()}
@@ -138,8 +145,9 @@ export default function TreeGrid({ columns, density, data }) {
         pinnedColumns={{ left: ["__tree_data__"] }}
         disableColumnMenu
         defaultGroupingExpansionDepth={-1}
+        filterMode="server"
       />
-    </div>
+    </Box>
   );
 }
 
