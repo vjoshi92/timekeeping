@@ -117,7 +117,7 @@ const StyledDrawerDivider = styled(Divider)({
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   position: "sticky",
-  top: "1px",
+  // top: "1px",
   zIndex: theme.zIndex.appBar,
   background: "#0a2240",
   // height: "50px",

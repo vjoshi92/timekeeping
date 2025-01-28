@@ -39,7 +39,7 @@ const customStepper = () => {
       {steps.map((step, index) => (
         <Step key={step.label}>
           <StepLabel>
-            <Typography sx={{ fontWeight: index === steps.length - 1 ? "bold" : "normal", color: index === steps.length - 1 ? "orange" : "null" }}>
+            <Typography sx={{ fontWeight: index === steps.length - 1 ? "bold" : "normal" }}>
               {step.label}
             </Typography>
           </StepLabel>
@@ -59,14 +59,14 @@ const groupingColDef = {
     return params.row.title ? (
 
       <Stack ml={"1rem"}>
-        <Typography fontWeight={700}>{params.row.title}</Typography>
         <CustomPopover content={customStepper()}>
           <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
-            <Typography sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+            <Typography fontSize={"0.9rem"} sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", }}>
               {params.row.level}
             </Typography>
           </Tooltip>
         </CustomPopover>
+        <Typography fontWeight={700}>{params.row.title}</Typography>
       </Stack>
 
     ) : (
@@ -82,7 +82,7 @@ const customStyles = {
     backgroundColor: "#FFFF",
   },
   "& .MuiDataGrid-columnSeparator": {
-    color: "#CCC",
+    color: "#CCC !important", // This will change the column divider color to green
   },
   "& .MuiDataGrid-columnHeaderTitle .Mui-groupHeader": {
     display: "none",
@@ -90,7 +90,7 @@ const customStyles = {
   "& .MuiDataGrid-columnHeader": {
     color: "#121212DE",
     fontWeight: "700",
-    fontSize: "16px",
+    fontSize: "14px",
     backgroundColor: "#EEEEEE",
   },
   "& .MuiOutlinedInput-input": {
@@ -126,7 +126,7 @@ export default function TreeGrid({ columns, density, data }) {
   const modifiedColumns = React.useMemo(() => {
     return columns.map((col, index) => ({
       ...col,
-      filterable: index === 0, 
+      filterable: index === 0,
     }));
   }, [columns]);
   return (
@@ -138,7 +138,7 @@ export default function TreeGrid({ columns, density, data }) {
         hideFooter
         density={density || "compact"}
         apiRef={useGridApiRef()}
-        getTreeDataPath={(row) => [row.name, row.id.toString()]}
+        getTreeDataPath={getTreeDataPath}
         groupingColDef={groupingColDef}
         sx={customStyles}
         getRowClassName={getRowClassName}

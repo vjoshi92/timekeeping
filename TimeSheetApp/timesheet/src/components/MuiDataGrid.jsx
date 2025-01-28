@@ -22,9 +22,15 @@ const StyledDataGridPremium = styled(DataGridPremium)({
   "& .MuiDataGrid-columnHeader": {
     backgroundColor: "#EEEEEE",
     color: "#121212DE",
-    fontWeight: "700",
-    fontSize: "16px"
-  }
+    fontWeight: "700 !import",
+    fontSize: "14px"
+  },
+  ".MuiDataGrid-columnHeaderTitle": {
+    fontWeight: 700
+  },
+  "& .MuiDataGrid-columnSeparator": {
+    color: "#CCC !important", // This will change the column divider color to green
+  },
 });
 
 const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, disableColumnMenu }) => {
