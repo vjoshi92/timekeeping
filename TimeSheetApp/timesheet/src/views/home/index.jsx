@@ -47,8 +47,16 @@ import {
   updateRowTotal,
 } from "store/slice/TimesheetSlice";
 import { ReviewColumns } from "components/ReviewColumns";
-import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
-import { useGetUserDataQuery } from "api/timesheetApi";
+import {
+  getWeekStartDate,
+  PrepareBatchPayload,
+  StatusCaseFormatting,
+  StatusColorFormatter,
+} from "utils/AppUtil";
+import {
+  useGetUserDataQuery,
+  useMakeBatchCallMutation,
+} from "api/timesheetApi";
 import {
   useGetDateWiseDetailsQuery,
   useLazyGetDateWiseDetailsQuery,
@@ -565,6 +573,10 @@ const Home = () => {
   const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
   const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
 
+  const [
+    makeBatchCall,
+    { isSucess: batchCallIsSuccess, error: batchCallIsError },
+  ] = useMakeBatchCallMutation();
   // this is service call to get Timesheet data for selected week
   const [
     getTimesheetEntry,
@@ -574,6 +586,7 @@ const Home = () => {
       isFetching: timeSheetDataFetching,
     },
   ] = useLazyGetDateWiseDetailsQuery();
+  const { data: userData } = useGetUserDataQuery();
 
   const handleApproval = () => {
     if (approvalCount == 0) {
@@ -736,11 +749,56 @@ const Home = () => {
     dispatch(setNewRowAdded(false));
   };
 
-  const handleSaveTime = () => {
+  const prepareTimesheetPayload = () => {
+    const timesheetEntries = projectedData.filter(
+      (item) => item.totalRow !== true
+    );
+    let entries = [];
+    timesheetEntries.forEach((entry) => {
+      let startDate = new Date();
+      if (selectedDate && selectedDate.length && selectedDate.length > 0) {
+        const dates = selectedDate.split(" - ");
+        startDate = dates[0];
+      } else {
+        startDate = getWeekStartDate();
+      }
+
+      for (let i = 0; i < 7; i++) {
+        const currentDate = dayjs(startDate).add(i, "day");
+        const payloadDate = currentDate.$d.toISOString().split(".")[0];
+        if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+          const temp = {
+            TimeEntryDataFields: {
+              CATSHOURS: entry[`day${i}`],
+              PERNR: userData?.results[0].EmployeeNumber,
+              CATSQUANTITY: entry?.day0,
+              LTXA1: "",
+              MEINH: "H",
+              UNIT: "H",
+              WORKDATE: payloadDate,
+              LONGTEXT_DATA: "",
+              POSID: entry?.level,
+            },
+            Pernr: userData?.results[0].EmployeeNumber,
+            TimeEntryOperation: "C",
+          };
+          entries.push(temp);
+        }
+      }
+    });
+    return entries;
+  };
+
+  const handleSaveTime = async () => {
     // setSaveTimeClick(true);
     const currentTime = new Date();
     setLastSavedTime(currentTime);
     setSnackbarOpen(true);
+    // make a batch call with payload
+    const timesheetEntries = prepareTimesheetPayload();
+    const batchPayload = PrepareBatchPayload(timesheetEntries);
+    const response = await makeBatchCall({ body: batchPayload });
+    console.log(response);
   };
 
   const handleYes = () => {

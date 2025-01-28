@@ -128,7 +128,7 @@ export default function TreeGrid({ columns, density, data }) {
         hideFooter
         density={density || "compact"}
         apiRef={useGridApiRef()}
-        getTreeDataPath={(row) => [row.name, row.id.toString()]}
+        getTreeDataPath={getTreeDataPath}
         groupingColDef={groupingColDef}
         sx={customStyles}
         getRowClassName={getRowClassName}
