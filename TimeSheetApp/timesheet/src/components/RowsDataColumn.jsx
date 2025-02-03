@@ -254,7 +254,7 @@ export const RowsDataColumns = ({
                 },
               }}
             >
-              {row[`day${i}AllowRelease`] === "X" ? (
+              {(row[`day${i}STATUS`] === "20" || row[`day${i}STATUS`] === "30") ? (
                 <Box
                   component="div"
                   sx={{

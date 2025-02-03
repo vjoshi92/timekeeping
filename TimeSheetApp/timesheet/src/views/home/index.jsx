@@ -1011,12 +1011,14 @@ const Home = () => {
             [`${dayKey}Counter`]: entry?.Counter,
             [`${dayKey}timeEntryOperation`]: "U",
             [`${dayKey}AllowRelease`]: entry?.AllowRelease,
+            [`${dayKey}STATUS`]: entry?.Status
           };
         } else {
           weekRow[dayKey] = hours.toFixed(2);
           weekRow[`${dayKey}Counter`] = entry?.Counter;
           weekRow[`${dayKey}timeEntryOperation`] = "U";
           weekRow[`${dayKey}AllowRelease`] = entry?.AllowRelease;
+          weekRow[`${dayKey}STATUS`]= entry?.Status
         }
         weekRows[j] = weekRow;
       }
