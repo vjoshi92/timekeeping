@@ -48,6 +48,7 @@ import {
 } from "store/slice/TimesheetSlice";
 import { ReviewColumns } from "components/ReviewColumns";
 import {
+  getODataFormatDate,
   getWeekStartDate,
   PrepareBatchPayload,
   StatusCaseFormatting,
@@ -648,6 +649,8 @@ const Home = () => {
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const dispatch = useDispatch();
 
+  console.log(" projectedData>>>>", projectedData);
+
   const formatDateTime = (date) => {
     const months = [
       "Jan",
@@ -765,7 +768,7 @@ const Home = () => {
 
       for (let i = 0; i < 7; i++) {
         const currentDate = dayjs(startDate).add(i, "day");
-        const payloadDate = currentDate.$d.toISOString().split(".")[0];
+        const payloadDate = getODataFormatDate(currentDate.$d);
         if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
           const temp = {
             __metadata: {
@@ -786,8 +789,8 @@ const Home = () => {
               POSID: entry?.level,
             },
             Pernr: userData?.results[0].EmployeeNumber,
-            TimeEntryOperation: "C",
-            Counter: "",
+            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+            Counter: entry[`day${i}Counter`] || "",
             AllowRelease: "",
             RecRowNo: (entries.length + 1).toString(),
           };
@@ -959,27 +962,38 @@ const Home = () => {
     const results = response?.results; // Extract the top-level results array
     const weekRows = []; // Array to store the transformed weekly data
 
-    results.forEach((dayData, dayIndex) => {
-      const timeEntries = dayData.TimeEntries.results; // Array of time entries for the day
-
-      timeEntries.forEach((entry, entryIndex) => {
-        // Parse work date
-
-        console.log("entry", entry);
-        const workDate = new Date(
-          parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[0], 10)
-        );
-        const dayOfWeek = workDate.getDay(); // Get day of the week (0 = Sunday, 6 = Saturday)
-
-        // Find or create a row for this entry in weekRows
-        let weekRow = weekRows[entryIndex];
+    // results.forEach((dayData, dayIndex) => {
+    // here i is consider as row data
+    for (let i = 0; i < results?.length; i++) {
+      let dayData = results[i];
+      const timeEntries = dayData.TimeEntries.results;
+      // here j is consider as day number
+      for (let j = 0; j < timeEntries?.length; j++) {
+        let entry = timeEntries[j];
+        // const workDate = new Date(
+        //   parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[j], 10)
+        // );
+        // const dayOfWeek = workDate.getDay(); // Get day of the week (0 = Sunday, 6 = Saturday)
+        const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
+        const dayKey = `day${i}`;
+        let weekRow = weekRows[j];
+        // let rowExist = weekRows.filter(x => x.title === entry?.TimeEntryDataFields?.POSID);
+        // if(rowExist && rowExist.length && rowExist.length > 0){
+        //   weekRow = rowExist[0];
+        // }
+        // Update the hours for the correct day of the week
         if (!weekRow) {
           weekRow = {
             weekTotal: "0.00",
             project: entry?.TimeEntryDataFields?.CPR_EXTID,
-            level: entry?.TimeEntryDataFields?.TASKLEVEL,
+            level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POSID,
-            id: entryIndex + 1,
+            id: Math.random(),
+            hierarchy: [
+              // entry?.TimeEntryDataFields?.CPR_EXTID,
+              entry?.TimeEntryDataFields?.POSID,
+              Math.random(),
+            ],
             day0: "0.00",
             day1: "0.00",
             day2: "0.00",
@@ -987,20 +1001,33 @@ const Home = () => {
             day4: "0.00",
             day5: "0.00",
             day6: "0.00",
-            hierarchy: [
-              entry?.TimeEntryDataFields?.CPR_EXTID,
-              entry?.TimeEntryDataFields?.POSID,
-            ],
+            // not used anymore.. just commented for reference
+            // counter: entry?.Counter,
+            // timeEntryOperation: "U",
           };
-          weekRows[entryIndex] = weekRow;
+          weekRow = {
+            ...weekRow,
+            [dayKey]: hours.toFixed(2),
+            [`${dayKey}Counter`]: entry?.Counter,
+            [`${dayKey}timeEntryOperation`]: "U",
+          };
+        } else {
+          weekRow[dayKey] = hours.toFixed(2);
         }
+        weekRows[j] = weekRow;
+      }
+    }
+    // Array of time entries for the day
 
-        // Update the hours for the correct day of the week
-        const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
-        const dayKey = `day${dayOfWeek}`;
-        weekRow[dayKey] = (parseFloat(weekRow[dayKey]) + hours).toFixed(2);
-      });
-    });
+    // timeEntries.forEach((entry, entryIndex) => {
+    //   // Parse work date
+
+    //   console.log("entry", entry);
+
+    //   // Find or create a row for this entry in weekRows
+    //   let weekRow = weekRows[entryIndex];
+    // });
+    // });
 
     // Calculate total hours for each week row
     weekRows.forEach((weekRow) => {
@@ -1049,8 +1076,8 @@ const Home = () => {
       const dates = selectedDate.split(" - ");
       const sDate = new Date(dates[0]);
       const eDate = new Date(dates[1]);
-      const formattedStartDate = sDate.toISOString().split(".")[0];
-      const formattedEndDate = eDate.toISOString().split(".")[0];
+      const formattedStartDate = getODataFormatDate(sDate);
+      const formattedEndDate = getODataFormatDate(eDate);
       getTimesheetEntry({
         startDate: formattedStartDate,
         endDate: formattedEndDate,

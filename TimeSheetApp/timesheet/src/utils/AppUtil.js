@@ -118,3 +118,16 @@ export const getWeekStartDate = () => {
   weekStartDate.setHours(0, 0, 0, 0); // Set time to the beginning of the day
   return weekStartDate;
 };
+
+export const getODataFormatDate = (dateObj) => {
+  if (dateObj) {
+    const date = dateObj;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T00:00:00`;
+  } else {
+    return dateObj;
+  }
+};
