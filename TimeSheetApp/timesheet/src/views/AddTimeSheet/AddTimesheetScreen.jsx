@@ -201,7 +201,7 @@ const AddRowsScreen = () => {
           weekTotal: "0.00",
           project: "Total",
           level: "Total",
-          title: "",
+          title: "Total",
           id: Math.random(),
           hierarchy: ["Total"],
           totalRow: true,

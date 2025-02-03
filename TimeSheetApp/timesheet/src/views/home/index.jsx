@@ -640,6 +640,7 @@ const Home = () => {
     if (approvalCount >= 0) {
       dispatch(setStatus("Pending for approval"));
     }
+    handleSaveTime("approve");
   };
 
   const handleClose = () => setOpen(false);
@@ -752,7 +753,7 @@ const Home = () => {
     dispatch(setNewRowAdded(false));
   };
 
-  const prepareTimesheetPayload = () => {
+  const prepareTimesheetPayload = (type) => {
     const timesheetEntries = projectedData.filter(
       (item) => item?.totalRow !== true
     );
@@ -791,7 +792,7 @@ const Home = () => {
             Pernr: userData?.results[0].EmployeeNumber,
             TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
             Counter: entry[`day${i}Counter`] || "",
-            AllowRelease: "",
+            AllowRelease: type === "approve" ? "X" : "",
             RecRowNo: (entries.length + 1).toString(),
           };
           entries.push(temp);
@@ -801,13 +802,12 @@ const Home = () => {
     return entries;
   };
 
-  const handleSaveTime = async () => {
-    // setSaveTimeClick(true);
+  const handleSaveTime = async (type) => {
     const currentTime = new Date();
     setLastSavedTime(currentTime);
     setSnackbarOpen(true);
     // make a batch call with payload
-    const timesheetEntries = prepareTimesheetPayload();
+    const timesheetEntries = prepareTimesheetPayload(type);
     const batchPayload = PrepareBatchPayload(timesheetEntries);
     const response = await makeBatchCall({ body: batchPayload });
     console.log(response);
@@ -1010,9 +1010,13 @@ const Home = () => {
             [dayKey]: hours.toFixed(2),
             [`${dayKey}Counter`]: entry?.Counter,
             [`${dayKey}timeEntryOperation`]: "U",
+            [`${dayKey}AllowRelease`]: entry?.AllowRelease,
           };
         } else {
           weekRow[dayKey] = hours.toFixed(2);
+          weekRow[`${dayKey}Counter`] = entry?.Counter;
+          weekRow[`${dayKey}timeEntryOperation`] = "U";
+          weekRow[`${dayKey}AllowRelease`] = entry?.AllowRelease;
         }
         weekRows[j] = weekRow;
       }
@@ -1045,11 +1049,51 @@ const Home = () => {
     return weekRows;
   };
 
+  const addTotalRow = (transformedData) => {
+    let totalsRow = {
+      day0: 0,
+      day1: 0,
+      day2: 0,
+      day3: 0,
+      day4: 0,
+      day5: 0,
+      day6: 0,
+      weekTotal: 0,
+      project: "",
+      level: "Total",
+      title: "",
+      id: Math.random(),
+      totalRow: true,
+      hierarchy: ["Total"],
+    };
+
+    let data = [...transformedData];
+    data.forEach((item) => {
+      for (let i = 0; i <= 6; i++) {
+        totalsRow[`day${i}`] += parseFloat(item[`day${i}`] || "0");
+      }
+      totalsRow.weekTotal += parseFloat(item.weekTotal || "0");
+    });
+
+    // Convert totals to string format with 2 decimal places
+    for (let i = 0; i <= 6; i++) {
+      totalsRow[`day${i}`] = totalsRow[`day${i}`].toFixed(2);
+    }
+    totalsRow.weekTotal = totalsRow.weekTotal.toFixed(2);
+
+    // check for enable the button
+    checkForTotalHours(totalsRow);
+    // Add total row to the data array
+    data.push(totalsRow);
+    return data;
+  };
+
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
       if (!newRow) {
         const responseData = dateWiseData;
-        const transformedData = transformToWeeklyRows(responseData);
+        let transformedData = transformToWeeklyRows(responseData);
+        transformedData = addTotalRow(transformedData);
         console.log("transformedData>>>>>>>", transformedData);
         // setProductTime(transformedData);
         dispatch(setProjectData(transformedData));
@@ -1187,93 +1231,28 @@ const Home = () => {
         </Stack>
       </StyledStack>
       <Footer>
-        {!isCurrentWeek ? (
-          <SaveTimeButton size="medium" onClick={handleSaveTime}>
-            <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
-          </SaveTimeButton>
-        ) : (
-          projectedData &&
-          Object?.keys(projectedData)?.length > 0 && (
-            <SaveTimeButton size="medium" onClick={handleSaveTime}>
-              <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
-            </SaveTimeButton>
-          )
-        )}
+        <SaveTimeButton size="medium" onClick={handleSaveTime}>
+          <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
+        </SaveTimeButton>
 
-        {!isCurrentWeek ? (
-          <Button
-            onClick={handleApproval}
-            sx={{
-              backgroundColor: "#ED6A15",
-              padding: "0.4rem",
-              marginBottom: "0.5rem",
-            }}
-            // disabled={
-            //   !(
-            //     projectedData &&
-            //     Object?.keys(projectedData)?.length > 0 &&
-            //     saveTimeClick
-            //   )
-            // }
-          >
-            <StyledFooterText>Submit Week for Approval</StyledFooterText>
-          </Button>
-        ) : (
-          <Button
-            onClick={handleApproval}
-            sx={{
-              backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-              padding: "0.4rem",
-              marginBottom: "0.5rem",
-            }}
-            disabled={
-              !(
-                projectedData &&
-                Object?.keys(projectedData)?.length > 0 &&
-                saveTimeClick
-              )
-            }
-          >
-            <StyledFooterText>Submit Week for Approval</StyledFooterText>
-          </Button>
-        )}
+        <Button
+          onClick={handleApproval}
+          sx={{
+            backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+            padding: "0.4rem",
+            marginBottom: "0.5rem",
+          }}
+          disabled={
+            !(
+              projectedData &&
+              Object?.keys(projectedData)?.length > 0 &&
+              saveTimeClick
+            )
+          }
+        >
+          <StyledFooterText>Submit Week for Approval</StyledFooterText>
+        </Button>
       </Footer>
-      {/* <FooterBox>
-        <div className="footer-content">
-          {projectedData && Object?.keys(projectedData)?.length > 0 && (
-            <div className="save-time-section">
-              <SaveTimeButton
-                size="medium"
-                className="save-time-button"
-                onClick={handleSaveTime}
-              >
-                <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
-              </SaveTimeButton>
-              {lastSavedTime && (
-                <Typography className="last-saved">
-                  Last saved {formatDateTime(lastSavedTime)}
-                </Typography>
-              )}
-            </div>
-          )}
-          <FooterButton
-            className="submit-button"
-            onClick={handleApproval}
-            sx={{
-              backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-            }}
-            disabled={
-              !(
-                projectedData &&
-                Object?.keys(projectedData)?.length > 0 &&
-                saveTimeClick
-              )
-            }
-          >
-            <StyledFooterText>Submit Week for Approval</StyledFooterText>
-          </FooterButton>
-        </div>
-      </FooterBox> */}
       <Modal
         keepMounted
         open={open}
