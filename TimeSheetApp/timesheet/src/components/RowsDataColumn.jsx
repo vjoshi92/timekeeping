@@ -107,11 +107,36 @@ const ModalStyledTypography = styled(Box)(({ theme }) => ({
   marginBottom: "2%",
 }));
 
+const notes = [
+  {
+    id: 1,
+    content: "Discuss project deadlines and deliverables.",
+    date: "10/01/2024",
+    time: "05.30pm",
+    username: "Jon doe",
+  },
+  {
+    id: 2,
+    content: "Complete the UI design for the dashboard.",
+    date: "05/02/2024",
+    time: "02.30pm",
+    username: "Paul heyman",
+  },
+  {
+    id: 3,
+    content: "Submit the monthly report by EOD.",
+    date: "01/03/2024",
+    time: "06.30pm",
+    username: "Alice wok",
+  },
+];
+
 export const RowsDataColumns = ({
   handleInputChange,
   handleDelete,
   selectedDate,
   dateWiseData,
+  status
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeInputId, setActiveInputId] = useState(null);
@@ -125,29 +150,7 @@ export const RowsDataColumns = ({
     setActiveInputId(inputId);
   };
 
-  const notes = [
-    {
-      id: 1,
-      content: "Discuss project deadlines and deliverables.",
-      date: "10/01/2024",
-      time: "05.30pm",
-      username: "Jon doe",
-    },
-    {
-      id: 2,
-      content: "Complete the UI design for the dashboard.",
-      date: "05/02/2024",
-      time: "02.30pm",
-      username: "Paul heyman",
-    },
-    {
-      id: 3,
-      content: "Submit the monthly report by EOD.",
-      date: "01/03/2024",
-      time: "06.30pm",
-      username: "Alice wok",
-    },
-  ];
+ 
 
   const handleSaveNotes = () => {
     setModalOpen(false);
@@ -254,7 +257,7 @@ export const RowsDataColumns = ({
                 },
               }}
             >
-              {(row[`day${i}STATUS`] === "20" || row[`day${i}STATUS`] === "30") ? (
+              {(status === "Approved") ? (
                 <Box
                   component="div"
                   sx={{
@@ -306,7 +309,7 @@ export const RowsDataColumns = ({
               <IconButton size="small" onClick={() => handleCopyModal(inputId)}>
                 <TextSnippetOutlined
                   sx={{
-                    color: inputHasNote ? "red" : "grey",
+                    color: row[`day${i}STATUS`] === "40" ? "red" : "grey",
                     fontWeight: "400",
                   }}
                 />
@@ -342,7 +345,7 @@ export const RowsDataColumns = ({
             <TotalTypography>{params.value}</TotalTypography>
 
             {!params.row.totalRow && (
-              <IconButton
+              <IconButton disabled={status === "Approved"}
                 size="small"
                 color="secondary"
                 onClick={() => handleDelete(params.row.id)}

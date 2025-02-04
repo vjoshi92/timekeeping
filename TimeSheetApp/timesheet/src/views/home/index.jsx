@@ -62,6 +62,7 @@ import {
   useGetDateWiseDetailsQuery,
   useLazyGetDateWiseDetailsQuery,
 } from "api/timesheetDashboardApi";
+import BusyDialog from "components/BusyLoader";
 
 const style = {
   position: "absolute",
@@ -573,10 +574,14 @@ const Home = () => {
   const currentWeekStart = startOfCurrentWeek.format("DD");
   const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
   const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
-
+  const [batchCallType, setBatchCallType] = useState("save");
   const [
     makeBatchCall,
-    { isSucess: batchCallIsSuccess, error: batchCallIsError },
+    {
+      isSuccess: batchCallIsSuccess,
+      isLoading: batchCallLoading,
+      error: batchCallIsError,
+    },
   ] = useMakeBatchCallMutation();
   // this is service call to get Timesheet data for selected week
   const [
@@ -588,6 +593,15 @@ const Home = () => {
     },
   ] = useLazyGetDateWiseDetailsQuery();
   const { data: userData } = useGetUserDataQuery();
+
+  useEffect(() => {
+    if (batchCallIsSuccess) {
+      if (batchCallType == "approve") {
+      } else {
+        setSnackbarOpen(true);
+      }
+    }
+  }, [batchCallLoading]);
 
   const handleApproval = () => {
     if (approvalCount == 0) {
@@ -607,7 +621,7 @@ const Home = () => {
     }
     setOpenApproval(true);
     if (approvalCount > 0) {
-      dispatch(setStatus("Pending for approval"));
+      // dispatch(setStatus("Pending for approval"));
     }
   };
   const handlePrevWeekApproval = (approvalCount) => {
@@ -638,7 +652,7 @@ const Home = () => {
     let aCount = approvalCount + 1;
     dispatch(setApprovalCount(aCount));
     if (approvalCount >= 0) {
-      dispatch(setStatus("Pending for approval"));
+      // dispatch(setStatus("Pending for approval"));
     }
     handleSaveTime("approve");
   };
@@ -701,13 +715,13 @@ const Home = () => {
     const endOfPreviousWeek = startOfPreviousWeek.add(6, "day");
     const newDateRange = `${startOfPreviousWeek.format("DD MMM YYYY")} - ${endOfPreviousWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
-    dispatch(setStatus("Rejected"));
+    // dispatch(setStatus("Rejected"));
 
     if (prevWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
-      dispatch(setStatus("New"));
+      // dispatch(setStatus("New"));
       if (approvalCount > 0) {
-        dispatch(setStatus("Pending for approval"));
+        // dispatch(setStatus("Pending for approval"));
       }
     } else {
       setIsCurrentWeek(false);
@@ -736,16 +750,16 @@ const Home = () => {
     const endOfNextWeek = startOfNextWeek.add(6, "day");
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
-    dispatch(setStatus("Rejected"));
+    // dispatch(setStatus("Rejected"));
     if (nextWeekStart == currentWeekStart) {
       setDisableToggel(true);
     }
     if (nextWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
 
-      dispatch(setStatus("New"));
+      // dispatch(setStatus("New"));
       if (approvalCount > 0) {
-        dispatch(setStatus("Pending for approval"));
+        // dispatch(setStatus("Pending for approval"));
       }
     } else {
       setIsCurrentWeek(false);
@@ -805,12 +819,13 @@ const Home = () => {
   const handleSaveTime = async (type) => {
     const currentTime = new Date();
     setLastSavedTime(currentTime);
-    setSnackbarOpen(true);
+    // setSnackbarOpen(true);
+    setBatchCallType(type);
     // make a batch call with payload
     const timesheetEntries = prepareTimesheetPayload(type);
     const batchPayload = PrepareBatchPayload(timesheetEntries);
     const response = await makeBatchCall({ body: batchPayload });
-    console.log(response);
+    console.log("response", response);
   };
 
   const handleYes = () => {
@@ -941,6 +956,7 @@ const Home = () => {
     handleDelete,
     isParent: false,
     dateWiseData,
+    status,
   });
 
   const handleRejected = (hasNote) => {
@@ -961,7 +977,12 @@ const Home = () => {
   const transformToWeeklyRows = (response) => {
     const results = response?.results; // Extract the top-level results array
     const weekRows = []; // Array to store the transformed weekly data
-
+    let weeklyStatus = {
+      Rejected: 0,
+      Approved: 0,
+      Draft: 0,
+      SubmitForApproval: 0,
+    };
     // results.forEach((dayData, dayIndex) => {
     // here i is consider as row data
     for (let i = 0; i < results?.length; i++) {
@@ -1011,16 +1032,26 @@ const Home = () => {
             [`${dayKey}Counter`]: entry?.Counter,
             [`${dayKey}timeEntryOperation`]: "U",
             [`${dayKey}AllowRelease`]: entry?.AllowRelease,
-            [`${dayKey}STATUS`]: entry?.Status
+            [`${dayKey}STATUS`]: entry?.Status,
           };
         } else {
           weekRow[dayKey] = hours.toFixed(2);
           weekRow[`${dayKey}Counter`] = entry?.Counter;
           weekRow[`${dayKey}timeEntryOperation`] = "U";
           weekRow[`${dayKey}AllowRelease`] = entry?.AllowRelease;
-          weekRow[`${dayKey}STATUS`]= entry?.Status
+          weekRow[`${dayKey}STATUS`] = entry?.Status;
         }
         weekRows[j] = weekRow;
+        // all status check
+        if (entry?.Status === "40") {
+          weeklyStatus.Rejected = weeklyStatus.Rejected + 1;
+        } else if (entry?.Status === "30") {
+          weeklyStatus.Approved = weeklyStatus.Approved + 1;
+        } else if (entry?.Status === "20") {
+          weeklyStatus.SubmitForApproval = weeklyStatus.SubmitForApproval + 1;
+        } else {
+          weeklyStatus.Draft = weeklyStatus.Draft + 1;
+        }
       }
     }
     // Array of time entries for the day
@@ -1048,6 +1079,18 @@ const Home = () => {
       ).toFixed(2);
     });
 
+    // overall status check
+    if (weeklyStatus.Rejected > 0) {
+      dispatch(setStatus("Rejected"));
+    } else if (weeklyStatus.Approved > 0) {
+      dispatch(setStatus("Approved"));
+    } else if (weeklyStatus.SubmitForApproval > 0) {
+      dispatch(setStatus("SubmitForApproval"));
+    } else if (weeklyStatus.Draft > 0) {
+      dispatch(setStatus("Draft"));
+    } else {
+      dispatch(setStatus("New"));
+    }
     return weekRows;
   };
 
@@ -1430,6 +1473,7 @@ const Home = () => {
           Timesheet saved successfully.
         </Alert>
       </Snackbar>
+      <BusyDialog open={batchCallLoading} />
     </>
   );
 };

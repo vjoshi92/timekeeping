@@ -1,15 +1,19 @@
-import React from "react";
 import { Backdrop, CircularProgress } from "@mui/material";
+import React from "react";
 
-const BusyLoader = (props) => {
+const BusyDialog = ({ open, setOpen }) => {
+  const handleClose = () => {
+    setOpen(false);
+  };
   return (
     <Backdrop
-      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      open={props.open}
+      sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+      open={open}
+      onClick={handleClose}
     >
-      <CircularProgress title="Please wait..." />
+      <CircularProgress color="inherit" />
     </Backdrop>
   );
 };
 
-export default BusyLoader;
+export default BusyDialog;
