@@ -156,10 +156,24 @@ export const RowsDataColumns = ({
     setModalOpen(true);
     setActiveInputId(inputId);
     if (row[`day${i}Notes`]) {
+      const notes = [];
+      const noteStrings = row[`day${i}Notes`].split(";");
+      noteStrings.forEach((note) => {
+        const noteIntenalArray = note.split(",");
+        const tempNote = {
+          id: Math.random(),
+          content: noteIntenalArray[0],
+          date: noteIntenalArray[1],
+          time: noteIntenalArray[2],
+          username: noteIntenalArray[3],
+        };
+        notes.push(tempNote);
+      });
+
       setRowObject({
         row: row,
         index: i,
-        notes: [{ id: Math.random(), content: row[`day${i}Notes`] }],
+        notes: notes,
       });
     } else {
       setRowObject({
@@ -329,7 +343,16 @@ export const RowsDataColumns = ({
                 size="small"
                 onClick={() => openNotesPopup(inputId, row, i)}
               >
-                <TextSnippetOutlined sx={{ fontWeight: "400", color: row[`day${i}Notes`] !== "" ? "#ed6a15" : "grey", }} />
+                <TextSnippetOutlined
+                  sx={{
+                    fontWeight: "400",
+                    color:
+                      row[`day${i}Notes`] !== "" &&
+                      row[`day${i}Notes`] !== undefined
+                        ? "#ed6a15"
+                        : "grey",
+                  }}
+                />
                 {/* {row[`day${i}STATUS`] === "40" ? (
                   <TextSnippetIcon sx={{ fontWeight: "400" }} />
                 ) : (

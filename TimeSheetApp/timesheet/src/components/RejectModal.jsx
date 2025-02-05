@@ -14,11 +14,20 @@ import CloseIcon from "@mui/icons-material/Close";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 // import { MuiInput } from './MuiInput';
 // import { ModalBox, NotesTypography, StyledDrawerDivider, ModalStyledTypography } from './StyledComponents';
-import { formatFullDateString, formatFullTimeString } from "utils/AppUtil";
+import {
+  formatFullDateString,
+  formatFullTimeString,
+  PrepareBatchPayload,
+} from "utils/AppUtil";
 import { addNotes } from "store/slice/TimesheetSlice";
 import MuiInput from "./MuiInput";
 import styled from "@emotion/styled";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  useGetUserDataQuery,
+  useMakeBatchCallMutation,
+} from "api/timesheetApi";
+import BusyDialog from "./BusyLoader";
 
 const ModalBox = styled(Box)(({ theme }) => ({
   position: "absolute",
@@ -66,184 +75,228 @@ const RejectModal = ({
 }) => {
   const [newNote, setNewNote] = React.useState("");
   const dispatch = useDispatch();
+  const { data: userData } = useGetUserDataQuery();
   // use notes from props
   // const notes = useSelector((state) => state?.CreateForm?.notes);
-  console.log("Notes", rowObject?.notes);
+  console.log("rowObject", rowObject);
+  const [
+    makeBatchCall,
+    {
+      isSuccess: batchCallIsSuccess,
+      isLoading: batchCallLoading,
+      error: batchCallIsError,
+    },
+  ] = useMakeBatchCallMutation();
 
-  const saveNote = () => {
-
+  const saveNote = async () => {
+    const oPayload = prepareNoteSavePayload(newNote);
+    const obatchPayload = PrepareBatchPayload([oPayload]);
+    const response = await makeBatchCall({ body: obatchPayload });
   };
 
-  const prepareNoteSavePayload = () => {
-
+  const prepareNoteSavePayload = (note) => {
+    const row = rowObject?.row;
+    const index = rowObject?.index;
+    const date = formatFullDateString(new Date());
+    const time = formatFullTimeString(new Date());
+    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+    const noteString = `${note},${date},${time},${userName};`;
+    const temp = {
+      __metadata: {
+        type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+      },
+      TimeEntryDataFields: {
+        __metadata: {
+          type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+        },
+        CATSHOURS: row[`day${index}`],
+        PERNR: userData?.results[0].EmployeeNumber,
+        CATSQUANTITY: row[`day${index}`],
+        LTXA1: "Notes",
+        MEINH: "H",
+        UNIT: "H",
+        WORKDATE: row[`day${index}WORKDATE`],
+        LONGTEXT_DATA: noteString,
+        POSID: row?.level,
+      },
+      Pernr: userData?.results[0].EmployeeNumber,
+      TimeEntryOperation: row[`day${index}timeEntryOperation`] || "C",
+      Counter: row[`day${index}Counter`] || "",
+      AllowRelease: "",
+      RecRowNo: "1",
+    };
+    return temp;
   };
 
-  const addLocalNotes = () => {
-    if (newNote) {
-      dispatch(
-        addNotes({
-          id: Math.random(),
-          content: newNote,
-          date: formatFullDateString(new Date()),
-          time: formatFullTimeString(new Date()),
-          username: "Vijay Joshi",
-        })
-      );
-      if (activeInputId) {
-        setHasNote((prev) => new Set(prev).add(activeInputId));
-      }
-    }
-    setNewNote("");
-  };
+  // const addLocalNotes = () => {
+  //   if (newNote) {
+  //     dispatch(
+  //       addNotes({
+  //         id: Math.random(),
+  //         content: newNote,
+  //         date: formatFullDateString(new Date()),
+  //         time: formatFullTimeString(new Date()),
+  //         username: "Vijay Joshi",
+  //       })
+  //     );
+  //     if (activeInputId) {
+  //       setHasNote((prev) => new Set(prev).add(activeInputId));
+  //     }
+  //   }
+  //   setNewNote("");
+  // };
 
   return (
-    <Modal
-      open={open}
-      // onClose={onClose}
-      aria-labelledby="notes-modal"
-      BackdropProps={{
-        style: {
-          backgroundColor: "rgba(206, 212, 218, 0.2)",
-          opacity: "90%",
-        },
-      }}
-    >
-      <ModalBox
-        sx={{
-          width: {
-            xs: "90%",
-            sm: "80%",
-            md: "60%",
-            lg: "50%",
+    <>
+      <Modal
+        open={open}
+        // onClose={onClose}
+        aria-labelledby="notes-modal"
+        BackdropProps={{
+          style: {
+            backgroundColor: "rgba(206, 212, 218, 0.2)",
+            opacity: "90%",
           },
-          maxWidth: "600px",
-          margin: "auto",
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          padding: {
-            xs: 2,
-            sm: 3,
-            md: 4,
-          },
-          overflowY: "auto",
-          maxHeight: "90vh",
-          borderRadius: "8px",
         }}
       >
-        <Stack
-          direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-        >
-          <NotesTypography variant="h6" component="h2">
-            Notes and Rejection Reasons
-          </NotesTypography>
-          <IconButton
-            onClick={onClose}
-            sx={{
-              right: 2,
-              top: 0,
-              color: "#000",
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </Stack>
-        <StyledDrawerDivider />
-
-        <Box
+        <ModalBox
           sx={{
-            mb: 3,
-            height: "15rem",
+            width: {
+              xs: "90%",
+              sm: "80%",
+              md: "60%",
+              lg: "50%",
+            },
+            maxWidth: "600px",
+            margin: "auto",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            padding: {
+              xs: 2,
+              sm: 3,
+              md: 4,
+            },
             overflowY: "auto",
-            padding: "1rem",
+            maxHeight: "90vh",
+            borderRadius: "8px",
           }}
         >
-          <List>
-            {rowObject?.notes?.map((note, index) => (
-              <ListItem
-                key={index}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  backgroundColor: "#fff",
-                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
-                  borderRadius: "8px",
-                  paddingLeft: "10px",
-                  mb: 1,
-                }}
-              >
-                {note?.rejected && (
-                  <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                    <WarningAmberIcon color="error" />
-                    <Typography
-                      fontSize={"1rem"}
-                      fontWeight={"600"}
-                      color="error"
-                    >
-                      REJECTED
-                    </Typography>
-                  </Stack>
-                )}
-                <Typography sx={{ fontSize: "1rem", fontWeight: "600" }}>
-                  {note?.content}
-                </Typography>
-                <Typography sx={{ fontSize: "0.875rem", color: "gray" }}>
-                  {note?.date}&nbsp;{note?.time}&nbsp;{note?.username}
-                </Typography>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-        <Box>
-          <ModalStyledTypography>Add New Note</ModalStyledTypography>
+          <Stack
+            direction={"row"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+          >
+            <NotesTypography variant="h6" component="h2">
+              Notes and Rejection Reasons
+            </NotesTypography>
+            <IconButton
+              onClick={onClose}
+              sx={{
+                right: 2,
+                top: 0,
+                color: "#000",
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          <StyledDrawerDivider />
+
           <Box
             sx={{
-              display: "flex",
-              flexDirection: {
-                xs: "column",
-                sm: "row",
-              },
-              alignItems: "center",
-              gap: 2,
+              mb: 3,
+              height: "15rem",
+              overflowY: "auto",
+              padding: "1rem",
             }}
           >
-            <MuiInput
-              multiline={true}
-              onChange={(value) => setNewNote(value)}
-              value={newNote}
-              rows={2}
-              disabled={false}
-              sx={{
-                width: {
-                  xs: "100% !important",
-                  sm: "80% !important",
-                },
-                verticalAlign: "unset",
-                backgroundColor: "#FFFFFF",
-              }}
-            />
-            <Button
-              variant="contained"
-              sx={{
-                height: "40px",
-                width: {
-                  xs: "100%",
-                  sm: "120px",
-                },
-                backgroundColor: "#ED6A15",
-              }}
-              onClick={addLocalNotes}
-            >
-              Save
-            </Button>
+            <List>
+              {rowObject?.notes?.map((note, index) => (
+                <ListItem
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    backgroundColor: "#fff",
+                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
+                    borderRadius: "8px",
+                    paddingLeft: "10px",
+                    mb: 1,
+                  }}
+                >
+                  {note?.rejected && (
+                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                      <WarningAmberIcon color="error" />
+                      <Typography
+                        fontSize={"1rem"}
+                        fontWeight={"600"}
+                        color="error"
+                      >
+                        REJECTED
+                      </Typography>
+                    </Stack>
+                  )}
+                  <Typography sx={{ fontSize: "1rem", fontWeight: "600" }}>
+                    {note?.content}
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.875rem", color: "gray" }}>
+                    {note?.date}&nbsp;{note?.time}&nbsp;{note?.username}
+                  </Typography>
+                </ListItem>
+              ))}
+            </List>
           </Box>
-        </Box>
-      </ModalBox>
-    </Modal>
+          <Box>
+            <ModalStyledTypography>Add New Note</ModalStyledTypography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: {
+                  xs: "column",
+                  sm: "row",
+                },
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <MuiInput
+                multiline={true}
+                onChange={(value) => setNewNote(value)}
+                value={newNote}
+                rows={2}
+                disabled={false}
+                sx={{
+                  width: {
+                    xs: "100% !important",
+                    sm: "80% !important",
+                  },
+                  verticalAlign: "unset",
+                  backgroundColor: "#FFFFFF",
+                }}
+              />
+              <Button
+                variant="contained"
+                sx={{
+                  height: "40px",
+                  width: {
+                    xs: "100%",
+                    sm: "120px",
+                  },
+                  backgroundColor: "#ED6A15",
+                }}
+                onClick={saveNote}
+              >
+                Save
+              </Button>
+            </Box>
+          </Box>
+        </ModalBox>
+      </Modal>
+      <BusyDialog open={batchCallLoading} />
+    </>
   );
 };
 

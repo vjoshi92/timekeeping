@@ -565,6 +565,7 @@ const Home = () => {
   const [isCurrentWeek, setIsCurrentWeek] = useState(true);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [deleteMsgOpen, setDeleteMsgOpen] = useState(false);
   const [productTime, setProductTime] = useState([]);
   const [disableToggel, setDisableToggel] = useState(false);
   const location = useLocation();
@@ -574,7 +575,7 @@ const Home = () => {
   const currentWeekStart = startOfCurrentWeek.format("DD");
   const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
   const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
-  const [batchCallType, setBatchCallType] = useState("save");
+  const [batchCallType, setBatchCallType] = useState("");
   const [
     makeBatchCall,
     {
@@ -598,9 +599,12 @@ const Home = () => {
     if (batchCallIsSuccess) {
       if (batchCallType == "approve") {
         setIsTimesheetCreated(true);
-      } else {
+      } else if (batchCallType == "save") {
         setSnackbarOpen(true);
+      } else {
+        setDeleteMsgOpen(true);
       }
+      getTimesheetDataWeekWise();
     }
   }, [batchCallLoading]);
 
@@ -649,7 +653,7 @@ const Home = () => {
 
   const handelSaveNote = () => {
     setOpenApproval(false);
-    
+
     let aCount = approvalCount + 1;
     dispatch(setApprovalCount(aCount));
     if (approvalCount >= 0) {
@@ -817,6 +821,57 @@ const Home = () => {
     return entries;
   };
 
+  const prepareDeleteEntryPayload = (rowId) => {
+    const entry = projectedData.find((item) => item?.id == rowId);
+    let entries = [];
+    let startDate = new Date();
+    if (selectedDate && selectedDate.length && selectedDate.length > 0) {
+      const dates = selectedDate.split(" - ");
+      startDate = dates[0];
+    } else {
+      startDate = getWeekStartDate();
+    }
+
+    for (let i = 0; i < 7; i++) {
+      const currentDate = dayjs(startDate).add(i, "day");
+      const payloadDate = getODataFormatDate(currentDate.$d);
+      if (
+        entry[`day${i}`] &&
+        (parseFloat(entry[`day${i}`]) > 0 ||
+          parseFloat(entry[`day${i}Counter`]) !== "")
+      ) {
+        const temp = {
+          __metadata: {
+            type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+          },
+          TimeEntryDataFields: {
+            __metadata: {
+              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+            },
+            CATSHOURS: entry[`day${i}`],
+            PERNR: userData?.results[0].EmployeeNumber,
+            CATSQUANTITY: entry[`day${i}`],
+            LTXA1: "",
+            MEINH: "H",
+            UNIT: "H",
+            WORKDATE: payloadDate,
+            LONGTEXT_DATA: "",
+            POSID: entry?.level,
+          },
+          Pernr: userData?.results[0].EmployeeNumber,
+          TimeEntryOperation: "D",
+          Counter: entry[`day${i}Counter`] || "",
+          Status: entry[`day${i}STATUS`],
+          AllowRelease: "",
+          RecRowNo: parseFloat(i + 1).toString(),
+        };
+        entries.push(temp);
+      }
+    }
+
+    return entries;
+  };
+
   const handleSaveTime = async (type) => {
     const currentTime = new Date();
     setLastSavedTime(currentTime);
@@ -938,8 +993,12 @@ const Home = () => {
     }
   };
 
-  const handleDelete = (rowId) => {
-    dispatch(deleteProjectDataById(rowId));
+  const handleDelete = async (rowId) => {
+    // delete function
+    setBatchCallType("delete");
+    const timesheetEntries = prepareDeleteEntryPayload(rowId);
+    const batchPayload = PrepareBatchPayload(timesheetEntries);
+    const response = await makeBatchCall({ body: batchPayload });
   };
 
   const AllDaysColumns = DaysColumns({
@@ -1007,14 +1066,13 @@ const Home = () => {
         if (!weekRow) {
           weekRow = {
             weekTotal: "0.00",
-            project: entry?.TimeEntryDataFields?.CPR_EXTID,
+            project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
-            title: entry?.TimeEntryDataFields?.POSID,
+            title: entry?.TimeEntryDataFields?.POST1,
             id: Math.random(),
             hierarchy: [
-              // entry?.TimeEntryDataFields?.CPR_EXTID,
-              entry?.TimeEntryDataFields?.POSID,
-              Math.random(),
+              entry?.TimeEntryDataFields?.PSPID_DESC,
+              entry?.TimeEntryDataFields?.POST1,
             ],
             day0: "0.00",
             day1: "0.00",
@@ -1034,7 +1092,9 @@ const Home = () => {
             [`${dayKey}timeEntryOperation`]: "U",
             [`${dayKey}AllowRelease`]: entry?.AllowRelease,
             [`${dayKey}STATUS`]: entry?.Status,
-            [`${dayKey}Notes`]: entry?.TimeEntryDataFields?.LTXA1,
+            [`${dayKey}Notes`]: entry?.TimeEntryDataFields?.LONGTEXT_DATA,
+            [`${dayKey}RecRowNo`]: entry?.RecRowNo,
+            [`${dayKey}WORKDATE`]: entry?.TimeEntryDataFields?.WORKDATE,
           };
         } else {
           weekRow[dayKey] = hours.toFixed(2);
@@ -1042,7 +1102,9 @@ const Home = () => {
           weekRow[`${dayKey}timeEntryOperation`] = "U";
           weekRow[`${dayKey}AllowRelease`] = entry?.AllowRelease;
           weekRow[`${dayKey}STATUS`] = entry?.Status;
-          weekRow[`${dayKey}Notes`]= entry?.TimeEntryDataFields?.LTXA1;
+          weekRow[`${dayKey}Notes`] = entry?.TimeEntryDataFields?.LONGTEXT_DATA;
+          weekRow[`${dayKey}RecRowNo`] = entry?.RecRowNo;
+          weekRow[`${dayKey}WORKDATE`] = entry?.TimeEntryDataFields?.WORKDATE;
         }
         weekRows[j] = weekRow;
         // all status check
@@ -1163,7 +1225,7 @@ const Home = () => {
     navigate("/addRows");
   };
 
-  useEffect(() => {
+  const getTimesheetDataWeekWise = () => {
     if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
       const dates = selectedDate.split(" - ");
       const sDate = new Date(dates[0]);
@@ -1174,6 +1236,12 @@ const Home = () => {
         startDate: formattedStartDate,
         endDate: formattedEndDate,
       });
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
+      getTimesheetDataWeekWise();
     }
   }, [selectedDate]);
 
@@ -1474,6 +1542,20 @@ const Home = () => {
           sx={{ width: "100%" }}
         >
           Timesheet saved successfully.
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={deleteMsgOpen}
+        autoHideDuration={3000}
+        onClose={() => setDeleteMsgOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setDeleteMsgOpen(false)}
+          severity={"warning"}
+          sx={{ width: "100%" }}
+        >
+          Timesheet deleted.
         </Alert>
       </Snackbar>
       <BusyDialog open={batchCallLoading || timeSheetDataFetching} />
