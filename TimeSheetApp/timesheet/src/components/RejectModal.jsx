@@ -62,10 +62,21 @@ const RejectModal = ({
   isRejected,
   setHasNote,
   activeInputId,
+  rowObject,
 }) => {
   const [newNote, setNewNote] = React.useState("");
   const dispatch = useDispatch();
-  const notes = useSelector((state) => state?.CreateForm?.notes);
+  // use notes from props
+  // const notes = useSelector((state) => state?.CreateForm?.notes);
+  console.log("Notes", rowObject?.notes);
+
+  const saveNote = () => {
+
+  };
+
+  const prepareNoteSavePayload = () => {
+
+  };
 
   const addLocalNotes = () => {
     if (newNote) {
@@ -151,7 +162,7 @@ const RejectModal = ({
           }}
         >
           <List>
-            {notes?.map((note, index) => (
+            {rowObject?.notes?.map((note, index) => (
               <ListItem
                 key={index}
                 sx={{

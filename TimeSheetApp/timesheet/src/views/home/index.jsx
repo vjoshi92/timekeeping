@@ -597,6 +597,7 @@ const Home = () => {
   useEffect(() => {
     if (batchCallIsSuccess) {
       if (batchCallType == "approve") {
+        setIsTimesheetCreated(true);
       } else {
         setSnackbarOpen(true);
       }
@@ -648,7 +649,7 @@ const Home = () => {
 
   const handelSaveNote = () => {
     setOpenApproval(false);
-    setIsTimesheetCreated(true);
+    
     let aCount = approvalCount + 1;
     dispatch(setApprovalCount(aCount));
     if (approvalCount >= 0) {
@@ -1033,6 +1034,7 @@ const Home = () => {
             [`${dayKey}timeEntryOperation`]: "U",
             [`${dayKey}AllowRelease`]: entry?.AllowRelease,
             [`${dayKey}STATUS`]: entry?.Status,
+            [`${dayKey}Notes`]: entry?.TimeEntryDataFields?.LTXA1,
           };
         } else {
           weekRow[dayKey] = hours.toFixed(2);
@@ -1040,6 +1042,7 @@ const Home = () => {
           weekRow[`${dayKey}timeEntryOperation`] = "U";
           weekRow[`${dayKey}AllowRelease`] = entry?.AllowRelease;
           weekRow[`${dayKey}STATUS`] = entry?.Status;
+          weekRow[`${dayKey}Notes`]= entry?.TimeEntryDataFields?.LTXA1;
         }
         weekRows[j] = weekRow;
         // all status check
@@ -1085,7 +1088,7 @@ const Home = () => {
     } else if (weeklyStatus.Approved > 0) {
       dispatch(setStatus("Approved"));
     } else if (weeklyStatus.SubmitForApproval > 0) {
-      dispatch(setStatus("SubmitForApproval"));
+      dispatch(setStatus("Pending For Approval"));
     } else if (weeklyStatus.Draft > 0) {
       dispatch(setStatus("Draft"));
     } else {
@@ -1473,7 +1476,7 @@ const Home = () => {
           Timesheet saved successfully.
         </Alert>
       </Snackbar>
-      <BusyDialog open={batchCallLoading} />
+      <BusyDialog open={batchCallLoading || timeSheetDataFetching} />
     </>
   );
 };
