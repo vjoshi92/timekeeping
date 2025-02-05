@@ -24,6 +24,7 @@ import DecimalInput from "./DecimalInput";
 import { useSelector } from "react-redux";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import RejectModal from "./RejectModal";
+import ChangeEntry from "./ChangeEntry";
 
 const HeaderStyledBox = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -140,6 +141,7 @@ export const RowsDataColumns = ({
   status,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [openChangeEntry, setOpenChangeEntry] = useState(false);
   const [activeInputId, setActiveInputId] = useState(null);
   const [rowObject, setRowObject] = useState({});
   const [hasNote, setHasNote] = useState(new Set());
@@ -184,12 +186,27 @@ export const RowsDataColumns = ({
     }
   };
 
+  const openChangePopup = (inputId, row, i, value) => {
+    setActiveInputId(inputId);
+    setRowObject({
+      row: row,
+      index: i,
+      value: value,
+    });
+    setOpenChangeEntry(true);
+  };
+
   const handleSaveNotes = () => {
     setModalOpen(false);
   };
   const handleCloseModal = () => {
     setModalOpen(false);
   };
+
+  const handleCloseEntryModal = () => {
+    setOpenChangeEntry(false);
+  };
+
   const getWeekDays = () => {
     let startDate;
     if (Array?.isArray(selectedDate) && selectedDate?.length === 0) {
@@ -316,6 +333,30 @@ export const RowsDataColumns = ({
                     {params?.value}
                   </Typography>
                 </Box>
+              ) : row[`day${i}STATUS`] === "40" ? (
+                <Box
+                  component="div"
+                  sx={{
+                    width: "87% !important",
+                    verticalAlign: "unset",
+                    backgroundColor: "#ef0c0c30",
+                    border: `1px solid #FF0000`,
+                    borderRadius: "4px",
+                    padding: "0.5rem",
+                    cursor: "pointer",
+                    height: "1.2rem",
+                    "&:hover": {
+                      borderColor: "#FF0000",
+                    },
+                  }}
+                  onClick={() => {
+                    openChangePopup(inputId, row, i, params?.value);
+                  }}
+                >
+                  <Typography color="#797b79 !important">
+                    {params?.value}
+                  </Typography>
+                </Box>
               ) : (
                 <DecimalInput
                   onChange={(value) =>
@@ -369,6 +410,12 @@ export const RowsDataColumns = ({
                 onClose={handleCloseModal}
                 activeInputId={activeInputId}
                 setHasNote={setHasNote}
+                rowObject={rowObject}
+              />
+              <ChangeEntry
+                open={openChangeEntry}
+                handleClose={handleCloseEntryModal}
+                activeInputId={activeInputId}
                 rowObject={rowObject}
               />
             </InputStyleBox>
