@@ -557,6 +557,9 @@ const Home = () => {
     (state) => state?.CreateForm?.approvalCount
   );
 
+  const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+  const currentWeekStart = startOfCurrentWeek.format("DD");
+
   const [open, setOpen] = React.useState(false);
   const [approvalMsg, setApprovalMsg] = useState();
   const [openApproval, setOpenApproval] = React.useState(false);
@@ -571,10 +574,6 @@ const Home = () => {
   const location = useLocation();
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
-  const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
-  const currentWeekStart = startOfCurrentWeek.format("DD");
-  const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
-  const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
   const [batchCallType, setBatchCallType] = useState("");
   const [
     makeBatchCall,
@@ -609,19 +608,13 @@ const Home = () => {
   }, [batchCallLoading]);
 
   const handleApproval = () => {
-    if (approvalCount == 0) {
-      if (!isCurrentWeek) {
-        setApprovalMsg(
-          "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
-        );
-      } else {
-        setApprovalMsg(
-          "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
-        );
-      }
-    } else {
+    if (status !== "New" && status !== "Draft") {
       setApprovalMsg(
         "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
+      );
+    } else {
+      setApprovalMsg(
+        "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
       );
     }
     setOpenApproval(true);
@@ -772,6 +765,16 @@ const Home = () => {
     dispatch(setNewRowAdded(false));
   };
 
+  useEffect(() => {
+    if(selectedDate){
+      const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+      const currentWeekStart = startOfCurrentWeek.format("DD");
+      const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
+      const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
+      dispatch(setDateRange(formattedDateRange));
+    }   
+  }, []);
+
   const prepareTimesheetPayload = (type) => {
     const timesheetEntries = projectedData.filter(
       (item) => item?.totalRow !== true
@@ -838,7 +841,8 @@ const Home = () => {
       if (
         entry[`day${i}`] &&
         (parseFloat(entry[`day${i}`]) > 0 ||
-          parseFloat(entry[`day${i}Counter`]) !== "")
+          (entry[`day${i}Counter`] &&
+            parseFloat(entry[`day${i}Counter`]) !== ""))
       ) {
         const temp = {
           __metadata: {
@@ -1057,11 +1061,18 @@ const Home = () => {
         // const dayOfWeek = workDate.getDay(); // Get day of the week (0 = Sunday, 6 = Saturday)
         const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
         const dayKey = `day${i}`;
-        let weekRow = weekRows[j];
-        // let rowExist = weekRows.filter(x => x.title === entry?.TimeEntryDataFields?.POSID);
-        // if(rowExist && rowExist.length && rowExist.length > 0){
-        //   weekRow = rowExist[0];
-        // }
+        let weekRow;
+        let rowIndex;
+        let rowExist = weekRows.filter(
+          (x) => x.level === entry?.TimeEntryDataFields?.POSID
+        );
+        if (rowExist && rowExist.length && rowExist.length > 0) {
+          weekRow = rowExist[0];
+          rowIndex = weekRows.indexOf(weekRow);
+        } else {
+          weekRow = weekRows[j];
+          rowIndex = j;
+        }
         // Update the hours for the correct day of the week
         if (!weekRow) {
           weekRow = {
@@ -1106,7 +1117,7 @@ const Home = () => {
           weekRow[`${dayKey}RecRowNo`] = entry?.RecRowNo;
           weekRow[`${dayKey}WORKDATE`] = entry?.TimeEntryDataFields?.WORKDATE;
         }
-        weekRows[j] = weekRow;
+        weekRows[rowIndex] = weekRow;
         // all status check
         if (entry?.Status === "40") {
           weeklyStatus.Rejected = weeklyStatus.Rejected + 1;
@@ -1276,9 +1287,10 @@ const Home = () => {
               </ToggleButton>
             </StyledToggleButtonGroup>
             <StyledDateTypography>
-              {Array.isArray(selectedDate) && selectedDate.length === 0
+              {selectedDate}
+              {/* {Array.isArray(selectedDate) && selectedDate.length === 0
                 ? formattedDateRange
-                : selectedDate || formattedDateRange}
+                : selectedDate || formattedDateRange} */}
             </StyledDateTypography>
           </Stack>
           {/* <StyledDateTypography> */}
@@ -1347,7 +1359,7 @@ const Home = () => {
         </Stack>
       </StyledStack>
       <Footer>
-        <SaveTimeButton size="medium" onClick={handleSaveTime}>
+        <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
           <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
         </SaveTimeButton>
 

@@ -63,7 +63,7 @@ const groupingColDef = {
             customStepper()
           }
         >
-          <Typography fontSize={"0.9rem"}>{params.row.level}</Typography>
+          <Typography mt={"0.3rem"} fontSize={"0.9rem"}>{params.row.level}</Typography>
         </CustomPopover>
         <Typography fontWeight={700}>{params.row.title}</Typography>
       </Stack>

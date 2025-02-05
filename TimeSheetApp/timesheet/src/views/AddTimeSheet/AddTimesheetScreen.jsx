@@ -139,9 +139,10 @@ const AddRowsScreen = () => {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const dispatch = useDispatch();
   const [selectedLevels, setSelectedLevels] = useState({
-    project: null,
-    levelOne: null,
-    levelOneTitle: null,
+    project: '',    
+    levelOne: '',
+    levelOneTitle: '',
+    projectDesc: ''
   });
   const [levels, setLevels] = useState([]);
   const navigate = useNavigate();
@@ -199,9 +200,9 @@ const AddRowsScreen = () => {
           day5: "0.00",
           day6: "0.00",
           weekTotal: "0.00",
-          project: "Total",
+          project: "",
           level: "Total",
-          title: "Total",
+          title: "",
           id: Math.random(),
           hierarchy: ["Total"],
           totalRow: true,
@@ -248,7 +249,10 @@ const AddRowsScreen = () => {
       setLevels(filteredLevels);
       setSelectedLevels((prevLevels) => ({
         ...prevLevels,
-        [level]: value?.value,
+        [level]: value?.label,   
+        projectDesc: value?.value,
+        levelOne: '',
+        levelOneTitle: '',
       }));
     } else {
       setSelectedLevels((prevLevels) => ({
@@ -303,7 +307,7 @@ const AddRowsScreen = () => {
             value: option?.PSPID,
           }))}
           onChange={(event, value) => handleChange("project", value)}
-          value={selectedLevels.project || "--"}
+          value={`${selectedLevels.project} - ${selectedLevels.projectDesc}`}
         />
       </StyledFormControl>
 
@@ -357,7 +361,7 @@ const AddRowsScreen = () => {
         </Alert>
       </Snackbar>
       <Snackbar
-        open={addProjectOpen}
+        open={false}
         autoHideDuration={3000}
         onClose={handleProjectClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

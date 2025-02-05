@@ -100,7 +100,11 @@ const RejectModal = ({
     const date = formatFullDateString(new Date());
     const time = formatFullTimeString(new Date());
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
-    const noteString = `${note},${date},${time},${userName};`;
+    const prevNote = row[`day${index}Notes`];
+    let noteString = `${note},${date},${time},${userName}\n`;
+    if(prevNote){
+      noteString = prevNote + "\n" + noteString;
+    }
     const temp = {
       __metadata: {
         type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
@@ -112,7 +116,8 @@ const RejectModal = ({
         CATSHOURS: row[`day${index}`],
         PERNR: userData?.results[0].EmployeeNumber,
         CATSQUANTITY: row[`day${index}`],
-        LTXA1: "Notes",
+        LTXA1: noteString.substring(0,40),
+        "LONGTEXT": "X",
         MEINH: "H",
         UNIT: "H",
         WORKDATE: row[`day${index}WORKDATE`],

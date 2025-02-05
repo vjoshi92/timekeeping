@@ -159,7 +159,7 @@ export const RowsDataColumns = ({
     setActiveInputId(inputId);
     if (row[`day${i}Notes`]) {
       const notes = [];
-      const noteStrings = row[`day${i}Notes`].split(";");
+      const noteStrings = row[`day${i}Notes`].split("\n");
       noteStrings.forEach((note) => {
         const noteIntenalArray = note.split(",");
         const tempNote = {

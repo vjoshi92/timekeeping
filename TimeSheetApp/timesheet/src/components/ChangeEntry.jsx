@@ -105,13 +105,14 @@ const ChangeEntry = ({
   activeInputId,
   rowObject,
 }) => {
-  const [hours, setHours] = useState(rowObject?.value);
-  const [changeReason, setChangeReason] = useState("");
   const dispatch = useDispatch();
   const { data: userData } = useGetUserDataQuery();
 
+  const [hours, setHours] = useState();
+  const [changeReason, setChangeReason] = useState("");
+
   useEffect(() => {
-    setHours(rowObject?.value);
+    setHours();
   }, [activeInputId]);
   // use notes from props
   // const notes = useSelector((state) => state?.CreateForm?.notes);
@@ -143,7 +144,12 @@ const ChangeEntry = ({
     const date = formatFullDateString(new Date());
     const time = formatFullTimeString(new Date());
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
-    const noteString = `${note},${date},${time},${userName};`;
+    // const noteString = `${note},${date},${time},${userName};`;
+    const prevNote = row[`day${index}Notes`];
+    let noteString = `${note},${date},${time},${userName}\n`;
+    if (prevNote) {
+      noteString = prevNote + "\n" + noteString;
+    }
     const temp = {
       __metadata: {
         type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
@@ -155,8 +161,9 @@ const ChangeEntry = ({
         CATSHOURS: hours,
         PERNR: userData?.results[0].EmployeeNumber,
         CATSQUANTITY: hours,
-        LTXA1: "Notes",
+        LTXA1: noteString.substring(0, 40),
         MEINH: "H",
+        LONGTEXT: "X",
         UNIT: "H",
         WORKDATE: row[`day${index}WORKDATE`],
         LONGTEXT_DATA: noteString,
@@ -210,9 +217,33 @@ const ChangeEntry = ({
               justifyContent={"space-between"}
               sx={{ width: "100%" }}
             >
+              <Box sx={{ width: "100%" }} direction={"row"}>
+                <Typography sx={{ fontWeight: "600" }}>Prev. Hours</Typography>
+                <Box
+                  component="div"
+                  sx={{
+                    verticalAlign: "unset",
+                    // backgroundColor: "#ef0c0c30"
+                    border: `1px solid grey`,
+                    borderRadius: "4px",
+                    height: "1.2rem",
+                    marginTop: "2px",
+                    height: "30px",
+                    padding: "5px",
+                    lineHeight: "1",
+                  }}
+                >
+                  <Typography color="#797b79 !important">
+                    {rowObject?.value}
+                  </Typography>
+                </Box>
+              </Box>
               <Box sx={{ width: "100%" }}>
-                <Typography sx={{ fontWeight: "600" }}>Hours</Typography>
+                <Typography sx={{ fontWeight: "600", marginTop: "20px" }}>
+                  New Hours
+                </Typography>
                 <DecimalInput
+                  disabled={false}
                   onChange={(value) => setHours(value)}
                   sx={{
                     width: "100%",
@@ -225,7 +256,9 @@ const ChangeEntry = ({
                 />
               </Box>
               <Box sx={{ width: "100%", marginTop: "2%" }}>
-                <Typography sx={{ fontWeight: "600" }}>Reason</Typography>
+                <Typography sx={{ fontWeight: "600", marginTop: "20px" }}>
+                  Reason
+                </Typography>
                 <MuiInput
                   rows={1}
                   multiline={true}
