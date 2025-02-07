@@ -8,6 +8,10 @@ import {
   ListItem,
   ListItemText,
   Modal,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
   styled,
   TextField,
   Typography,
@@ -25,6 +29,7 @@ import { useSelector } from "react-redux";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import RejectModal from "./RejectModal";
 import ChangeEntry from "./ChangeEntry";
+import CustomPopover from "./CustomPopover";
 
 const HeaderStyledBox = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -133,6 +138,24 @@ const notes = [
   },
 ];
 
+const steps = [
+  {
+    label: "JMA NOFO 2 O-RU",
+  },
+  {
+    label: "1.4 / Phase 2",
+  },
+  {
+    label: "1.4.10 / AT&T RU [XR35TWV4/ACT-O] C-Band 4x30W (Ph2)",
+  },
+  {
+    label: "1.4.10.2 / Design Implementation (Second Run)",
+  },
+  {
+    label: "1.4.10.2.1 / Mechanical Design",
+  },
+];
+
 export const RowsDataColumns = ({
   handleInputChange,
   handleDelete,
@@ -148,6 +171,17 @@ export const RowsDataColumns = ({
   const totalValue = useSelector((state) => state?.CreateForm?.totals);
 
   // console.log("totalvalue", totalValue)
+  const customStepper = () => {
+    return (
+      <Stepper orientation="vertical" activeStep={-1}>
+        {steps.map((step, index) => (
+          <Step key={step.label}>
+            <StepLabel>{step.label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+    );
+  };
 
   const handleCopyModal = (inputId) => {
     setModalOpen(true);
@@ -231,7 +265,7 @@ export const RowsDataColumns = ({
         field: `day${i}`,
         headerName: currentDate?.format("ddd"),
         flex: 1,
-        minWidth: 100,
+        minWidth: 120,
         borderBottom: "5px solid black",
         headerClassName: isToday ? "highlight-column" : "",
         renderHeader: () => (
@@ -428,6 +462,34 @@ export const RowsDataColumns = ({
 
   const weekDayColumns = getWeekDays();
   const columns = [
+    {
+      field: "project",
+      headerName: "Project",
+      flex: 1,
+      minWidth: 180,
+      renderCell: (params) => (
+        <Typography mt={"1rem"} fontWeight={700}>
+          {params.value}
+        </Typography>
+      ),
+    },
+    {
+      field: "title",
+      headerName: "WBS",
+      flex: 1,
+      minWidth: 180,
+      renderCell: (params) => (
+        <Stack>
+          {/* <Tooltip title={params.row.level}></Tooltip> */}
+          <CustomPopover content={customStepper()}>
+            <Typography mt={"0.3rem"} fontSize={"0.9rem"}>
+              {params.row.level}
+            </Typography>
+          </CustomPopover>
+          <Typography fontWeight={700}>{params.row.title}</Typography>
+        </Stack>
+      ),
+    },
     ...weekDayColumns,
     {
       field: "weekTotal",

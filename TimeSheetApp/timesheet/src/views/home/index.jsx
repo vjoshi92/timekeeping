@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Accordion,
+  AccordionSummary,
   Alert,
   Backdrop,
   Box,
@@ -15,6 +17,8 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "@emotion/styled";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -766,13 +770,13 @@ const Home = () => {
   };
 
   useEffect(() => {
-    if(selectedDate){
+    if (selectedDate) {
       const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
       const currentWeekStart = startOfCurrentWeek.format("DD");
       const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
       const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
       dispatch(setDateRange(formattedDateRange));
-    }   
+    }
   }, []);
 
   const prepareTimesheetPayload = (type) => {
@@ -1081,10 +1085,10 @@ const Home = () => {
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
             id: Math.random(),
-            hierarchy: [
-              entry?.TimeEntryDataFields?.PSPID_DESC,
-              entry?.TimeEntryDataFields?.POST1,
-            ],
+            // hierarchy: [
+            //   entry?.TimeEntryDataFields?.PSPID_DESC,
+            //   entry?.TimeEntryDataFields?.POST1,
+            // ],
             day0: "0.00",
             day1: "0.00",
             day2: "0.00",
@@ -1092,9 +1096,6 @@ const Home = () => {
             day4: "0.00",
             day5: "0.00",
             day6: "0.00",
-            // not used anymore.. just commented for reference
-            // counter: entry?.Counter,
-            // timeEntryOperation: "U",
           };
           weekRow = {
             ...weekRow,
@@ -1214,6 +1215,10 @@ const Home = () => {
       if (!newRow) {
         const responseData = dateWiseData;
         let transformedData = transformToWeeklyRows(responseData);
+        const projectArray = transformedData.map( x => x.project);
+        // projectArray.forEach(project => {
+        //   const 
+        // });
         transformedData = addTotalRow(transformedData);
         console.log("transformedData>>>>>>>", transformedData);
         // setProductTime(transformedData);
@@ -1351,11 +1356,32 @@ const Home = () => {
           </Stack>
         </StyledStackButton>
         <Stack mt={2} mb={10}>
-          <TreeGrid
-            columns={AllRowsColumns}
-            density={"standard"}
-            data={projectedData}
-          />
+        <TreeGrid
+                  columns={AllRowsColumns}
+                  density={"standard"}
+                  data={projectedData}
+                />
+          {/* {projectedData.map((item) => {
+            const filterProjects = projectedData.filter(
+              (x) => x.project === item.project
+            );
+            return (
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                >
+                  <Typography>{item.project}</Typography>
+                </AccordionSummary>
+                <TreeGrid
+                  columns={AllRowsColumns}
+                  density={"standard"}
+                  data={filterProjects}
+                />
+              </Accordion>
+            );
+          })} */}
         </Stack>
       </StyledStack>
       <Footer>
