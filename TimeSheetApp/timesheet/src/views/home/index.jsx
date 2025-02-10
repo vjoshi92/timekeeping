@@ -1248,6 +1248,7 @@ const Home = () => {
       getTimesheetEntry({
         startDate: formattedStartDate,
         endDate: formattedEndDate,
+        pernr: userData?.results[0].EmployeeNumber
       });
     }
   };
@@ -1256,7 +1257,7 @@ const Home = () => {
     if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
       getTimesheetDataWeekWise();
     }
-  }, [selectedDate]);
+  }, [selectedDate,userData?.results[0].EmployeeNumber]);
 
   return (
     <>

@@ -48,8 +48,8 @@ export const TimesheetApi = createApi({
       invalidatesTags: ["Get_Timesheet"],
     }),
     getDateWiseDetails: builder.query({
-      query: ({ startDate, endDate }) => {
-        const URL = `HCMFAB_TIMESHEET_MAINT_SRV/WorkCalendarCollection?$expand=TimeEntries&$filter=StartDate eq datetime'${startDate}' and EndDate eq datetime'${endDate}' and Pernr eq '09000993' and ProfileId eq 'ZJMA1'&$format=json`;
+      query: ({ startDate, endDate, pernr }) => {
+        const URL = `HCMFAB_TIMESHEET_MAINT_SRV/WorkCalendarCollection?$expand=TimeEntries&$filter=StartDate eq datetime'${startDate}' and EndDate eq datetime'${endDate}' and Pernr eq '${pernr}' and ProfileId eq 'ZJMA1'&$format=json`;
 
         return {
           url: URL,
