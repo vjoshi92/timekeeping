@@ -60,12 +60,9 @@ import {
 } from "utils/AppUtil";
 import {
   useGetUserDataQuery,
+  useLazyGetDateWiseDetailsQuery,
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
-import {
-  useGetDateWiseDetailsQuery,
-  useLazyGetDateWiseDetailsQuery,
-} from "api/timesheetDashboardApi";
 import BusyDialog from "components/BusyLoader";
 
 const style = {
@@ -770,7 +767,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    if (selectedDate) {
+    if (selectedDate == "") {
       const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
       const currentWeekStart = startOfCurrentWeek.format("DD");
       const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
@@ -1085,10 +1082,10 @@ const Home = () => {
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
             id: Math.random(),
-            // hierarchy: [
-            //   entry?.TimeEntryDataFields?.PSPID_DESC,
-            //   entry?.TimeEntryDataFields?.POST1,
-            // ],
+            hierarchy: [
+              entry?.TimeEntryDataFields?.PSPID_DESC,
+              entry?.TimeEntryDataFields?.POST1,
+            ],
             day0: "0.00",
             day1: "0.00",
             day2: "0.00",
