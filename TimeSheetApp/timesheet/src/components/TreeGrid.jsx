@@ -123,13 +123,13 @@ export default function TreeGrid({ columns, density, data }) {
   return (
     <div style={{ height: 450, width: "100%" }}>
       <DataGridPro
-        // treeData
+        treeData
         rows={data}
         columns={columns}
         hideFooter
         density={density || "compact"}
         apiRef={useGridApiRef()}
-        // getTreeDataPath={getTreeDataPath}
+        getTreeDataPath={getTreeDataPath}
         groupingColDef={groupingColDef}
         sx={customStyles}
         getRowClassName={getRowClassName}

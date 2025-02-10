@@ -14,7 +14,7 @@ export const HomeSlice = createSlice({
     firstSearchRecord: 0,
     userDetails: [],
     selectedCards: null,
-    daterange: [] // This is where the date range should be stored
+    daterange: "" // This is where the date range should be stored
   },
   reducers: {
     addTodo: (state, action) => {

@@ -462,34 +462,34 @@ export const RowsDataColumns = ({
 
   const weekDayColumns = getWeekDays();
   const columns = [
-    {
-      field: "project",
-      headerName: "Project",
-      flex: 1,
-      minWidth: 180,
-      renderCell: (params) => (
-        <Typography mt={"1rem"} fontWeight={700}>
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      field: "title",
-      headerName: "WBS",
-      flex: 1,
-      minWidth: 180,
-      renderCell: (params) => (
-        <Stack>
-          {/* <Tooltip title={params.row.level}></Tooltip> */}
-          <CustomPopover content={customStepper()}>
-            <Typography mt={"0.3rem"} fontSize={"0.9rem"}>
-              {params.row.level}
-            </Typography>
-          </CustomPopover>
-          <Typography fontWeight={700}>{params.row.title}</Typography>
-        </Stack>
-      ),
-    },
+    // {
+    //   field: "project",
+    //   headerName: "Project",
+    //   flex: 1,
+    //   minWidth: 180,
+    //   renderCell: (params) => (
+    //     <Typography mt={"1rem"} fontWeight={700}>
+    //       {params.value}
+    //     </Typography>
+    //   ),
+    // },
+    // {
+    //   field: "title",
+    //   headerName: "WBS",
+    //   flex: 1,
+    //   minWidth: 180,
+    //   renderCell: (params) => (
+    //     <Stack>
+    //       {/* <Tooltip title={params.row.level}></Tooltip> */}
+    //       <CustomPopover content={customStepper()}>
+    //         <Typography mt={"0.3rem"} fontSize={"0.9rem"}>
+    //           {params.row.level}
+    //         </Typography>
+    //       </CustomPopover>
+    //       <Typography fontWeight={700}>{params.row.title}</Typography>
+    //     </Stack>
+    //   ),
+    // },
     ...weekDayColumns,
     {
       field: "weekTotal",

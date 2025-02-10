@@ -92,6 +92,7 @@ const RejectModal = ({
     const oPayload = prepareNoteSavePayload(newNote);
     const obatchPayload = PrepareBatchPayload([oPayload]);
     const response = await makeBatchCall({ body: obatchPayload });
+    onClose();
   };
 
   const prepareNoteSavePayload = (note) => {
