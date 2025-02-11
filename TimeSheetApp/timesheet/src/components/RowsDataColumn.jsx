@@ -32,11 +32,11 @@ import ChangeEntry from "./ChangeEntry";
 import CustomPopover from "./CustomPopover";
 
 const HeaderStyledBox = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    // justifyContent: 'space-between',
-    // height: '100%',
-    width: "100%",
+  display: "flex",
+  flexDirection: "column",
+  // justifyContent: 'space-between',
+  // height: '100%',
+  width: "100%",
 }));
 
 const StyledDrawerDivider = styled(Divider)({
@@ -82,20 +82,20 @@ const IconButtonStyle = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 const InputStyleBox = styled(Box)(({ theme }) => ({
-    width: '100%',
-    // height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    "& .css-m72fcg-MuiFormControl-root-MuiTextField-root": {
-        width: '87% !important',
-    },
-    "& .MuiDataGrid-root": {
-        fontWeight: "700",
-        fontSize: "16px",
-
-        border: "none",
-    },
+  width: "100%",
+  height: '100%',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  // paddingTop: "0.3rem",
+  "& .css-m72fcg-MuiFormControl-root-MuiTextField-root": {
+    width: "87% !important",
+  },
+  "& .MuiDataGrid-root": {
+    fontWeight: "700",
+    fontSize: "16px",
+    border: "none",
+  },
 }));
 
 const ModalBox = styled(Box)(({ theme }) => ({

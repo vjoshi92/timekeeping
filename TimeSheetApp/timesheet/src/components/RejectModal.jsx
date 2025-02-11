@@ -76,6 +76,7 @@ const RejectModal = ({
   const [newNote, setNewNote] = React.useState("");
   const dispatch = useDispatch();
   const { data: userData } = useGetUserDataQuery();
+  const status = useSelector((state) => state?.CreateForm?.status);
   // use notes from props
   // const notes = useSelector((state) => state?.CreateForm?.notes);
   console.log("rowObject", rowObject);
@@ -103,7 +104,7 @@ const RejectModal = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
     let noteString = `${note},${date},${time},${userName}\n`;
-    if(prevNote){
+    if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
     const temp = {
@@ -117,8 +118,8 @@ const RejectModal = ({
         CATSHOURS: row[`day${index}`],
         PERNR: userData?.results[0].EmployeeNumber,
         CATSQUANTITY: row[`day${index}`],
-        LTXA1: noteString.substring(0,40),
-        "LONGTEXT": "X",
+        LTXA1: noteString.substring(0, 40),
+        LONGTEXT: "X",
         MEINH: "H",
         UNIT: "H",
         WORKDATE: row[`day${index}WORKDATE`],
@@ -294,6 +295,7 @@ const RejectModal = ({
                   backgroundColor: "#ED6A15",
                 }}
                 onClick={saveNote}
+                disabled={status === "Approved"}
               >
                 Save
               </Button>

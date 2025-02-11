@@ -61,7 +61,7 @@ const groupingColDef = {
       <Stack ml={"1rem"}>
         <CustomPopover content={customStepper()}>
           <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
-            <Typography fontSize={"0.9rem"} sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", }}>
+            <Typography mt={"0.2rem"} fontSize={"0.9rem"} sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", }}>
               {params.row.level}
             </Typography>
           </Tooltip>
@@ -123,11 +123,11 @@ LicenseInfo.setLicenseKey(
 
 export default function TreeGrid({ columns, density, data }) {
   return (
-    <Box sx={{ height: "500px", width: "100%", border: "none" }}>
+    <Box sx={{ height: "60vh", width: "100%", border: "none" }}>
       <DataGridPro
         treeData
         rows={data}
-        columns={modifiedColumns}
+        columns={columns}
         hideFooter
         density={density || "compact"}
         apiRef={useGridApiRef()}

@@ -27,7 +27,7 @@ import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeil
 import { useNavigate, useParams } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import dayjs from "dayjs";
 import { DaysColumns } from "components/CurrentWeekColumns";
 import { RowsDataColumns } from "components/RowsDataColumn";
@@ -38,10 +38,25 @@ import { useLocation } from "react-router-dom";
 import { ReviewColumns } from "components/ReviewColumns";
 import { ArrowBackIosNew } from "@mui/icons-material";
 import { setDateRange } from "store/slice/HomeSlice";
-import { setProjectData } from "store/slice/TimesheetSlice";
+import { setProjectData, setStatus } from "store/slice/TimesheetSlice";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Dropdown from "components/Dropdown";
-import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
+import {
+  formatDate,
+  getODataFormatDate,
+  getWeekStartDate,
+  odataGetDateFormat,
+  PrepareApprovalBatchPayload,
+  PrepareBatchPayload,
+  StatusCaseFormatting,
+  StatusColorFormatter,
+} from "utils/AppUtil";
+import {
+  useGetUserDataQuery,
+  useLazyGetDateWiseDetailsQuery,
+  useMakeApprovalBatchCallMutation,
+  useMakeBatchCallMutation,
+} from "api/timesheetApi";
 const style = {
   position: "absolute",
   top: "50%",
@@ -152,7 +167,7 @@ const ReworkButton = styled(Button)(({ theme }) => ({
 }));
 const ApproveButton = styled(Button)(({ theme }) => ({
   height: "42px",
-  backgroundColor: "#41af6e"
+  backgroundColor: "#41af6e",
 }));
 
 const ButtonStack = styled(Box)(({ theme }) => ({
@@ -413,23 +428,64 @@ const dummyReviewData = [
   },
 ];
 
+const ProjectData = [
+  { id: 1, title: "Incorrect Time Entry" },
+  { id: 2, title: "Incorrect Charge Code" },
+  { id: 3, title: "Other" },
+];
+
+const rows = [
+  { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
+];
+
 const ReviewScreen = () => {
   const { state } = useLocation();
   const { data } = state || {};
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
   const selectedDate = useSelector((state) => state?.home?.daterange);
+  const newRow = useSelector((state) => state?.CreateForm?.newRow);
   const [open, setOpen] = React.useState(false);
   const [openApproval, setOpenApproval] = React.useState(false);
   const [actionMsg, setActionMsg] = useState("");
   const [openRejection, setOpenRejection] = React.useState(false);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
-  const [removeRejection, handleRemoveRejection] = useState()
+  const [removeRejection, handleRemoveRejection] = useState();
+  const [saveTimeClick, setSaveTimeClick] = useState(false);
   const [showRelese, setShowRelease] = useState(false);
-  const [newStatus, setNewStatus] = useState("")
-  const handleOpen = () => setOpen(true);
+  const [newStatus, setNewStatus] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackBarMsg, setSnackBarMsg] = useState("");
+  const navigate = useNavigate();
+  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
+  const dispatch = useDispatch();
+  const { isReviewer } = useParams();
+  const [selectedReason, setSelectedReason] = useState(""); // Add this new state
+  // API methods
+  const [
+    getTimesheetEntry,
+    {
+      data: dateWiseData,
+      isSuccess: dateWiseDataSuccessful,
+      isFetching: timeSheetDataFetching,
+    },
+  ] = useLazyGetDateWiseDetailsQuery();
+  const { data: userData } = useGetUserDataQuery();
 
-  console.log("data", data)
+  const [
+    makeBatchCall,
+    {
+      isSuccess: batchCallIsSuccess,
+      isLoading: batchCallLoading,
+      error: batchCallIsError,
+    },
+  ] = useMakeApprovalBatchCallMutation();
+
+  const handleRejection = () => setOpenRejection(true);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const handleApprovalClose = () => setOpenRejection(false);
+
   const handleApproval = (type) => {
     if (type == "reject") {
       setActionMsg("Are you sure you want to reject this timesheet?");
@@ -438,57 +494,35 @@ const ReviewScreen = () => {
     } else if (type == "approve") {
       setActionMsg("Are you sure you want to approve this timesheet?");
     } else {
-      setNewStatus("Pending for Approval")
+      setNewStatus("Pending for Approval");
     }
     setOpenApproval(true);
   };
-  const handleRejection = () => setOpenRejection(true);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackBarMsg, setSnackBarMsg] = useState("");
 
-  const handelSaveNote = () => {
+  const handleYesPress = () => {
     setOpenApproval(false);
-    setSnackbarOpen(true);
+
     if (actionMsg.indexOf("approve") >= 0) {
-      setSnackBarMsg("Timesheet Approved !!");
-      setShowRelease(true);
-      setNewStatus("Approved")
+      handleApprove();
+      // setSnackBarMsg("Timesheet Approved !!");
+      // setShowRelease(true);
+      // setNewStatus("Approved");
     } else if (actionMsg.indexOf("reject") >= 0) {
       setSnackBarMsg("Timesheet Reject !!");
-      setNewStatus("Rejected")
+      setNewStatus("Rejected");
       setShowRelease(true);
+      setSnackbarOpen(true);
     } else {
       setSnackBarMsg("Timesheet Released !!");
       // setNewStatus("Release")
-      setNewStatus("Pending for Approval")
+      setNewStatus("Pending for Approval");
+      setSnackbarOpen(true);
     }
-
-    // navigate(-1);
   };
-  const handleClose = () => setOpen(false);
-  const handleApprovalClose = () => setOpenRejection(false);
-  const navigate = useNavigate();
-  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
-  const [currentDateRange, setCurrentDateRange] = useState(
-    selectedDate || formattedDateRange
-  );
-  const dispatch = useDispatch();
-  const { isReviewer } = useParams();
-  const [selectedReason, setSelectedReason] = useState(""); // Add this new state
-
-  const ProjectData = [
-    { id: 1, title: "Incorrect Time Entry" },
-    { id: 2, title: "Incorrect Charge Code" },
-    { id: 3, title: "Other" },
-  ];
 
   const handleReasonChange = (event, value) => {
     setSelectedReason(value);
   };
-
-  if (!data) {
-    return <div>No data available</div>;
-  }
 
   const handleAlignment = (event, newAlignment) => {
     setAlignment(newAlignment);
@@ -550,12 +584,14 @@ const ReviewScreen = () => {
     navigate("/addRows");
   };
 
-  const handleApprove = () => { };
+  const handleApprove = async () => {
+    const timesheetEntries = prepareApprovalPayload();
+    const batchPayload = PrepareApprovalBatchPayload(timesheetEntries);
+    const response = await makeBatchCall({ body: batchPayload });
+    console.log("Approve response", response);
+  };
 
-  const handleReject = () => { };
-  const rows = [
-    { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
-  ];
+  const handleReject = () => {};
 
   const handleInputChange = (field, value, rowId) => {
     let tempRows = [...rows];
@@ -572,20 +608,6 @@ const ReviewScreen = () => {
     dispatch(setProjectData(tempRows));
     // updateCount(tempRows);
   };
-
-  const AllDaysColumns = DaysColumns({
-    rows,
-    selectedDate,
-    handleInputChange,
-    handleDelete,
-  });
-  const AllRowsColumns = RowsDataColumns({
-    rows,
-    selectedDate,
-    handleInputChange,
-    handleDelete,
-    isParent: false,
-  });
 
   const handleRejected = (hasNote) => {
     if (hasNote && hasNote?.size !== 0) {
@@ -604,44 +626,313 @@ const ReviewScreen = () => {
     handleRejected,
   });
 
-  const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
-  const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
-  const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
+  useEffect(() => {
+    if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
+      getTimesheetDataWeekWise();
+    }
+  }, [selectedDate, userData?.results[0].EmployeeNumber]);
+
+  useEffect(() => {
+    if (dateWiseDataSuccessful && dateWiseData) {
+      if (!newRow) {
+        const responseData = dateWiseData;
+        let transformedData = transformToWeeklyRows(responseData);
+        // const projectArray = transformedData.map((x) => x.project);
+        // projectArray.forEach(project => {
+        //   const
+        // });
+        transformedData = addTotalRow(transformedData);
+        console.log("transformedData>>>>>>>", transformedData);
+        // setProductTime(transformedData);
+        dispatch(setProjectData(transformedData));
+      }
+    }
+  }, [timeSheetDataFetching]);
+
+  useEffect(() => {
+    if (batchCallIsSuccess) {
+      if (actionMsg.indexOf("approve") >= 0) {
+        setSnackBarMsg("Timesheet Approved !!");
+        setShowRelease(true);
+        setNewStatus("Approved");
+      }
+    }
+  }, [batchCallLoading]);
+
+  useEffect(() => {
+    if (selectedDate == "") {
+      const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+      const currentWeekStart = startOfCurrentWeek.format("DD");
+      const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
+      const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
+      dispatch(setDateRange(formattedDateRange));
+    }
+  }, []);
+
+  // const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+  // const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
+  // const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
+
+  const getTimesheetDataWeekWise = () => {
+    if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
+      const dates = selectedDate.split(" - ");
+      const sDate = new Date(dates[0]);
+      const eDate = new Date(dates[1]);
+      const formattedStartDate = getODataFormatDate(sDate);
+      const formattedEndDate = getODataFormatDate(eDate);
+      getTimesheetEntry({
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        pernr: userData?.results[0].EmployeeNumber,
+      });
+    }
+  };
+
+  const addTotalRow = (transformedData) => {
+    let totalsRow = {
+      day0: 0,
+      day1: 0,
+      day2: 0,
+      day3: 0,
+      day4: 0,
+      day5: 0,
+      day6: 0,
+      weekTotal: 0,
+      project: "",
+      level: "Total",
+      title: "",
+      id: Math.random(),
+      totalRow: true,
+      hierarchy: ["Total"],
+    };
+
+    let data = [...transformedData];
+    data.forEach((item) => {
+      for (let i = 0; i <= 6; i++) {
+        totalsRow[`day${i}`] += parseFloat(item[`day${i}`] || "0");
+      }
+      totalsRow.weekTotal += parseFloat(item.weekTotal || "0");
+    });
+
+    // Convert totals to string format with 2 decimal places
+    for (let i = 0; i <= 6; i++) {
+      totalsRow[`day${i}`] = totalsRow[`day${i}`].toFixed(2);
+    }
+    totalsRow.weekTotal = totalsRow.weekTotal.toFixed(2);
+
+    // check for enable the button
+    checkForTotalHours(totalsRow);
+    // Add total row to the data array
+    data.push(totalsRow);
+    return data;
+  };
+
+  const checkForTotalHours = (totalRowObj) => {
+    if (
+      totalRowObj &&
+      totalRowObj?.weekTotal &&
+      parseFloat(totalRowObj?.weekTotal) >= 40
+    ) {
+      setSaveTimeClick(true);
+    } else {
+      setSaveTimeClick(false);
+    }
+  };
+
+  const transformToWeeklyRows = (response) => {
+    const results = response?.results; // Extract the top-level results array
+    const weekRows = []; // Array to store the transformed weekly data
+    let weeklyStatus = {
+      Rejected: 0,
+      Approved: 0,
+      Draft: 0,
+      SubmitForApproval: 0,
+    };
+    // results.forEach((dayData, dayIndex) => {
+    // here i is consider as row data
+    for (let i = 0; i < results?.length; i++) {
+      let dayData = results[i];
+      const timeEntries = dayData.TimeEntries.results;
+      // here j is consider as day number
+      for (let j = 0; j < timeEntries?.length; j++) {
+        let entry = timeEntries[j];
+        // const workDate = new Date(
+        //   parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[j], 10)
+        // );
+        // const dayOfWeek = workDate.getDay(); // Get day of the week (0 = Sunday, 6 = Saturday)
+        const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
+        const dayKey = `day${i}`;
+        let weekRow;
+        let rowIndex;
+        let rowExist = weekRows.filter(
+          (x) => x.level === entry?.TimeEntryDataFields?.POSID
+        );
+        if (rowExist && rowExist.length && rowExist.length > 0) {
+          weekRow = rowExist[0];
+          rowIndex = weekRows.indexOf(weekRow);
+        } else {
+          weekRow = weekRows[j];
+          rowIndex = j;
+        }
+        // Update the hours for the correct day of the week
+        if (!weekRow) {
+          weekRow = {
+            weekTotal: "0.00",
+            project: entry?.TimeEntryDataFields?.PSPID_DESC,
+            level: entry?.TimeEntryDataFields?.POSID,
+            title: entry?.TimeEntryDataFields?.POST1,
+            id: Math.random(),
+            hierarchy: [
+              entry?.TimeEntryDataFields?.PSPID_DESC,
+              entry?.TimeEntryDataFields?.POST1,
+            ],
+            day0: "0.00",
+            day1: "0.00",
+            day2: "0.00",
+            day3: "0.00",
+            day4: "0.00",
+            day5: "0.00",
+            day6: "0.00",
+          };
+          weekRow = {
+            ...weekRow,
+            [dayKey]: hours.toFixed(2),
+            [`${dayKey}Counter`]: entry?.Counter,
+            [`${dayKey}timeEntryOperation`]: "U",
+            [`${dayKey}AllowRelease`]: entry?.AllowRelease,
+            [`${dayKey}STATUS`]: entry?.Status,
+            [`${dayKey}Notes`]: entry?.TimeEntryDataFields?.LONGTEXT_DATA,
+            [`${dayKey}RecRowNo`]: entry?.RecRowNo,
+            [`${dayKey}WORKDATE`]: entry?.TimeEntryDataFields?.WORKDATE,
+            [`${dayKey}DateCreate`]: entry?.TimeEntryDataFields?.ERSDA,
+            [`${dayKey}TimeCreate`]: entry?.TimeEntryDataFields?.ERSTM,
+          };
+        } else {
+          weekRow[dayKey] = hours.toFixed(2);
+          weekRow[`${dayKey}Counter`] = entry?.Counter;
+          weekRow[`${dayKey}timeEntryOperation`] = "U";
+          weekRow[`${dayKey}AllowRelease`] = entry?.AllowRelease;
+          weekRow[`${dayKey}STATUS`] = entry?.Status;
+          weekRow[`${dayKey}Notes`] = entry?.TimeEntryDataFields?.LONGTEXT_DATA;
+          weekRow[`${dayKey}RecRowNo`] = entry?.RecRowNo;
+          weekRow[`${dayKey}WORKDATE`] = entry?.TimeEntryDataFields?.WORKDATE;
+          weekRow[`${dayKey}DateCreate`] = entry?.TimeEntryDataFields?.ERSDA;
+          weekRow[`${dayKey}TimeCreate`] = entry?.TimeEntryDataFields?.ERSTM;
+        }
+        weekRows[rowIndex] = weekRow;
+        // all status check
+        if (entry?.Status === "40") {
+          weeklyStatus.Rejected = weeklyStatus.Rejected + 1;
+        } else if (entry?.Status === "30") {
+          weeklyStatus.Approved = weeklyStatus.Approved + 1;
+        } else if (entry?.Status === "20") {
+          weeklyStatus.SubmitForApproval = weeklyStatus.SubmitForApproval + 1;
+        } else {
+          weeklyStatus.Draft = weeklyStatus.Draft + 1;
+        }
+      }
+    }
+    // Calculate total hours for each week row
+    weekRows.forEach((weekRow) => {
+      weekRow.weekTotal = (
+        parseFloat(weekRow.day0) +
+        parseFloat(weekRow.day1) +
+        parseFloat(weekRow.day2) +
+        parseFloat(weekRow.day3) +
+        parseFloat(weekRow.day4) +
+        parseFloat(weekRow.day5) +
+        parseFloat(weekRow.day6)
+      ).toFixed(2);
+    });
+
+    // overall status check
+    if (weeklyStatus.Rejected > 0) {
+      dispatch(setStatus("Rejected"));
+    } else if (weeklyStatus.Approved > 0) {
+      dispatch(setStatus("Approved"));
+    } else if (weeklyStatus.SubmitForApproval > 0) {
+      dispatch(setStatus("Pending For Approval"));
+    } else if (weeklyStatus.Draft > 0) {
+      dispatch(setStatus("Draft"));
+    } else {
+      dispatch(setStatus("New"));
+    }
+    return weekRows;
+  };
+
+  const prepareApprovalPayload = (type) => {
+    const timesheetEntries = projectedData.filter(
+      (item) => item?.totalRow !== true
+    );
+    let entries = [];
+    timesheetEntries.forEach((entry) => {
+      let startDate = new Date();
+      if (selectedDate && selectedDate.length && selectedDate.length > 0) {
+        const dates = selectedDate.split(" - ");
+        startDate = dates[0];
+      } else {
+        startDate = getWeekStartDate();
+      }
+
+      for (let i = 0; i < 7; i++) {
+        const currentDate = dayjs(startDate).add(i, "day");
+        const payloadDate = getODataFormatDate(currentDate.$d);
+        const createDate = entry[`day${i}DateCreate`];
+        const dateCreate = createDate ? odataGetDateFormat(createDate) : "";
+        if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+          const temp = {
+            EmployeeID: userData?.results[0].EmployeeNumber,
+            Counter: entry[`day${i}Counter`] || "",
+            Status: "30",
+            Reason: "",
+            DateCreate: dateCreate,
+            TimeCreate: entry[`day${i}TimeCreate`],
+            __metadata: {
+              type: "HCMFAB_APR_TIMESHEET_SRV.ApprovalDetails",
+            },
+          };
+          entries.push(temp);
+        }
+      }
+    });
+    return entries;
+  };
 
   return (
-    <StyledStack
-      padding={{ xs: 1, sm: 1 }}
-      // height={{ xs: "auto", sm: "90vh", md: "90vh", lg: "90vh" }}
-      paddingX={{ xs: 2, sm: 10 }}
-    >
-      <HeaderBox
-        sx={{
-          flexDirection: { xs: "column", sm: "row" },
-          alignItems: { xs: "flex-start", sm: "center" },
-          gap: { xs: 2, sm: 0 },
-        }}
+    <>
+      <StyledStack
+        padding={{ xs: 1, sm: 1 }}
+        // height={{ xs: "auto", sm: "90vh", md: "90vh", lg: "90vh" }}
+        paddingX={{ xs: 2, sm: 10 }}
       >
-        <Button
+        <HeaderBox
           sx={{
-            marginBottom: { xs: 2, sm: 3 },
-            padding: { xs: 1, sm: 1.5 },
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "flex-start", sm: "center" },
+            gap: { xs: 2, sm: 0 },
           }}
-          startIcon={<ArrowBackIosNewIcon sx={{ color: "#0073E6" }} />}
-          onClick={() => navigate(-1)}
         >
-          <StyledTypography>Back</StyledTypography>
-        </Button>
-        <Button
-          sx={{
-            marginBottom: { xs: 2, sm: 3 },
-            padding: { xs: 1, sm: 1.5 },
-          }}
-          endIcon={<ArrowForwardIosIcon sx={{ color: "#0073E6" }} />}
-          onClick={() => navigate(-1)}
-        >
-          <StyledTypography>NEXT</StyledTypography>
-        </Button>
-        {/* <ArrowBackIosNew
+          <Button
+            sx={{
+              marginBottom: { xs: 2, sm: 3 },
+              padding: { xs: 1, sm: 1.5 },
+            }}
+            startIcon={<ArrowBackIosNewIcon sx={{ color: "#0073E6" }} />}
+            onClick={() => navigate(-1)}
+          >
+            <StyledTypography>Back</StyledTypography>
+          </Button>
+          <Button
+            sx={{
+              marginBottom: { xs: 2, sm: 3 },
+              padding: { xs: 1, sm: 1.5 },
+            }}
+            endIcon={<ArrowForwardIosIcon sx={{ color: "#0073E6" }} />}
+            onClick={() => navigate(-1)}
+          >
+            <StyledTypography>NEXT</StyledTypography>
+          </Button>
+          {/* <ArrowBackIosNew
                     sx={{
                         color: "#005AA6",
                         mb: { xs: 2, sm: 0 },
@@ -651,98 +942,100 @@ const ReviewScreen = () => {
 
                     }
                 /> */}
-        <HeaderStack
-          sx={{
-            flexDirection: { xs: "column", sm: "row" },
-            width: "100%",
-            justifyContent: "flex-end",
-            gap: { xs: 2, sm: 0 },
-          }}
-        >
-          <Stack
-            sx={{
-              padding: { xs: 1, sm: 3 },
-              paddingRight: { xs: 1, sm: 10 },
-              alignItems: { xs: "flex-start", sm: "inherit" },
-            }}
-          >
-            <HeaderTypography>Employee Name</HeaderTypography>
-            <HeaderSubTypography>{data?.employeeName}</HeaderSubTypography>
-          </Stack>
-          <Stack
-            sx={{
-              padding: { xs: 1, sm: 3 },
-              paddingRight: { xs: 1, sm: 10 },
-              alignItems: { xs: "flex-start", sm: "inherit" },
-            }}
-          >
-            <HeaderTypography>Employee ID</HeaderTypography>
-            <HeaderSubTypography>{data?.employeeId}</HeaderSubTypography>
-          </Stack>
-          <Stack
-            sx={{
-              padding: { xs: 1, sm: 3 },
-              paddingRight: { xs: 1, sm: 10 },
-              alignItems: { xs: "flex-start", sm: "inherit" },
-            }}
-          >
-            <HeaderTypography>Status</HeaderTypography>
-            <HeaderSubTypography style={{ color: StatusColorFormatter(newStatus || data?.status) }}>{StatusCaseFormatting(!newStatus ? data?.status : newStatus)}</HeaderSubTypography>
-          </Stack>
-        </HeaderStack>
-      </HeaderBox>
-      <Divider sx={{ marginBottom: "2%" }} />
-      <StyledBox>
-        <MainBox>
-          <SubBox
+          <HeaderStack
             sx={{
               flexDirection: { xs: "column", sm: "row" },
-              alignItems: { xs: "flex-start", sm: "center" },
-              gap: { xs: "10px", sm: "0" },
+              width: "100%",
+              justifyContent: "flex-end",
+              gap: { xs: 2, sm: 0 },
             }}
           >
-            <ToggleButtonGroup
-              value={alignment}
-              exclusive
-              onChange={handleAlignment}
-              aria-label="text alignment"
+            <Stack
+              sx={{
+                padding: { xs: 1, sm: 3 },
+                paddingRight: { xs: 1, sm: 10 },
+                alignItems: { xs: "flex-start", sm: "inherit" },
+              }}
             >
-              <ToggleButton
-                value="left"
-                aria-label="left aligned"
-                onClick={() => handlePreviousWeek()}
+              <HeaderTypography>Employee Name</HeaderTypography>
+              <HeaderSubTypography>{data?.employeeName}</HeaderSubTypography>
+            </Stack>
+            <Stack
+              sx={{
+                padding: { xs: 1, sm: 3 },
+                paddingRight: { xs: 1, sm: 10 },
+                alignItems: { xs: "flex-start", sm: "inherit" },
+              }}
+            >
+              <HeaderTypography>Employee ID</HeaderTypography>
+              <HeaderSubTypography>{data?.employeeId}</HeaderSubTypography>
+            </Stack>
+            <Stack
+              sx={{
+                padding: { xs: 1, sm: 3 },
+                paddingRight: { xs: 1, sm: 10 },
+                alignItems: { xs: "flex-start", sm: "inherit" },
+              }}
+            >
+              <HeaderTypography>Status</HeaderTypography>
+              <HeaderSubTypography
+                style={{
+                  color: StatusColorFormatter(newStatus || data?.status),
+                }}
               >
-                <ArrowBackIcon />
-              </ToggleButton>
-              <ToggleButton
-                value="justify"
-                aria-label="justified"
-                onClick={() => handleNextWeek()}
+                {StatusCaseFormatting(!newStatus ? data?.status : newStatus)}
+              </HeaderSubTypography>
+            </Stack>
+          </HeaderStack>
+        </HeaderBox>
+        <Divider sx={{ marginBottom: "2%" }} />
+        <StyledBox>
+          <MainBox>
+            <SubBox
+              sx={{
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { xs: "flex-start", sm: "center" },
+                gap: { xs: "10px", sm: "0" },
+              }}
+            >
+              <ToggleButtonGroup
+                value={alignment}
+                exclusive
+                onChange={handleAlignment}
+                aria-label="text alignment"
               >
-                <ArrowForwardIcon />
-              </ToggleButton>
-            </ToggleButtonGroup>
+                <ToggleButton
+                  value="left"
+                  aria-label="left aligned"
+                  onClick={() => handlePreviousWeek()}
+                >
+                  <ArrowBackIcon />
+                </ToggleButton>
+                <ToggleButton
+                  value="justify"
+                  aria-label="justified"
+                  onClick={() => handleNextWeek()}
+                >
+                  <ArrowForwardIcon />
+                </ToggleButton>
+              </ToggleButtonGroup>
 
-            <StyledDateTypography>
-              {Array.isArray(selectedDate) && selectedDate.length === 0
-                ? formattedDateRange
-                : selectedDate || formattedDateRange}
-            </StyledDateTypography>
-            <DateRangePickerWithButtonField
-              label={
-                value[0] === null && value[1] === null
-                  ? null
-                  : value
-                    .map((date) =>
-                      date ? date.format("MM/DD/YYYY") : "null"
-                    )
-                    .join(" - ")
-              }
-              value={value}
-              onChange={(newValue) => setValue(newValue)}
-            />
-          </SubBox>
-          {/* <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
+              <StyledDateTypography>{selectedDate}</StyledDateTypography>
+              <DateRangePickerWithButtonField
+                label={
+                  value[0] === null && value[1] === null
+                    ? null
+                    : value
+                        .map((date) =>
+                          date ? date.format("MM/DD/YYYY") : "null"
+                        )
+                        .join(" - ")
+                }
+                value={value}
+                onChange={(newValue) => setValue(newValue)}
+              />
+            </SubBox>
+            {/* <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
                         <StyledButton2 size="small" variant="outlined" boxShadow="5" onClick={handleOpen}>
                             <EditIcon fontSize="small" backgroundColor="#FFFF" sx={{ color: "#ED6A15" }} />
                         </StyledButton2>
@@ -752,89 +1045,66 @@ const ReviewScreen = () => {
                             </StyledCircularBox>
                         </StyledButton2>
                     </Box> */}
-        </MainBox>
-      </StyledBox>
-      <Stack
-        mt={2}
-        mb={4}
-        sx={{
-          width: "100%",
-          overflowX: { xs: "auto", sm: "visible" },
-        }}
-      >
-        {dummyReviewData && Object?.keys(dummyReviewData)?.length > 0 ? (
+          </MainBox>
+        </StyledBox>
+        <Stack
+          mt={2}
+          mb={4}
+          sx={{
+            width: "100%",
+            overflowX: { xs: "auto", sm: "visible" },
+          }}
+        >
           <TreeGrid
             columns={ReviewData}
             density={"standard"}
-            data={dummyReviewData}
+            data={projectedData}
             sx={{
               minWidth: { xs: "800px", sm: "100%" },
             }}
           />
-        ) : (
-          <MuiDataGrid
-            columns={AllDaysColumns}
-            rows={rows}
-            density={"standard"}
+        </Stack>
+        {isReviewer == "true" ? (
+          <ButtonStack
             sx={{
-              minWidth: { xs: "800px", sm: "100%" },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              justifyContent: "flex-start",
+              alignItems: { xs: "stretch", sm: "flex-start" },
+              gap: { xs: "10px", sm: "20px" },
+              width: "100%",
+              marginTop: "1%",
+              marginBottom: "5%",
             }}
-          />
-        )}
-      </Stack>
-      {/* {
-                isReviewer == "true" ? <SaveButton
-                    variant="outlined"
-                    color="error"
-                >
-                    Save
-                </SaveButton> : null
-            } */}
-
-      {isReviewer == "true" ? (
-        <ButtonStack
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "flex-start",
-            alignItems: { xs: "stretch", sm: "flex-start" },
-            gap: { xs: "10px", sm: "20px" },
-            width: "100%",
-            marginTop: "1%",
-            marginBottom: "5%",
-          }}
-        >
-          {/* {showRelese && (
-            <ReworkButton
+          >
+            <RejectButton
+              disabled={!isTimeSheetRejected}
               variant="contained"
-              color="error"
-              onClick={() => handleApproval("release")}
+              color="#DD133F"
+              backgroundColor="#DD133F"
+              sx={{
+                width: { xs: "100%", sm: "200px" },
+                backgroundColor: "#DD133F",
+                color: "#fff",
+              }}
+              onClick={() => handleApproval("reject")}
             >
-              Release Timesheet
-            </ReworkButton>
-          )} */}
-          <RejectButton
-            disabled={!isTimeSheetRejected}
-            variant="contained"
-            color="#DD133F"
-            backgroundColor="#DD133F"
-            sx={{ width: { xs: "100%", sm: "200px" }, backgroundColor: "#DD133F", color: "#fff" }}
-            onClick={() => handleApproval("reject")}
-          >
-            Reject
-          </RejectButton>
-          <ApproveButton
-            disabled={isTimeSheetRejected}
-            variant="contained"
-            color="success"
-            sx={{ width: { xs: "100%", sm: "200px" } }}
-            onClick={() => handleApproval("approve")}
-          >
-            Approve
-          </ApproveButton>
-        </ButtonStack>
-      ) : null}
-
+              Reject
+            </RejectButton>
+            <ApproveButton
+              disabled={isTimeSheetRejected}
+              variant="contained"
+              color="success"
+              sx={{ width: { xs: "100%", sm: "200px" } }}
+              onClick={() => handleApproval("approve")}
+            >
+              Approve
+            </ApproveButton>
+          </ButtonStack>
+        ) : (
+          <></>
+        )}
+      </StyledStack>
       <Modal
         keepMounted
         open={openRejection}
@@ -931,7 +1201,7 @@ const ReviewScreen = () => {
               id="keep-mounted-modal-description"
               sx={{ mt: 2 }}
               size="small"
-              onClick={handelSaveNote}
+              onClick={handleYesPress}
             >
               <SaveNoteTypography>Yes</SaveNoteTypography>
             </SaveNoteButton>
@@ -958,7 +1228,7 @@ const ReviewScreen = () => {
           {snackBarMsg}
         </Alert>
       </Snackbar>
-    </StyledStack>
+    </>
   );
 };
 

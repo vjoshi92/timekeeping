@@ -203,30 +203,6 @@ const ProjectData = [
   { id: 3, title: "Other" },
 ];
 
-// const notes = [
-//   {
-//     id: 1,
-//     content: "Discuss project deadlines and deliverables.",
-//     date: "10/01/2024",
-//     time: "05.30pm",
-//     username: "Jon doe",
-//   },
-//   {
-//     id: 2,
-//     content: "Complete the UI design for the dashboard.",
-//     date: "05/02/2024",
-//     time: "02.30pm",
-//     username: "Paul heyman",
-//   },
-//   {
-//     id: 3,
-//     content: "Submit the monthly report by EOD.",
-//     date: "01/03/2024",
-//     time: "06.30pm",
-//     username: "Alice wok",
-//   },
-// ];
-
 export const ReviewColumns = ({
   handleInputChange,
   handleDelete,

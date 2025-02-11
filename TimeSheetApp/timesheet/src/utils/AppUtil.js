@@ -110,6 +110,32 @@ export const PrepareBatchPayload = (values) => {
   return response;
 };
 
+export const PrepareApprovalBatchPayload = (values) => {
+  let batchPayload = [
+    "--batch",
+    "Content-Type: multipart/mixed; boundary=changeset",
+  ];
+
+  values.forEach((item) => {
+    batchPayload.push(
+      "",
+      "--changeset",
+      "Content-Type: application/http",
+      "Content-Transfer-Encoding: binary",
+      "",
+      "POST ApprovalDetailsSet?sap-client=100 HTTP/1.1",
+      "Content-Type: application/json",
+      "",
+      JSON.stringify(item, null, 2)
+    );
+  });
+
+  batchPayload.push("--changeset--", "", "--batch--");
+  const response = batchPayload.join("\n");
+
+  return response;
+};
+
 export const getWeekStartDate = () => {
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
@@ -130,4 +156,17 @@ export const getODataFormatDate = (dateObj) => {
   } else {
     return dateObj;
   }
+};
+
+export const odataGetDateFormat = (dateString) => {
+  // Extract timestamp from "/Date(1739232000000)/"
+  const timestamp = parseInt(dateString.match(/\d+/)[0], 10);
+
+  // Create a Date object
+  const date = new Date(timestamp);
+
+  // Format to yyyy-MM-ddT00:00:00
+  const formattedDate = getODataFormatDate(date);
+
+  return formattedDate;
 };

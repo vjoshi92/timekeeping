@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "@emotion/styled";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -65,8 +65,6 @@ import {
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
-import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
-import { useGetUserDataQuery } from "api/timesheetApi";
 import { useGetDateWiseDetailsQuery } from "api/timesheetDashboardApi";
 import Search from "components/Search";
 
@@ -620,10 +618,11 @@ const Home = () => {
       } else {
         setDeleteMsgOpen(true);
       }
+      dispatch(setNewRowAdded(false));
       getTimesheetDataWeekWise();
     }
   }, [batchCallLoading]);
- 
+
   // console.log("filteredData", filteredData)
   const handleSearch = (searchQuery) => {
     const filtered = dummyReviewData?.filter(
@@ -635,7 +634,6 @@ const Home = () => {
     // console.log("filtered>>>>>>>>>>>>>", filtered);
     setFilteredData(filtered);
   };
-
 
   // console.log("allTimeData", allTimeData)
 
@@ -664,7 +662,6 @@ const Home = () => {
   //     hierarchy: [productTimeData?.AENAM, productTimeData?.AENAM],
   //   });
   // });
-
 
   //---------------------for showing different  modals on approvals----------------------------------------------
   const handleApproval = () => {
@@ -716,8 +713,6 @@ const Home = () => {
     handleSaveTime("approve");
   };
 
-
-
   console.log(" projectedData>>>>", projectedData);
 
   const formatDateTime = (date) => {
@@ -751,10 +746,16 @@ const Home = () => {
 
   const isSelectedDateGreaterThanCurrent = () => {
     // Return false if selectedDate is null, undefined, or not a string
-    if (!selectedDate || typeof selectedDate !== 'string') return false;
+    if (!selectedDate || typeof selectedDate !== "string") return false;
     try {
-      const selectedStartDate = dayjs(selectedDate.split(' - ')[0], 'DD MMM YYYY');
-      const formattedStartDate = dayjs(formattedDateRange.split(' - ')[0], 'DD MMM YYYY');
+      const selectedStartDate = dayjs(
+        selectedDate.split(" - ")[0],
+        "DD MMM YYYY"
+      );
+      const formattedStartDate = dayjs(
+        selectedDate.split(" - ")[0],
+        "DD MMM YYYY"
+      );
 
       if (!selectedStartDate.isValid() || !formattedStartDate.isValid()) {
         return false;
@@ -762,7 +763,7 @@ const Home = () => {
 
       return selectedStartDate.isAfter(formattedStartDate);
     } catch (error) {
-      console.error('Error parsing dates:', error);
+      console.error("Error parsing dates:", error);
       return false;
     }
   };
@@ -830,16 +831,16 @@ const Home = () => {
     // Validation: Prevent selecting a future week beyond the current date
     if (startOfNextWeek.isAfter(today)) {
       setAlertOpen(true);
-      <Alert severity="warning">This is a warning Alert.</Alert>
+      <Alert severity="warning">This is a warning Alert.</Alert>;
       return;
     }
 
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
     // dispatch(setStatus("Rejected"));
-    if (startOfNextWeek.isSame(currentStartDate, 'day')) {
+    if (startOfNextWeek.isSame(currentStartDate, "day")) {
       setDisableToggel(true);
-      setIsCurrentWeek(true);   
+      setIsCurrentWeek(true);
     } else {
       setIsCurrentWeek(false);
     }
@@ -885,8 +886,8 @@ const Home = () => {
               CATSHOURS: entry[`day${i}`],
               PERNR: userData?.results[0].EmployeeNumber,
               CATSQUANTITY: entry[`day${i}`],
-              LTXA1: entry[`day${i}Notes`]?.substring(0,40),
-              "LONGTEXT": "X",
+              LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
+              LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
               MEINH: "H",
               UNIT: "H",
               WORKDATE: payloadDate,
@@ -997,7 +998,6 @@ const Home = () => {
   ];
 
   //----------------function for handelling the change in input  ---------------------------
-
 
   const handleInputChange = (field, value, rowId) => {
     const rows = [...projectedData];
@@ -1220,18 +1220,6 @@ const Home = () => {
         }
       }
     }
-    // Array of time entries for the day
-
-    // timeEntries.forEach((entry, entryIndex) => {
-    //   // Parse work date
-
-    //   console.log("entry", entry);
-
-    //   // Find or create a row for this entry in weekRows
-    //   let weekRow = weekRows[entryIndex];
-    // });
-    // });
-
     // Calculate total hours for each week row
     weekRows.forEach((weekRow) => {
       weekRow.weekTotal = (
@@ -1304,9 +1292,9 @@ const Home = () => {
       if (!newRow) {
         const responseData = dateWiseData;
         let transformedData = transformToWeeklyRows(responseData);
-        const projectArray = transformedData.map( x => x.project);
+        const projectArray = transformedData.map((x) => x.project);
         // projectArray.forEach(project => {
-        //   const 
+        //   const
         // });
         transformedData = addTotalRow(transformedData);
         console.log("transformedData>>>>>>>", transformedData);
@@ -1340,7 +1328,7 @@ const Home = () => {
       getTimesheetEntry({
         startDate: formattedStartDate,
         endDate: formattedEndDate,
-        pernr: userData?.results[0].EmployeeNumber
+        pernr: userData?.results[0].EmployeeNumber,
       });
     }
   };
@@ -1349,7 +1337,7 @@ const Home = () => {
     if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
       getTimesheetDataWeekWise();
     }
-  }, [selectedDate,userData?.results[0].EmployeeNumber]);
+  }, [selectedDate, userData?.results[0].EmployeeNumber]);
 
   return (
     <>
@@ -1421,23 +1409,24 @@ const Home = () => {
             <Alert
               severity="warning"
               sx={{
-                position: 'absolute',
-                top: '100%',
-                left: '0',
-                right: '0',
+                position: "absolute",
+                top: "100%",
+                left: "0",
+                right: "0",
                 zIndex: 1,
-                marginTop: '8px'
+                marginTop: "8px",
               }}
             >
               You cannot select a date beyond the current week.
             </Alert>
           )}
 
-
-
           <Stack direction={"row"}>
             <Box sx={{ marginRight: "2%" }}>
-              <Search dummyReviewData={dummyReviewData} onSearch={handleSearch} />
+              <Search
+                dummyReviewData={dummyReviewData}
+                onSearch={handleSearch}
+              />
             </Box>
             <StyledButton2
               size="small"
@@ -1454,24 +1443,30 @@ const Home = () => {
             <StyledButton2
               size="small"
               variant="outlined"
+              sx={{ background: status === "Approved" ? "#dee2e6" : "#fff" }}
+              disabled={status === "Approved"}
               onClick={handleSubmit}
             >
-              <StyledCircularBox>
+              <StyledCircularBox
+                sx={{ background: status === "Approved" ? "#dee2e6" : "#fff" }}
+              >
                 <AddIcon
                   fontSize="small"
                   color="#FFFF"
-                  sx={{ color: "#FFFF" }}
+                  sx={{
+                    color: "#FFFF",
+                  }}
                 />
               </StyledCircularBox>
             </StyledButton2>
           </Stack>
         </StyledStackButton>
         <Stack mt={2} mb={10}>
-        <TreeGrid
-                  columns={AllRowsColumns}
-                  density={"standard"}
-                  data={projectedData}
-                />
+          <TreeGrid
+            columns={AllRowsColumns}
+            density={"standard"}
+            data={projectedData}
+          />
           {/* {projectedData.map((item) => {
             const filterProjects = projectedData.filter(
               (x) => x.project === item.project
@@ -1496,27 +1491,31 @@ const Home = () => {
         </Stack>
       </StyledStack>
       <Footer>
-        <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
-          <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
-        </SaveTimeButton>
+        {status !== "Approved" && (
+          <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
+            <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
+          </SaveTimeButton>
+        )}
 
-        <Button
-          onClick={handleApproval}
-          sx={{
-            backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-            padding: "0.4rem",
-            marginBottom: "0.5rem",
-          }}
-          disabled={
-            !(
-              projectedData &&
-              Object?.keys(projectedData)?.length > 0 &&
-              saveTimeClick
-            )
-          }
-        >
-          <StyledFooterText>Submit Week for Approval</StyledFooterText>
-        </Button>
+        {status !== "Approved" && (
+          <Button
+            onClick={handleApproval}
+            sx={{
+              backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+              padding: "0.4rem",
+              marginBottom: "0.5rem",
+            }}
+            disabled={
+              !(
+                projectedData &&
+                Object?.keys(projectedData)?.length > 0 &&
+                saveTimeClick
+              )
+            }
+          >
+            <StyledFooterText>Submit Week for Approval</StyledFooterText>
+          </Button>
+        )}
       </Footer>
       <Modal
         keepMounted
