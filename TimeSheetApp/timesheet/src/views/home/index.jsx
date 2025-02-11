@@ -3,6 +3,7 @@ import {
   Accordion,
   AccordionSummary,
   Alert,
+  Autocomplete,
   Backdrop,
   Box,
   Button,
@@ -64,6 +65,10 @@ import {
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
+import { StatusCaseFormatting, StatusColorFormatter } from "utils/AppUtil";
+import { useGetUserDataQuery } from "api/timesheetApi";
+import { useGetDateWiseDetailsQuery } from "api/timesheetDashboardApi";
+import Search from "components/Search";
 
 const style = {
   position: "absolute",
@@ -147,6 +152,7 @@ const CancelNoteTypography = styled(Typography)(({ theme }) => ({
 
 const StyledStackButton = styled(Stack)(({ theme }) => ({
   direction: "row",
+  height: "34px",
 }));
 
 const ButtonStack = styled(Stack)(({ theme }) => ({
@@ -295,11 +301,12 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
     boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
   },
   "& .MuiToggleButton-root.Mui-selected": {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "white",
     "&:hover": {
-      backgroundColor: "#FFFFFF",
+      // backgroundColor: "#FFFFFF",
+      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     },
-    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
+    // boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     transition: "box-shadow 0.3s ease-in-out",
     "&:hover": {
       boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
@@ -576,6 +583,15 @@ const Home = () => {
   const formattedDefaultRange = location.state?.week || "Default Week Range";
   const handleOpen = () => setOpen(true);
   const [batchCallType, setBatchCallType] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const handleClose = () => setOpen(false);
+  const handleApprovalClose = () => setOpenApproval(false);
+  const navigate = useNavigate();
+  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
+  const [lastSavedTime, setLastSavedTime] = useState(null);
+  const dispatch = useDispatch();
+  const [filteredData, setFilteredData] = useState(dummyReviewData);
+
   const [
     makeBatchCall,
     {
@@ -607,7 +623,50 @@ const Home = () => {
       getTimesheetDataWeekWise();
     }
   }, [batchCallLoading]);
+ 
+  // console.log("filteredData", filteredData)
+  const handleSearch = (searchQuery) => {
+    const filtered = dummyReviewData?.filter(
+      (item) =>
+        item?.level?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+        item?.title?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+        item?.project?.toLowerCase()?.includes(searchQuery.toLowerCase())
+    );
+    // console.log("filtered>>>>>>>>>>>>>", filtered);
+    setFilteredData(filtered);
+  };
 
+
+  // console.log("allTimeData", allTimeData)
+
+  const ProductArray = [];
+
+  // // Convert allTimeData to an array if it's not already
+  // const allTimeDataArray = Array.isArray(allTimeData) ? allTimeData : Array.from(allTimeData || []);
+
+  // allTimeDataArray.map((productTimeData) => {
+
+  //   console.log("productTimeData", productTimeData)
+  //   ProductArray.push({
+  //     day0: productTimeData?.TimeEntryDataFields,
+  //     day1: productTimeData?.TimeEntryDataFields,
+  //     day2: productTimeData?.TimeEntryDataFields,
+  //     day3: productTimeData?.TimeEntryDataFields,
+  //     day4: productTimeData?.TimeEntryDataFields,
+  //     day5: productTimeData?.TimeEntryDataFields,
+  //     day6: productTimeData?.TimeEntryDataFields,
+  //     isReject: true,
+  //     weekTotal: productTimeData?.TimeEntryDataFields,
+  //     project: productTimeData?.AENAM,
+  //     level: productTimeData?.AENAM,
+  //     title: productTimeData?.AENAM,
+  //     id: 1,
+  //     hierarchy: [productTimeData?.AENAM, productTimeData?.AENAM],
+  //   });
+  // });
+
+
+  //---------------------for showing different  modals on approvals----------------------------------------------
   const handleApproval = () => {
     if (status !== "New" && status !== "Draft") {
       setApprovalMsg(
@@ -623,6 +682,7 @@ const Home = () => {
       // dispatch(setStatus("Pending for approval"));
     }
   };
+
   const handlePrevWeekApproval = (approvalCount) => {
     if (approvalCount == 0) {
       if (!isCurrentWeek) {
@@ -656,12 +716,7 @@ const Home = () => {
     handleSaveTime("approve");
   };
 
-  const handleClose = () => setOpen(false);
-  const handleApprovalClose = () => setOpenApproval(false);
-  const navigate = useNavigate();
-  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
-  const [lastSavedTime, setLastSavedTime] = useState(null);
-  const dispatch = useDispatch();
+
 
   console.log(" projectedData>>>>", projectedData);
 
@@ -692,6 +747,27 @@ const Home = () => {
     return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
   };
 
+  //-------------------for checking whether the date is greater than the current date----------------------
+
+  const isSelectedDateGreaterThanCurrent = () => {
+    // Return false if selectedDate is null, undefined, or not a string
+    if (!selectedDate || typeof selectedDate !== 'string') return false;
+    try {
+      const selectedStartDate = dayjs(selectedDate.split(' - ')[0], 'DD MMM YYYY');
+      const formattedStartDate = dayjs(formattedDateRange.split(' - ')[0], 'DD MMM YYYY');
+
+      if (!selectedStartDate.isValid() || !formattedStartDate.isValid()) {
+        return false;
+      }
+
+      return selectedStartDate.isAfter(formattedStartDate);
+    } catch (error) {
+      console.error('Error parsing dates:', error);
+      return false;
+    }
+  };
+
+  //----------------function for handelling the previous week toggle buttons here ---------------------------
   const handlePreviousWeek = () => {
     let currentStartDate;
     if (!selectedDate || selectedDate.length === 0) {
@@ -728,6 +804,8 @@ const Home = () => {
     dispatch(setNewRowAdded(false));
   };
 
+  //----------------function for handelling the next week toggle buttons here ---------------------------
+
   const handleNextWeek = () => {
     let currentStartDate;
     if (!selectedDate || selectedDate.length === 0) {
@@ -744,22 +822,24 @@ const Home = () => {
         currentStartDate = dayjs().startOf("week").add(1, "day");
       }
     }
+
     const startOfNextWeek = currentStartDate.add(7, "day");
-    const nextWeekStart = startOfNextWeek.format("DD");
     const endOfNextWeek = startOfNextWeek.add(6, "day");
+    const today = dayjs(); // Get the current date
+
+    // Validation: Prevent selecting a future week beyond the current date
+    if (startOfNextWeek.isAfter(today)) {
+      setAlertOpen(true);
+      <Alert severity="warning">This is a warning Alert.</Alert>
+      return;
+    }
+
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
     // dispatch(setStatus("Rejected"));
-    if (nextWeekStart == currentWeekStart) {
+    if (startOfNextWeek.isSame(currentStartDate, 'day')) {
       setDisableToggel(true);
-    }
-    if (nextWeekStart == currentWeekStart) {
-      setIsCurrentWeek(true);
-
-      // dispatch(setStatus("New"));
-      if (approvalCount > 0) {
-        // dispatch(setStatus("Pending for approval"));
-      }
+      setIsCurrentWeek(true);   
     } else {
       setIsCurrentWeek(false);
     }
@@ -916,6 +996,9 @@ const Home = () => {
     },
   ];
 
+  //----------------function for handelling the change in input  ---------------------------
+
+
   const handleInputChange = (field, value, rowId) => {
     const rows = [...projectedData];
     let rowObj = rows.find((item) => item.id === rowId);
@@ -943,6 +1026,8 @@ const Home = () => {
     );
     updateTotalRow(field, rowIndex, rowObj);
   };
+
+  //----------------function for handelling the updation of total rows  ---------------------------
 
   const updateTotalRow = (field, rowIndex, rowObj) => {
     const rows = [...projectedData];
@@ -987,6 +1072,8 @@ const Home = () => {
     checkForTotalHours(totalRowObj);
   };
 
+  //-------------- function for checking whether the total hours are greater than 40 or not here-----------------
+
   const checkForTotalHours = (totalRowObj) => {
     if (
       totalRowObj &&
@@ -1015,6 +1102,8 @@ const Home = () => {
     dateWiseData,
   });
 
+  // ---------------------- for handelling the columns and its data in dashboard screen---------------------
+
   const AllRowsColumns = RowsDataColumns({
     rows,
     selectedDate,
@@ -1039,6 +1128,8 @@ const Home = () => {
     }
     setSnackbarOpen(false);
   };
+
+  // ------------ function for converting the rows data into columns here -------------------
 
   const transformToWeeklyRows = (response) => {
     const results = response?.results; // Extract the top-level results array
@@ -1326,7 +1417,28 @@ const Home = () => {
             onChange={(newValue) => setValue(newValue)}
           />
 
+          {isSelectedDateGreaterThanCurrent() && (
+            <Alert
+              severity="warning"
+              sx={{
+                position: 'absolute',
+                top: '100%',
+                left: '0',
+                right: '0',
+                zIndex: 1,
+                marginTop: '8px'
+              }}
+            >
+              You cannot select a date beyond the current week.
+            </Alert>
+          )}
+
+
+
           <Stack direction={"row"}>
+            <Box sx={{ marginRight: "2%" }}>
+              <Search dummyReviewData={dummyReviewData} onSearch={handleSearch} />
+            </Box>
             <StyledButton2
               size="small"
               variant="outlined"
