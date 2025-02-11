@@ -1,0 +1,10 @@
+{
+  "base": "./build",
+  "conn_server": "http://10.79.170.31:8000",
+  "conn_user": "VJOSHI",
+  "conn_password": "India@123",
+  "abap_package": "$TMP",
+  "abap_bsp": "ZTIMEKEEPING",
+  "abap_bsp_text": "Timekeeping Application",
+  "conn_client": "210"
+}
