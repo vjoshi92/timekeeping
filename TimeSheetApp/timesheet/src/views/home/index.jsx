@@ -1451,10 +1451,11 @@ const Home = () => {
                 sx={{ background: status === "Approved" ? "#dee2e6" : "#fff" }}
               >
                 <AddIcon
-                  fontSize="small"
+                  fontSize="small"                  
                   color="#FFFF"
                   sx={{
                     color: "#FFFF",
+                    
                   }}
                 />
               </StyledCircularBox>

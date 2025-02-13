@@ -35,7 +35,7 @@ const DecimalInput = (props) => {
     error,
     rows,
     helperText,
-    multiline,
+    multiline,    
   } = props;
 
   const [text, setText] = useState(value);

@@ -262,6 +262,7 @@ export const RowsDataColumns = ({
       const currentDate = dayjs(startDate).add(i, "day");
       const isToday = currentDate?.isSame(dayjs(), "date");
       const isWeekend = currentDate.day() === 0 || currentDate.day() === 6;
+      const isFutureDay = currentDate?.isAfter(dayjs(), "date");
       // console.log("currentDate>>>>>>>>", currentDate)
       weekDays.push({
         field: `day${i}`,
@@ -399,7 +400,7 @@ export const RowsDataColumns = ({
                     handleInputChange(`day${i}`, value, params?.row?.id)
                   }
                   value={params?.value}
-                  disabled={false}
+                  readOnly={isFutureDay}
                   sx={{
                     width: "80% !important",
                     verticalAlign: "unset",
