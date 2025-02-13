@@ -158,6 +158,24 @@ export const getODataFormatDate = (dateObj) => {
   }
 };
 
+export const getODataFormatDateTime = (dateObj) => {
+  if (dateObj) {
+    const date = dateObj;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    const seco = String(date.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T10:37:32`;
+  } else {
+    return dateObj;
+  }
+};
+
+
 export const odataGetDateFormat = (dateString) => {
   // Extract timestamp from "/Date(1739232000000)/"
   const timestamp = parseInt(dateString.match(/\d+/)[0], 10);
@@ -166,7 +184,7 @@ export const odataGetDateFormat = (dateString) => {
   const date = new Date(timestamp);
 
   // Format to yyyy-MM-ddT00:00:00
-  const formattedDate = getODataFormatDate(date);
+  const formattedDate = getODataFormatDateTime(date);
 
   return formattedDate;
 };
