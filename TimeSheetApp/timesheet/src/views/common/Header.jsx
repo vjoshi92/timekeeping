@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import MenuIcon from "@mui/icons-material/Menu";
 import CapexLogo from "../../img/jma-logo.svg";
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Autocomplete,
@@ -28,7 +28,7 @@ import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 // import { resetForm } from "../../store/slice/CreateFormSlice";
 import MuiDrawer from "components/MuiDrawer";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { setDateRange } from "store/slice/HomeSlice";
@@ -51,12 +51,12 @@ const Search = styled("div")(({ theme }) => ({
 
 const IconBox = styled(Box)({
   display: "flex",
-  justifyContent: "flex-end"
+  justifyContent: "flex-end",
 });
 
 const StyledBox = styled(Box)({
   // marginTop: "10px",
-  padding: "20px"
+  padding: "20px",
 });
 
 const ApprovalStyledBox = styled(Stack)({
@@ -66,7 +66,7 @@ const ApprovalStyledBox = styled(Stack)({
   color: "#FFFFFF",
   cursor: "pointer",
   marginBottom: "0.5rem",
-  marginTop: "0.5rem"
+  marginTop: "0.5rem",
 });
 
 const AllStyledBox = styled(Box)({
@@ -74,7 +74,7 @@ const AllStyledBox = styled(Box)({
   justifyContent: "space-between",
   alignItems: "center",
   color: "#FFFFFF",
-  cursor: "pointer"
+  cursor: "pointer",
 });
 
 const HeadingTypography = styled(Typography)({
@@ -92,14 +92,14 @@ const ApprovalsTypography = styled(Typography)({
 const AllTypography = styled(Typography)({
   fontWeight: "500",
   fontSize: "22px",
-  color: "#FFFFFF"
+  color: "#FFFFFF",
 });
 
 const StyledTypography = styled(Typography)({
   fontWeight: "500",
   fontSize: "16px",
   color: "#BDBDBD",
-  marginBottom: "10px"
+  marginBottom: "10px",
 });
 
 const StyledDivider = styled(Divider)({
@@ -128,7 +128,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 const StyledChip = styled(Chip)(({ theme }) => ({
   backgroundColor: "#ED6A15",
   color: "#fff",
-  marginLeft: "0.4rem"
+  marginLeft: "0.4rem",
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -151,7 +151,7 @@ const TextTypography = styled(Typography)({
   fontWeight: "500",
   fontSize: "16px",
   color: "#BDBDBD",
-  paddingLeft: "15px"
+  paddingLeft: "15px",
 });
 
 export default function Header() {
@@ -160,17 +160,17 @@ export default function Header() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [dataTable, setDataTable] = React.useState([]);
   const [details, setDetails] = React.useState([]);
-  const [drawer, setDrawer] = React.useState(false)
+  const [drawer, setDrawer] = React.useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const params = useParams();
   const isManager = true;
   const { data: userData } = useGetUserDataQuery();
-  const [employeeDatas, setEmployeeDatas] = React.useState([]); // Initialize state as an empty array
+  const [employeeDatas, setEmployeeDatas] = React.useState(""); // Initialize state as an empty array  
 
   React.useEffect(() => {
     if (userData?.results) {
-      const employees = userData.results.map((employee) => employee?.EmployeeName?.FirstName) // Ensure no null/undefined
+      const employees = userData?.results?.[0].EmployeeName?.FormattedName;
       setEmployeeDatas(employees);
     }
   }, [userData]); // Runs when userData changes
@@ -189,22 +189,20 @@ export default function Header() {
     setAnchorElUser(null);
   };
   const handleDrawer = () => {
-    setDrawer(true)
-  }
+    setDrawer(true);
+  };
 
   const handleClose = () => {
-
-    setDrawer(false)
-  }
+    setDrawer(false);
+  };
 
   const handleCurrentWeekClick = () => {
-    const startOfCurrentWeek = dayjs().startOf('week').add(1, 'day');
-    const endOfCurrentWeek = dayjs().endOf('week').add(1, 'day');
-    const formattedDateRange = `${startOfCurrentWeek.format('DD MMM YYYY')} - ${endOfCurrentWeek.format('DD MMM YYYY')}`;
+    const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+    const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
+    const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(formattedDateRange));
-    navigate("/")
+    navigate("/");
     handleClose();
-
   };
 
   const handleMenuItemClick = (setting) => {
@@ -238,8 +236,7 @@ export default function Header() {
   //   );
   // };
   return (
-
-    <StyledAppBar >
+    <StyledAppBar>
       <Toolbar>
         <img
           src={CapexLogo}
@@ -250,7 +247,7 @@ export default function Header() {
             cursor: "pointer",
             marginRight: "10px",
             marginBottom: "10px",
-            width: "4rem"
+            width: "4rem",
           }}
         />
 
@@ -261,7 +258,7 @@ export default function Header() {
           sx={{
             display: { sm: "block" },
             marginX: "12px",
-            marginY: "20px"
+            marginY: "20px",
           }}
         />
 
@@ -276,11 +273,15 @@ export default function Header() {
           CATS 2.0
         </HeadingTypography>
 
-        <IconButton aria-label="delete" sx={{ color: "white", marginRight: "1rem" }} onClick={() => handleDrawer()} >
+        <IconButton
+          aria-label="delete"
+          sx={{ color: "white", marginRight: "1rem" }}
+          onClick={() => handleDrawer()}
+        >
           <MenuIcon fontSize="large" />
         </IconButton>
 
-        <Tooltip title="Open settings">
+        <Tooltip title={employeeDatas}>
           <IconButton
             size="small"
             onClick={handleOpenUserMenu}
@@ -289,10 +290,7 @@ export default function Header() {
               height: { xs: "25px", sm: "30px" },
             }}
           >
-            <Avatar
-              alt={userData?.Fullname}
-              src="/static/images/avatar/2.jpg"
-            />
+            <Avatar>{employeeDatas.substring(0, 1)}</Avatar>
           </IconButton>
         </Tooltip>
         <Menu
@@ -311,76 +309,75 @@ export default function Header() {
           open={Boolean(anchorElUser)}
           onClose={handleCloseUserMenu}
         >
-          <MenuItem
-
-          >
-            Welcome {employeeDatas}
-          </MenuItem>
+          <MenuItem>Welcome {employeeDatas}</MenuItem>
           <MenuItem
           // key={index}
           // onClick={() => handleMenuItemClick(setting)}
           >
             Logout
           </MenuItem>
-
         </Menu>
 
         <MuiDrawer
           open={drawer}
           handleClose={handleClose}
           resizable={true}
-        // minWidth={"720px"}
+          // minWidth={"720px"}
         >
-          <IconBox >
-            <CloseIcon sx={{ cursor: "pointer", marginRight: "10px", color: "#FFFF", marginTop: "10px" }} onClick={() => setDrawer(false)} />
+          <IconBox>
+            <CloseIcon
+              sx={{
+                cursor: "pointer",
+                marginRight: "10px",
+                color: "#FFFF",
+                marginTop: "10px",
+              }}
+              onClick={() => setDrawer(false)}
+            />
           </IconBox>
-          {
-            isManager == true ?
-              <Box sx={{ padding: "20px" }}>
-
-                <StyledTypography >MY TIMESHEETS</StyledTypography>
-                <ApprovalStyledBox direction={"row"}
-                  onClick={handleCurrentWeekClick}
-                >
-                  <ApprovalsTypography >
-                    Current Week
-                  </ApprovalsTypography>
-
-                </ApprovalStyledBox>
-                <AllStyledBox onClick={() => { navigate("/AllTimesheet/false"); handleClose(); }}>
-                  <ApprovalsTypography>
-                    All
-                  </ApprovalsTypography>
-                </AllStyledBox>
-              </Box>
-              : null
-          }
-          <StyledDrawerDivider
-            orientation="horizontal"
-            variant="middle"
-
-          />
-          <StyledBox >
-            <StyledTypography>
-              MY TEAM'S TIMESHEETS
-            </StyledTypography>
-            <ApprovalStyledBox direction={"row"}
-              onClick={() => { navigate("/pendingApprovals"); handleClose(); }}
+          {isManager == true ? (
+            <Box sx={{ padding: "20px" }}>
+              <StyledTypography>MY TIMESHEETS</StyledTypography>
+              <ApprovalStyledBox
+                direction={"row"}
+                onClick={handleCurrentWeekClick}
+              >
+                <ApprovalsTypography>Current Week</ApprovalsTypography>
+              </ApprovalStyledBox>
+              <AllStyledBox
+                onClick={() => {
+                  navigate("/AllTimesheet/false");
+                  handleClose();
+                }}
+              >
+                <ApprovalsTypography>All</ApprovalsTypography>
+              </AllStyledBox>
+            </Box>
+          ) : null}
+          <StyledDrawerDivider orientation="horizontal" variant="middle" />
+          <StyledBox>
+            <StyledTypography>MY TEAM'S TIMESHEETS</StyledTypography>
+            <ApprovalStyledBox
+              direction={"row"}
+              onClick={() => {
+                navigate("/pendingApprovals");
+                handleClose();
+              }}
             >
-              <ApprovalsTypography >
-                Pending Approvals
-              </ApprovalsTypography>
+              <ApprovalsTypography>Pending Approvals</ApprovalsTypography>
               <StyledChip label="5" variant="filled" sx={{}} />
             </ApprovalStyledBox>
             <AllStyledBox
-              onClick={() => { navigate("/AllTimesheet/true"); handleClose(); }}>
-              <AllTypography >All</AllTypography>
+              onClick={() => {
+                navigate("/AllTimesheet/true");
+                handleClose();
+              }}
+            >
+              <AllTypography>All</AllTypography>
             </AllStyledBox>
           </StyledBox>
-
         </MuiDrawer>
       </Toolbar>
     </StyledAppBar>
-
   );
 }

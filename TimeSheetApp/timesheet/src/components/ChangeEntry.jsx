@@ -93,8 +93,8 @@ const DisableSaveNoteButton = styled(Button)(({ theme }) => ({
 }));
 
 const ModalTypography = styled(Typography)(({ theme }) => ({
-  fontWeight: "700",
-  fontSize: "14px",
+  fontWeight: 700,
+  fontSize: "16px",
   marginBottom: "3%",
 }));
 
@@ -212,13 +212,14 @@ const ChangeEntry = ({
         <RejectionBox>
           <RejectionMainBox>
             <ModalTypography>{"Change Entry"}</ModalTypography>
+            <br/>
             <Stack
               direction={"column"}
               justifyContent={"space-between"}
               sx={{ width: "100%" }}
             >
               <Box sx={{ width: "100%" }} direction={"row"}>
-                <Typography sx={{ fontWeight: "600" }}>Prev. Hours</Typography>
+                <Typography sx={{ fontWeight: "600" }}>Prev. Hours <span style={{color:"red"}}>*</span> </Typography>
                 <Box
                   component="div"
                   sx={{
@@ -240,7 +241,7 @@ const ChangeEntry = ({
               </Box>
               <Box sx={{ width: "100%" }}>
                 <Typography sx={{ fontWeight: "600", marginTop: "20px" }}>
-                  New Hours
+                  New Hours <span style={{color:"red"}}>*</span>
                 </Typography>
                 <DecimalInput
                   disabled={false}
@@ -255,12 +256,12 @@ const ChangeEntry = ({
                   value={hours}
                 />
               </Box>
-              <Box sx={{ width: "100%", marginTop: "2%" }}>
+              <Box sx={{ width: "100%"}}>
                 <Typography sx={{ fontWeight: "600", marginTop: "20px" }}>
-                  Reason
+                  Reason <span style={{color:"red"}}>*</span>
                 </Typography>
                 <MuiInput
-                  rows={1}
+                  rows={2}
                   multiline={true}
                   onChange={(value) => setChangeReason(value)}
                   placeholder="Please specify the reason"
