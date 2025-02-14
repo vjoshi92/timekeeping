@@ -32,7 +32,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { setDateRange } from "store/slice/HomeSlice";
-import { useGetUserDataQuery } from "api/timesheetApi";
+import { useGetReporteeListQuery, useGetUserDataQuery } from "api/timesheetApi";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -164,9 +164,16 @@ export default function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const params = useParams();
-  const isManager = true;
+  const [isManager, setIsManager] = React.useState(false);
   const { data: userData } = useGetUserDataQuery();
-  const [employeeDatas, setEmployeeDatas] = React.useState(""); // Initialize state as an empty array  
+  const [employeeDatas, setEmployeeDatas] = React.useState(""); // Initialize state as an empty array
+
+  const {
+    data: reporteeData,
+    isSuccess: reporteeDataIsSuccess,
+    isLoading: reporteeDataLoading,
+    error: reporteeDataIsError,
+  } = useGetReporteeListQuery();
 
   React.useEffect(() => {
     if (userData?.results) {
@@ -174,6 +181,20 @@ export default function Header() {
       setEmployeeDatas(employees);
     }
   }, [userData]); // Runs when userData changes
+
+  React.useEffect(() => {
+    if (reporteeDataIsSuccess) {
+      if (reporteeData?.results?.length > 0) {
+        setIsManager(true);
+      } else {
+        setIsManager(false);
+      }
+    }
+
+    if (reporteeDataIsError) {
+      setIsManager(false);
+    }
+  }, [reporteeDataLoading]);
 
   const settings = ["Logout"];
   settings.unshift(...employeeDatas);
@@ -335,47 +356,51 @@ export default function Header() {
               onClick={() => setDrawer(false)}
             />
           </IconBox>
-          {isManager == true ? (
-            <Box sx={{ padding: "20px" }}>
-              <StyledTypography>MY TIMESHEETS</StyledTypography>
-              <ApprovalStyledBox
-                direction={"row"}
-                onClick={handleCurrentWeekClick}
-              >
-                <ApprovalsTypography>Current Week</ApprovalsTypography>
-              </ApprovalStyledBox>
-              <AllStyledBox
-                onClick={() => {
-                  navigate("/AllTimesheet/false");
-                  handleClose();
-                }}
-              >
-                <ApprovalsTypography>All</ApprovalsTypography>
-              </AllStyledBox>
-            </Box>
-          ) : null}
-          <StyledDrawerDivider orientation="horizontal" variant="middle" />
-          <StyledBox>
-            <StyledTypography>MY TEAM'S TIMESHEETS</StyledTypography>
+
+          <Box sx={{ padding: "20px" }}>
+            <StyledTypography>MY TIMESHEETS</StyledTypography>
             <ApprovalStyledBox
               direction={"row"}
-              onClick={() => {
-                navigate("/pendingApprovals");
-                handleClose();
-              }}
+              onClick={handleCurrentWeekClick}
             >
-              <ApprovalsTypography>Pending Approvals</ApprovalsTypography>
-              <StyledChip label="5" variant="filled" sx={{}} />
+              <ApprovalsTypography>Current Week</ApprovalsTypography>
             </ApprovalStyledBox>
             <AllStyledBox
               onClick={() => {
-                navigate("/AllTimesheet/true");
+                navigate("/AllTimesheet/false");
                 handleClose();
               }}
             >
-              <AllTypography>All</AllTypography>
+              <ApprovalsTypography>All</ApprovalsTypography>
             </AllStyledBox>
-          </StyledBox>
+          </Box>
+
+          {isManager == true ? (
+            <>
+              <StyledDrawerDivider orientation="horizontal" variant="middle" />
+              <StyledBox>
+                <StyledTypography>MY TEAM'S TIMESHEETS</StyledTypography>
+                <ApprovalStyledBox
+                  direction={"row"}
+                  onClick={() => {
+                    navigate("/pendingApprovals");
+                    handleClose();
+                  }}
+                >
+                  <ApprovalsTypography>Pending Approvals</ApprovalsTypography>
+                  <StyledChip label="5" variant="filled" sx={{}} />
+                </ApprovalStyledBox>
+                <AllStyledBox
+                  onClick={() => {
+                    navigate("/AllTimesheet/true");
+                    handleClose();
+                  }}
+                >
+                  <AllTypography>All</AllTypography>
+                </AllStyledBox>
+              </StyledBox>
+            </>
+          ) : null}
         </MuiDrawer>
       </Toolbar>
     </StyledAppBar>

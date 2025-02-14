@@ -75,6 +75,15 @@ export const TimesheetApi = createApi({
       },
       providesTags: ["Get_Timesheet"],
     }),
+    getReporteeList: builder.query({
+      query: () => {
+        const URL = `HCMFAB_APR_TIMESHEET_SRV/ApprovalListSet?$format=json`;
+        return {
+          url: URL,
+          method: "GET",
+        };
+      }
+    }),
   }),
 });
 
@@ -86,4 +95,5 @@ export const {
   useMakeApprovalBatchCallMutation,
   useGetDateWiseDetailsQuery,
   useLazyGetDateWiseDetailsQuery,
+  useGetReporteeListQuery,
 } = TimesheetApi;

@@ -473,86 +473,6 @@ const StyledModalBox = styled(Box)(({ theme }) => ({
   marginBottom: "5%",
 }));
 
-const dummyReviewData = [
-  {
-    day0: "2.00",
-    day1: "2.00",
-    day2: "2.00",
-    day3: "2.00",
-    day4: "2.00",
-    day5: "0.00",
-    day6: "0.00",
-    isReject: true,
-    weekTotal: "10.00",
-    project: "JMA NOFO 2 O-RU",
-    level: "Mechanical Design",
-    title: "1.4.10.2.1",
-    id: 1,
-    hierarchy: ["JMA NOFO 2 O-RU", "Mechanical Design"],
-  },
-  {
-    day0: "2.00",
-    day1: "2.00",
-    day2: "2.00",
-    day3: "2.00",
-    day4: "2.00",
-    day5: "0.00",
-    day6: "0.00",
-    weekTotal: "10.00",
-    project: "JMA NOFO 2 O-RU",
-    title: "1.4.10.2.3",
-    level: "PCB Design",
-    id: 2,
-    hierarchy: ["JMA NOFO 2 O-RU", "PCB Design"],
-  },
-  {
-    day0: "2.00",
-    day1: "2.00",
-    day2: "2.00",
-    day3: "2.00",
-    day4: "2.00",
-    day5: "0.00",
-    day6: "0.00",
-    weekTotal: "10.00",
-    project: "Indirect",
-    title: "1.1",
-    level: "General Training",
-    id: 3,
-    hierarchy: ["Indirect", "General Training"],
-  },
-  {
-    day0: "2.00",
-    day1: "2.00",
-    day2: "2.00",
-    day3: "2.00",
-    day4: "2.00",
-    day5: "0.00",
-    day6: "0.00",
-    weekTotal: "10.00",
-    project: "Indirect",
-    title: "1.3",
-    level: "PTO",
-    id: 4,
-    hierarchy: ["Indirect", "PTO"],
-  },
-  {
-    day0: "8.00",
-    day1: "8.00",
-    day2: "8.00",
-    day3: "8.00",
-    day4: "8.00",
-    day5: "0.00",
-    day6: "0.00",
-    weekTotal: "40.00",
-    project: "Total",
-    title: "",
-    level: "Total",
-    id: 5,
-    hierarchy: ["Total"],
-    totalRow: true,
-    isParent: false,
-  },
-];
 const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
@@ -589,7 +509,7 @@ const Home = () => {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const dispatch = useDispatch();
-  const [filteredData, setFilteredData] = useState(dummyReviewData);
+  const [filteredData, setFilteredData] = useState([]);
 
   const [
     makeBatchCall,
@@ -608,6 +528,7 @@ const Home = () => {
       isFetching: timeSheetDataFetching,
     },
   ] = useLazyGetDateWiseDetailsQuery();
+
   const { data: userData } = useGetUserDataQuery();
 
   useEffect(() => {
@@ -630,7 +551,7 @@ const Home = () => {
 
   // console.log("filteredData", filteredData)
   const handleSearch = (searchQuery) => {
-    if(searchQuery){
+    if (searchQuery) {
       const filtered = projectedData?.filter(
         (item) =>
           item?.level?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
@@ -639,10 +560,9 @@ const Home = () => {
       );
       // console.log("filtered>>>>>>>>>>>>>", filtered);
       setFilteredData(filtered);
-    }else{
+    } else {
       setFilteredData(projectedData);
     }
-    
   };
 
   // console.log("allTimeData", allTimeData)
@@ -840,7 +760,7 @@ const Home = () => {
 
     // Validation: Prevent selecting a future week beyond the current date
     if (startOfNextWeek.isAfter(today)) {
-      setAlertOpen(true);      
+      setAlertOpen(true);
       return;
     }
 
@@ -1437,10 +1357,7 @@ const Home = () => {
 
           <Stack direction={"row"}>
             <Box sx={{ marginRight: "2%" }}>
-              <Search
-                dummyReviewData={dummyReviewData}
-                onSearch={handleSearch}
-              />
+              <Search onSearch={handleSearch} />
             </Box>
             <StyledButton2
               size="small"
