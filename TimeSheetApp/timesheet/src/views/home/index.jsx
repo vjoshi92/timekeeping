@@ -25,7 +25,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import AddIcon from "@mui/icons-material/Add";
+// import AddIcon from "@mui/icons-material/Add";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import MuiDataGrid from "../../components/MuiDataGrid";
 import { getCurrentWeekDays, PRColumns } from "../../constant/Columns";
 import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeild";
@@ -623,16 +624,25 @@ const Home = () => {
     }
   }, [batchCallLoading]);
 
+  useEffect(() => {
+    setFilteredData(projectedData);
+  }, [projectedData]);
+
   // console.log("filteredData", filteredData)
   const handleSearch = (searchQuery) => {
-    const filtered = dummyReviewData?.filter(
-      (item) =>
-        item?.level?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
-        item?.title?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
-        item?.project?.toLowerCase()?.includes(searchQuery.toLowerCase())
-    );
-    // console.log("filtered>>>>>>>>>>>>>", filtered);
-    setFilteredData(filtered);
+    if(searchQuery){
+      const filtered = projectedData?.filter(
+        (item) =>
+          item?.level?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+          item?.title?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+          item?.project?.toLowerCase()?.includes(searchQuery.toLowerCase())
+      );
+      // console.log("filtered>>>>>>>>>>>>>", filtered);
+      setFilteredData(filtered);
+    }else{
+      setFilteredData(projectedData);
+    }
+    
   };
 
   // console.log("allTimeData", allTimeData)
@@ -830,8 +840,7 @@ const Home = () => {
 
     // Validation: Prevent selecting a future week beyond the current date
     if (startOfNextWeek.isAfter(today)) {
-      setAlertOpen(true);
-      <Alert severity="warning">This is a warning Alert.</Alert>;
+      setAlertOpen(true);      
       return;
     }
 
@@ -1144,7 +1153,12 @@ const Home = () => {
     // here i is consider as row data
     for (let i = 0; i < results?.length; i++) {
       let dayData = results[i];
-      const timeEntries = dayData.TimeEntries.results;
+      let timeEntries = [...dayData.TimeEntries.results];
+      timeEntries.sort((a, b) =>
+        a?.TimeEntryDataFields?.POSID?.localeCompare(
+          b?.TimeEntryDataFields?.POSID
+        )
+      );
       // here j is consider as day number
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
@@ -1447,18 +1461,17 @@ const Home = () => {
               disabled={status === "Approved"}
               onClick={handleSubmit}
             >
-              <StyledCircularBox
+              {/* <StyledCircularBox
                 sx={{ background: status === "Approved" ? "#dee2e6" : "#fff" }}
-              >
-                <AddIcon
-                  fontSize="small"                  
-                  color="#FFFF"
-                  sx={{
-                    color: "#FFFF",
-                    
-                  }}
-                />
-              </StyledCircularBox>
+              > */}
+              <AddCircleIcon
+                fontSize="medium"
+                color={status === "Approved" ? "#97928f" : "#ED6A15"}
+                sx={{
+                  color: status === "Approved" ? "#97928f" : "#ED6A15",
+                }}
+              />
+              {/* </StyledCircularBox> */}
             </StyledButton2>
           </Stack>
         </StyledStackButton>
@@ -1466,7 +1479,7 @@ const Home = () => {
           <TreeGrid
             columns={AllRowsColumns}
             density={"standard"}
-            data={projectedData}
+            data={filteredData}
           />
           {/* {projectedData.map((item) => {
             const filterProjects = projectedData.filter(
@@ -1705,6 +1718,20 @@ const Home = () => {
           sx={{ width: "100%" }}
         >
           Timesheet deleted.
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={3000}
+        onClose={() => setAlertOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlertOpen(false)}
+          severity={"warning"}
+          sx={{ width: "100%" }}
+        >
+          You can not select future date(s).
         </Alert>
       </Snackbar>
       <BusyDialog open={batchCallLoading || timeSheetDataFetching} />

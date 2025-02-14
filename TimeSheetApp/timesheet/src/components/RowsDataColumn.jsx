@@ -83,7 +83,7 @@ const IconButtonStyle = styled(Box)(({ theme }) => ({
 }));
 const InputStyleBox = styled(Box)(({ theme }) => ({
   width: "100%",
-  height: '100%',
+  height: "100%",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -349,14 +349,13 @@ export const RowsDataColumns = ({
                   sx={{
                     width: "87% !important",
                     verticalAlign: "unset",
-                    backgroundColor: inputHasNote ? "#ef0c0c30" : "#FFFFFF",
-                    border: `1px solid ${inputHasNote ? "#FF0000" : "#000000"}`,
+                    backgroundColor: "#eeeeee",
+                    border: `1px solid #0000004d`,
                     borderRadius: "4px",
                     padding: "0.5rem",
-                    cursor: "pointer",
                     height: "1.2rem",
                     "&:hover": {
-                      borderColor: inputHasNote ? "#FF0000" : "#000000",
+                      borderColor: "#0000004d",
                     },
                   }}
                   onClick={() => {
@@ -370,20 +369,24 @@ export const RowsDataColumns = ({
                     {params?.value}
                   </Typography>
                 </Box>
-              ) : row[`day${i}STATUS`] === "40" ? (
+              ) : row[`day${i}STATUS`] === "40" ||
+                status === "Pending For Approval" ||
+                status === "Rejected" ? (
                 <Box
                   component="div"
                   sx={{
                     width: "87% !important",
                     verticalAlign: "unset",
-                    backgroundColor: "#ef0c0c30",
-                    border: `1px solid #FF0000`,
+                    backgroundColor:
+                      row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#eeeeee",
+                    border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
                     borderRadius: "4px",
                     padding: "0.5rem",
                     cursor: "pointer",
                     height: "1.2rem",
                     "&:hover": {
-                      borderColor: "#FF0000",
+                      borderColor:
+                        row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d",
                     },
                   }}
                   onClick={() => {
@@ -419,6 +422,7 @@ export const RowsDataColumns = ({
               )}
               <IconButton
                 size="small"
+                disabled={!params?.value}
                 onClick={() => openNotesPopup(inputId, row, i)}
               >
                 <TextSnippetOutlined

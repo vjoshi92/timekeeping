@@ -1,5 +1,5 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-export const baseUrl = 'sap/opu/odata/sap/';
+export const baseUrl = '/sap/opu/odata/sap/';
 
 // https://jmwwdad1.jmawireless.com/sap/opu/odata/sap/HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json
 
@@ -31,7 +31,7 @@ export const baseQuery = async (args, api, extraOptions = {}) => {
     try {
         const response = await customBaseQuery(args, api, extraOptions);
 
-        console.log("response" ,response)
+        // console.log("response" ,response)
 
         return {
             data: response?.data?.d ?? response.data,

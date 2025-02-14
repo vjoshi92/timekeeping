@@ -115,8 +115,7 @@ const ChangeEntry = ({
     setHours();
   }, [activeInputId]);
   // use notes from props
-  // const notes = useSelector((state) => state?.CreateForm?.notes);
-  console.log("rowObject", rowObject);
+  // const notes = useSelector((state) => state?.CreateForm?.notes);  
   const [
     makeBatchCall,
     {
@@ -126,16 +125,17 @@ const ChangeEntry = ({
     },
   ] = useMakeBatchCallMutation();
 
-  useEffect(() => {
-    if (batchCallIsSuccess) {
-      handleClose();
-    }
-  }, [batchCallLoading]);
+  // useEffect(() => {
+  //   if (batchCallIsSuccess) {
+  //     handleClose();
+  //   }
+  // }, [batchCallLoading]);
 
   const saveHours = async () => {
     const oPayload = prepareNoteSavePayload(changeReason);
     const obatchPayload = PrepareBatchPayload([oPayload]);
     const response = await makeBatchCall({ body: obatchPayload });
+    handleClose();
   };
 
   const prepareNoteSavePayload = (note) => {
