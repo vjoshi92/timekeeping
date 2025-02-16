@@ -9,7 +9,12 @@ import Checkbox from "@mui/material/Checkbox";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import MuiDataGrid from "components/MuiDataGrid";
-import { Stack, Tooltip } from "@mui/material";
+import { Stack, Tooltip, Typography } from "@mui/material";
+import {
+  useGetPendingApprovalListQuery,
+  useLazyGetPendingApprovalListQuery,
+} from "api/timesheetApi";
+import { weekTimesheetFormat } from "utils/AppUtil";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 const StyledBox = styled(Stack)(({ theme }) => ({
@@ -44,20 +49,381 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
     display: "none",
   },
   "& .MuiDataGrid-columnHeaders > .MuiDataGrid-columnHeader:last-child .MuiDataGrid-columnSeparator":
-  {
-    display: "none",
-  },
+    {
+      display: "none",
+    },
 }));
 
-export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAll }) {
+const rows = [
+  {
+    id: 1,
+    employeeId: "100190",
+    employeeName: "Jon Doe",
+    timesheet: "23 - 29 Sep 2024",
+    totalHours: "40",
+    status: "Pending",
+    treeData: [
+      {
+        day0: "9",
+        day1: "7",
+        day2: "5",
+        day3: "4",
+        day4: "6",
+        day5: "0",
+        day6: "1",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Mechanical Design",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Technical Documentation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "HW Verification and Validation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PO",
+        hierarchy: ["Non-NOFO", "P0"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PTO",
+        hierarchy: ["Non-NOFO", "PTO"],
+      },
+    ],
+  },
+  {
+    id: 2,
+    employeeId: "100191",
+    employeeName: "Alice Wok",
+    timesheet: "23 - 29 Sep 2024",
+    totalHours: "52",
+    status: "Pending",
+    treeData: [
+      {
+        day0: "9",
+        day1: "7",
+        day2: "5",
+        day3: "4",
+        day4: "6",
+        day5: "0",
+        day6: "1",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Mechanical Design",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Technical Documentation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "HW Verification and Validation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PO",
+        hierarchy: ["Non-NOFO", "P0"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PTO",
+        hierarchy: ["Non-NOFO", "PTO"],
+      },
+    ],
+  },
+  {
+    id: 3,
+    employeeId: "100192",
+    employeeName: "Mark Doe",
+    timesheet: "23 - 29 Sep 2024",
+    totalHours: "40",
+    status: "Pending",
+    treeData: [
+      {
+        day0: "9",
+        day1: "7",
+        day2: "5",
+        day3: "4",
+        day4: "6",
+        day5: "0",
+        day6: "1",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Mechanical Design",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Technical Documentation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "HW Verification and Validation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PO",
+        hierarchy: ["Non-NOFO", "P0"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PTO",
+        hierarchy: ["Non-NOFO", "PTO"],
+      },
+    ],
+  },
+  {
+    id: 4,
+    employeeId: "100193",
+    employeeName: "Sara Liz",
+    timesheet: "23 - 29 Sep 2024",
+    totalHours: "42",
+    status: "Pending",
+    treeData: [
+      {
+        day0: "9",
+        day1: "7",
+        day2: "5",
+        day3: "4",
+        day4: "6",
+        day5: "0",
+        day6: "1",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Mechanical Design",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Technical Documentation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "HW Verification and Validation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PO",
+        hierarchy: ["Non-NOFO", "P0"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PTO",
+        hierarchy: ["Non-NOFO", "PTO"],
+      },
+    ],
+  },
+  {
+    id: 5,
+    employeeId: "100194",
+    employeeName: "Paul Heyman",
+    timesheet: "23 - 29 Sep 2024",
+    totalHours: "40",
+    status: "Pending",
+    treeData: [
+      {
+        day0: "9",
+        day1: "7",
+        day2: "5",
+        day3: "4",
+        day4: "6",
+        day5: "0",
+        day6: "1",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Mechanical Design",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "Technical Documentation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "JMA NOFO 2 SRFA 1",
+        level: "HW Verification and Validation",
+        hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PO",
+        hierarchy: ["Non-NOFO", "P0"],
+      },
+      {
+        day0: "",
+        day1: "",
+        day2: "",
+        day3: "",
+        day4: "",
+        day5: "",
+        day6: "",
+        project: "Non-NOFO",
+        level: "PTO",
+        hierarchy: ["Non-NOFO", "PTO"],
+      },
+    ],
+  },
+];
+
+export default function ApprovalsDatagrid({
+  setCheckboxChecked,
+  setShowApproveAll,
+}) {
   const [isChecked, setIsChecked] = React.useState(false);
   const [checkedItems, setCheckedItems] = React.useState({});
-  const [checkboxClickedCount, setCheckboxClickedCount] = React.useState(0)
+  const [checkboxClickedCount, setCheckboxClickedCount] = React.useState(0);
   const navigate = useNavigate();
+
+  const { data: pendingApprovalList, isFetching: fetchingPendingApproval } =
+    useGetPendingApprovalListQuery();
+
+  console.log("pendingApprovalList", pendingApprovalList);
 
   const handleEyeClick = (params) => {
     const allData = params.row;
-    navigate("/Review/true", { state: { data: allData } });
+    navigate(`/Review/true/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}`, { state: { data: allData } });
   };
 
   // Modified to handle individual checkbox states
@@ -65,7 +431,7 @@ export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAl
     // Create new state object with the toggled value for the specific checkbox
     const newCheckedItems = {
       ...checkedItems,
-      [id]: !checkedItems[id]
+      [id]: !checkedItems[id],
     };
     setCheckedItems(newCheckedItems);
 
@@ -91,7 +457,6 @@ export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAl
       setCheckboxChecked(false);
     }
   };
-
 
   const columns = [
     {
@@ -123,29 +488,22 @@ export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAl
       ),
     },
     {
-      field: "employeeName",
+      field: "EName",
       headerName: "EMPLOYEE NAME",
       width: 210,
       editable: true,
     },
-    // {
-    //   field: "employeeId",
-    //   headerName: "EMPLOYEE ID",
-    //   minWidth: 200,
-    //   flex: 1,
-    //   editable: true,
-    // },
     {
-      field: "timesheet",
+      field: "Week",
       headerName: "TIMESHEET",
       minWidth: 200,
       flex: 1,
       editable: true,
+      renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
     },
     {
-      field: "totalHours",
+      field: "CatsHours",
       headerName: "TOTAL HOURS",
-      description: "This column has a value getter and is not sortable.",
       sortable: false,
       minWidth: 200,
       flex: 1,
@@ -153,7 +511,6 @@ export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAl
     {
       field: "actions",
       headerName: "ACTIONS",
-      description: "Approve or reject the entry.",
       sortable: false,
       minWidth: 200,
       flex: 1,
@@ -162,13 +519,9 @@ export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAl
           <Tooltip title="View timesheet">
             <RemoveRedEyeIcon
               sx={{ color: "#0073E6", cursor: "pointer", marginRight: "10%" }}
-              onClick={() => handleEyeClick(params)}
+              onClick={() => handleEyeClick(params?.row)}
             />
           </Tooltip>
-          {/* <Tooltip title="Approve timesheet">
-            <ApprovalIcon sx={{ color: "#005AA6", marginRight: "10%" }} />
-          </Tooltip> */}
-          {/* <CloseIcon color="error" style={{ cursor: 'pointer', marginRight: "10%" }} /> */}
           <Tooltip title="Approve timesheet">
             <CheckIcon color="success" style={{ cursor: "pointer" }} />
           </Tooltip>
@@ -176,368 +529,16 @@ export default function ApprovalsDatagrid({ setCheckboxChecked, setShowApproveAl
       ),
     },
   ];
-  const rows = [
-    {
-      id: 1,
-      employeeId: "100190",
-      employeeName: "Jon Doe",
-      timesheet: "23 - 29 Sep 2024",
-      totalHours: "40",
-      status: "Pending",
-      treeData: [
-        {
-          day0: "9",
-          day1: "7",
-          day2: "5",
-          day3: "4",
-          day4: "6",
-          day5: "0",
-          day6: "1",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Mechanical Design",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Technical Documentation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "HW Verification and Validation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PO",
-          hierarchy: ["Non-NOFO", "P0"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PTO",
-          hierarchy: ["Non-NOFO", "PTO"],
-        },
-      ],
-    },
-    {
-      id: 2,
-      employeeId: "100191",
-      employeeName: "Alice Wok",
-      timesheet: "23 - 29 Sep 2024",
-      totalHours: "52",
-      status: "Pending",
-      treeData: [
-        {
-          day0: "9",
-          day1: "7",
-          day2: "5",
-          day3: "4",
-          day4: "6",
-          day5: "0",
-          day6: "1",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Mechanical Design",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Technical Documentation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "HW Verification and Validation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PO",
-          hierarchy: ["Non-NOFO", "P0"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PTO",
-          hierarchy: ["Non-NOFO", "PTO"],
-        },
-      ],
-    },
-    {
-      id: 3,
-      employeeId: "100192",
-      employeeName: "Mark Doe",
-      timesheet: "23 - 29 Sep 2024",
-      totalHours: "40",
-      status: "Pending",
-      treeData: [
-        {
-          day0: "9",
-          day1: "7",
-          day2: "5",
-          day3: "4",
-          day4: "6",
-          day5: "0",
-          day6: "1",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Mechanical Design",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Technical Documentation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "HW Verification and Validation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PO",
-          hierarchy: ["Non-NOFO", "P0"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PTO",
-          hierarchy: ["Non-NOFO", "PTO"],
-        },
-      ],
-    },
-    {
-      id: 4,
-      employeeId: "100193",
-      employeeName: "Sara Liz",
-      timesheet: "23 - 29 Sep 2024",
-      totalHours: "42",
-      status: "Pending",
-      treeData: [
-        {
-          day0: "9",
-          day1: "7",
-          day2: "5",
-          day3: "4",
-          day4: "6",
-          day5: "0",
-          day6: "1",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Mechanical Design",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Technical Documentation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "HW Verification and Validation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PO",
-          hierarchy: ["Non-NOFO", "P0"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PTO",
-          hierarchy: ["Non-NOFO", "PTO"],
-        },
-      ],
-    },
-    {
-      id: 5,
-      employeeId: "100194",
-      employeeName: "Paul Heyman",
-      timesheet: "23 - 29 Sep 2024",
-      totalHours: "40",
-      status: "Pending",
-      treeData: [
-        {
-          day0: "9",
-          day1: "7",
-          day2: "5",
-          day3: "4",
-          day4: "6",
-          day5: "0",
-          day6: "1",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Mechanical Design",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Mechanical Design"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "Technical Documentation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "Technical Documentation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "JMA NOFO 2 SRFA 1",
-          level: "HW Verification and Validation",
-          hierarchy: ["JMA NOFO 2 SRFA 1", "HW Verification and Validation"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PO",
-          hierarchy: ["Non-NOFO", "P0"],
-        },
-        {
-          day0: "",
-          day1: "",
-          day2: "",
-          day3: "",
-          day4: "",
-          day5: "",
-          day6: "",
-          project: "Non-NOFO",
-          level: "PTO",
-          hierarchy: ["Non-NOFO", "PTO"],
-        },
-      ],
-    },
-  ];
-
+  
   return (
     <Box sx={{ width: "100%" }}>
       <MuiDataGrid
-        rows={rows}
+        rows={pendingApprovalList?.results || []}
         columns={columns}
         pagination
         pageSize={5}
         rowsPerPageOptions={[5, 10, 15]}
-
+        loading={fetchingPendingApproval}
       />
     </Box>
   );

@@ -6,15 +6,17 @@ export const StatusColorFormatter = (status) => {
     switch (sStatus) {
       case "approved":
       case "completed": // All lowercase
+      case "30":
         return "#41AF6E";
       case "pending":
-        return "orange";
+      case "20":
       case "pending for approval":
         return "orange";
       case "open":
       case "in progress":
         return "#ED6A15";
       case "rejected":
+      case "40":
         return "#E83D64";
       case "Rejected":
         return "#E83D64";
@@ -77,10 +79,23 @@ export const formatFullTimeString = (dateValue) => {
 };
 
 export const StatusCaseFormatting = (status) => {
-  if (status) {
+  if (status) {    
     return status.toUpperCase();
   } else {
     return status;
+  }
+};
+
+export const StatusTextFormatting = (status) => {
+  if (status == "20") {    
+    return "Pending for Approval";
+  }else if (status == "30") {    
+    return "Approved";
+  } else if (status == "40") {    
+    return "Rejected";
+  }    
+  else {
+    return "";
   }
 };
 
@@ -175,7 +190,6 @@ export const getODataFormatDateTime = (dateObj) => {
   }
 };
 
-
 export const odataGetDateFormat = (dateString) => {
   // Extract timestamp from "/Date(1739232000000)/"
   const timestamp = parseInt(dateString.match(/\d+/)[0], 10);
@@ -187,4 +201,41 @@ export const odataGetDateFormat = (dateString) => {
   const formattedDate = getODataFormatDateTime(date);
 
   return formattedDate;
+};
+
+export const weekTimesheetFormat = (yearWeek) => {
+  let year = parseInt(yearWeek.toString().substring(0, 4), 10);
+  let week = parseInt(yearWeek.toString().substring(4), 10);
+
+  // Find the first day (Monday) of the given week
+  let firstDayOfYear = new Date(year, 0, 1);
+  let daysOffset = (week - 1) * 7;
+  let startDate = new Date(firstDayOfYear.getTime() + daysOffset * 86400000);
+
+  // Adjust to the first Monday of the week
+  let dayOfWeek = startDate.getDay();
+  if (dayOfWeek !== 1) {
+    startDate.setDate(
+      startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+    );
+  }
+
+  // Calculate the last day (Sunday) of the same week
+  let endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + 6);
+
+  // Helper function to format date correctly
+  function formatDate(date) {
+    let day = date.getDate().toString().padStart(2, "0"); // Ensure two-digit day
+    let month = date.toLocaleDateString("en-US", { month: "short" }); // Short month name
+    let year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  }
+
+  // Format the output
+  if (startDate.getMonth() === endDate.getMonth()) {
+    return `${startDate.getDate()} - ${endDate.getDate()} ${startDate.toLocaleDateString("en-US", { month: "short" })} ${year}`;
+  } else {
+    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+  }
 };

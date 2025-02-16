@@ -50,10 +50,13 @@ import {
   PrepareBatchPayload,
   StatusCaseFormatting,
   StatusColorFormatter,
+  StatusTextFormatting,
 } from "utils/AppUtil";
 import {
+  useGetRejectedReasonsQuery,
   useGetUserDataQuery,
   useLazyGetDateWiseDetailsQuery,
+  useLazyGetReviewDetailDataQuery,
   useMakeApprovalBatchCallMutation,
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
@@ -456,10 +459,14 @@ const ReviewScreen = () => {
   const [newStatus, setNewStatus] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState("");
+  const [openApiMsg, setOpenApiMsg] = useState(false);
+  const [apiMsg, setApiMsg] = useState("");
+  const [reviewColumns, setReviewColumns] = useState([]);
+
   const navigate = useNavigate();
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const dispatch = useDispatch();
-  const { isReviewer } = useParams();
+  const { isReviewer, pernr, start, stop, week } = useParams();
   const [selectedReason, setSelectedReason] = useState(""); // Add this new state
   // API methods
   const [
@@ -468,6 +475,8 @@ const ReviewScreen = () => {
       data: dateWiseData,
       isSuccess: dateWiseDataSuccessful,
       isFetching: timeSheetDataFetching,
+      isError: isDateWiseDataError,
+      error: dateWiseDataError,
     },
   ] = useLazyGetDateWiseDetailsQuery();
   const { data: userData } = useGetUserDataQuery();
@@ -480,6 +489,24 @@ const ReviewScreen = () => {
       error: batchCallIsError,
     },
   ] = useMakeApprovalBatchCallMutation();
+
+  const [
+    getReviewDetailData,
+    {
+      data: reviewDetailData,
+      isSuccess: reviewDataIsSuccess,
+      isFetching: reviewDataLoading,
+      error: reviewDataIsError,
+    },
+  ] = useLazyGetReviewDetailDataQuery();
+
+  const { data: rejectionReasons } = useGetRejectedReasonsQuery();
+
+  useEffect(() => {
+    if (week && pernr) {
+      getReviewDetailData({ week, pernr });
+    }
+  }, [week, pernr]);
 
   const handleRejection = () => setOpenRejection(true);
   const handleOpen = () => setOpen(true);
@@ -521,7 +548,10 @@ const ReviewScreen = () => {
   };
 
   const handleReasonChange = (event, value) => {
-    setSelectedReason(value);
+    setSelectedReason({
+      value: value.value,
+      desc: value.label,
+    });
   };
 
   const handleAlignment = (event, newAlignment) => {
@@ -617,25 +647,56 @@ const ReviewScreen = () => {
     }
   };
 
-  const ReviewData = ReviewColumns({
-    rows,
-    selectedDate,
-    handleInputChange,
-    handleDelete,
-    isParent: false,
-    handleRejected,
-  });
-
   useEffect(() => {
     if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
       getTimesheetDataWeekWise();
     }
-  }, [selectedDate, userData?.results[0].EmployeeNumber]);
+  }, [selectedDate, pernr]);
+
+  useEffect(() => {
+    if (start && stop) {
+      // daterange from start and stop
+      let startYear = parseInt(start.toString().substring(0, 4), 10);
+      let startMonth = parseInt(start.toString().substring(4, 6), 10) - 1; // Month is zero-based in JS
+      let startDay = parseInt(start.toString().substring(6, 8), 10);
+
+      // Create a new date object
+      let startDate = new Date(startYear, startMonth, startDay);
+
+      let endYear = parseInt(stop.toString().substring(0, 4), 10);
+      let endMonth = parseInt(stop.toString().substring(4, 6), 10) - 1; // Month is zero-based in JS
+      let endDay = parseInt(stop.toString().substring(6, 8), 10);
+
+      // Create a new date object
+      let endDate = new Date(endYear, endMonth, endDay);
+
+      // let startOfWeek = dayjs(startDate, "DD MMM YYYY");
+      // Format the date as "DD MMM YYYY" (zero-padded day)
+      let formattedSDay = startDay.toString().padStart(2, "0"); // Ensures two-digit day
+      let formattedSMonth = startDate.toLocaleDateString("en-US", {
+        month: "short",
+      });
+
+      let formattedEDay = endDay.toString().padStart(2, "0"); // Ensures two-digit day
+      let formattedEMonth = endDate.toLocaleDateString("en-US", {
+        month: "short",
+      });
+
+      let startofWeek = `${formattedSDay} ${formattedSMonth} ${startYear}`;
+      let endOfWeek = `${formattedEDay} ${formattedEMonth} ${endYear}`;
+
+      // let endOfWeek = dayjs(endDate, "DD MMM YYYY");
+      const formattedDateRange = `${startofWeek} - ${endOfWeek}`;
+
+      dispatch(setDateRange(formattedDateRange));
+    }
+  }, [start, stop]);
 
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
       if (!newRow) {
         const responseData = dateWiseData;
+        console.log("responsedata", responseData);
         let transformedData = transformToWeeklyRows(responseData);
         // const projectArray = transformedData.map((x) => x.project);
         // projectArray.forEach(project => {
@@ -646,6 +707,14 @@ const ReviewScreen = () => {
         // setProductTime(transformedData);
         dispatch(setProjectData(transformedData));
       }
+    }
+
+    if (isDateWiseDataError && dateWiseDataError) {
+      setOpenApiMsg(true);
+      setApiMsg(dateWiseDataError);
+      let transformedData = transformToWeeklyRows([]);
+      transformedData = addTotalRow(transformedData);
+      dispatch(setProjectData(transformedData));
     }
   }, [timeSheetDataFetching]);
 
@@ -659,15 +728,15 @@ const ReviewScreen = () => {
     }
   }, [batchCallLoading]);
 
-  useEffect(() => {
-    if (selectedDate == "") {
-      const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
-      const currentWeekStart = startOfCurrentWeek.format("DD");
-      const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
-      const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
-      dispatch(setDateRange(formattedDateRange));
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (selectedDate == "") {
+  //     const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
+  //     const currentWeekStart = startOfCurrentWeek.format("DD");
+  //     const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
+  //     const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
+  //     dispatch(setDateRange(formattedDateRange));
+  //   }
+  // }, []);
 
   // const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
   // const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
@@ -683,6 +752,7 @@ const ReviewScreen = () => {
       getTimesheetEntry({
         startDate: formattedStartDate,
         endDate: formattedEndDate,
+        // pernr: pernr,
         pernr: userData?.results[0].EmployeeNumber,
       });
     }
@@ -922,7 +992,7 @@ const ReviewScreen = () => {
           >
             <StyledTypography>Back</StyledTypography>
           </Button>
-          <Button
+          {/* <Button
             sx={{
               marginBottom: { xs: 2, sm: 3 },
               padding: { xs: 1, sm: 1.5 },
@@ -931,7 +1001,7 @@ const ReviewScreen = () => {
             onClick={() => navigate(-1)}
           >
             <StyledTypography>NEXT</StyledTypography>
-          </Button>
+          </Button> */}
           {/* <ArrowBackIosNew
                     sx={{
                         color: "#005AA6",
@@ -958,7 +1028,9 @@ const ReviewScreen = () => {
               }}
             >
               <HeaderTypography>Employee Name</HeaderTypography>
-              <HeaderSubTypography>{data?.employeeName}</HeaderSubTypography>
+              <HeaderSubTypography>
+                {reviewDetailData?.results[0]?.EName}
+              </HeaderSubTypography>
             </Stack>
             <Stack
               sx={{
@@ -968,7 +1040,9 @@ const ReviewScreen = () => {
               }}
             >
               <HeaderTypography>Employee ID</HeaderTypography>
-              <HeaderSubTypography>{data?.employeeId}</HeaderSubTypography>
+              <HeaderSubTypography>
+                {reviewDetailData?.results[0]?.Pernr}
+              </HeaderSubTypography>
             </Stack>
             <Stack
               sx={{
@@ -980,10 +1054,14 @@ const ReviewScreen = () => {
               <HeaderTypography>Status</HeaderTypography>
               <HeaderSubTypography
                 style={{
-                  color: StatusColorFormatter(newStatus || data?.status),
+                  color: StatusColorFormatter(
+                    reviewDetailData?.results[0]?.STATUS
+                  ),
                 }}
               >
-                {StatusCaseFormatting(!newStatus ? data?.status : newStatus)}
+                {StatusCaseFormatting(
+                  StatusTextFormatting(reviewDetailData?.results[0]?.STATUS)
+                )}
               </HeaderSubTypography>
             </Stack>
           </HeaderStack>
@@ -1056,7 +1134,14 @@ const ReviewScreen = () => {
           }}
         >
           <TreeGrid
-            columns={ReviewData}
+            columns={ReviewColumns({
+              rows,
+              selectedDate,
+              handleInputChange,
+              handleDelete,
+              isParent: false,
+              handleRejected,
+            })}
             density={"standard"}
             data={projectedData}
             sx={{
@@ -1128,9 +1213,12 @@ const ReviewScreen = () => {
             <ModalTypography>Rejection Reasons</ModalTypography>
             <StyledDropdown
               name="project"
-              options={ProjectData.map((option) => option?.title)}
+              options={rejectionReasons?.results.map((option) => ({
+                label: option?.Text,
+                value: option?.Reason,
+              }))}
               onChange={handleReasonChange}
-              value={selectedReason || "--"}
+              value={selectedReason?.desc || "--"}
             />
           </RejectionMainBox>
 
@@ -1139,7 +1227,7 @@ const ReviewScreen = () => {
               rows={2}
               multiline={true}
               placeholder="Please specify the reason"
-              sx={{ width: "100%", marginTop: "20px" }}
+              sx={{ marginTop: "20px" }}
             />
           )}
           <RejectButtonStack direction="row" spacing={3}>
@@ -1226,6 +1314,20 @@ const ReviewScreen = () => {
           sx={{ width: "100%" }}
         >
           {snackBarMsg}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openApiMsg}
+        autoHideDuration={3000}
+        onClose={() => setOpenApiMsg(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setOpenApiMsg(false)}
+          severity={"error"}
+          sx={{ width: "100%" }}
+        >
+          {apiMsg}
         </Alert>
       </Snackbar>
     </>

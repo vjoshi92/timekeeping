@@ -82,7 +82,34 @@ export const TimesheetApi = createApi({
           url: URL,
           method: "GET",
         };
-      }
+      },
+    }),
+    getPendingApprovalList: builder.query({
+      query: () => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=STATUS eq '20'&sap-client=100&sap-language=EN&$format=json`;
+        return {
+          url: URL,
+          method: "GET",
+        };
+      },
+    }),
+    getReviewDetailData: builder.query({
+      query: ({ week, pernr }) => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=Week eq '${week}'and Pernr eq '${pernr}'&sap-client=100&sap-language=EN&$format=json`;
+        return {
+          url: URL,
+          method: "GET",
+        };
+      },
+    }),
+    getRejectedReasons: builder.query({
+      query: () => {
+        const URL = `HCMFAB_APR_TIMESHEET_SRV/RejectionReasonSet?$format=json`;
+        return {
+          url: URL,
+          method: "GET",
+        };
+      },
     }),
   }),
 });
@@ -96,4 +123,9 @@ export const {
   useGetDateWiseDetailsQuery,
   useLazyGetDateWiseDetailsQuery,
   useGetReporteeListQuery,
+  useLazyGetPendingApprovalListQuery,
+  useGetPendingApprovalListQuery,
+  useLazyGetReviewDetailDataQuery,
+  useGetReviewDetailDataQuery,
+  useGetRejectedReasonsQuery
 } = TimesheetApi;
