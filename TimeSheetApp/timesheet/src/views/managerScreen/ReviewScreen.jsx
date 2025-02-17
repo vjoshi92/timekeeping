@@ -56,6 +56,7 @@ import {
   useGetRejectedReasonsQuery,
   useGetUserDataQuery,
   useLazyGetDateWiseDetailsQuery,
+  useLazyGetDateWiseReviewDetailsQuery,
   useLazyGetReviewDetailDataQuery,
   useMakeApprovalBatchCallMutation,
   useMakeBatchCallMutation,
@@ -478,7 +479,7 @@ const ReviewScreen = () => {
       isError: isDateWiseDataError,
       error: dateWiseDataError,
     },
-  ] = useLazyGetDateWiseDetailsQuery();
+  ] = useLazyGetDateWiseReviewDetailsQuery();
   const { data: userData } = useGetUserDataQuery();
 
   const [
@@ -822,7 +823,7 @@ const ReviewScreen = () => {
     // here i is consider as row data
     for (let i = 0; i < results?.length; i++) {
       let dayData = results[i];
-      const timeEntries = dayData.TimeEntries.results;
+      const timeEntries = dayData.TIMEENTRIES.results;
       // here j is consider as day number
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
