@@ -752,8 +752,8 @@ const ReviewScreen = () => {
       getTimesheetEntry({
         startDate: formattedStartDate,
         endDate: formattedEndDate,
-        // pernr: pernr,
-        pernr: userData?.results[0].EmployeeNumber,
+        pernr: pernr,
+        // pernr: userData?.results[0].EmployeeNumber,
       });
     }
   };
@@ -874,8 +874,8 @@ const ReviewScreen = () => {
             [`${dayKey}Notes`]: entry?.TimeEntryDataFields?.LONGTEXT_DATA,
             [`${dayKey}RecRowNo`]: entry?.RecRowNo,
             [`${dayKey}WORKDATE`]: entry?.TimeEntryDataFields?.WORKDATE,
-            [`${dayKey}DateCreate`]: entry?.TimeEntryDataFields?.ERSDA,
-            [`${dayKey}TimeCreate`]: entry?.TimeEntryDataFields?.ERSTM,
+            [`${dayKey}DateCreate`]: entry?.TimeEntryDataFields?.LAEDA,
+            [`${dayKey}TimeCreate`]: entry?.TimeEntryDataFields?.LAETM,
           };
         } else {
           weekRow[dayKey] = hours.toFixed(2);

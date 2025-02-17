@@ -378,7 +378,7 @@ export const RowsDataColumns = ({
                     width: "87% !important",
                     verticalAlign: "unset",
                     backgroundColor:
-                      row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#eeeeee",
+                      row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#fff",
                     border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
                     borderRadius: "4px",
                     padding: "0.5rem",
