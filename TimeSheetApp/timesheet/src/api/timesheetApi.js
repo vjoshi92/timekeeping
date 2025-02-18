@@ -90,6 +90,9 @@ export const TimesheetApi = createApi({
         return {
           url: URL,
           method: "GET",
+          headers: {
+            Selection: "Complete Data",
+          },
         };
       },
     }),
@@ -99,6 +102,9 @@ export const TimesheetApi = createApi({
         return {
           url: URL,
           method: "GET",
+          headers: {
+            Selection: "Complete Data",
+          },
         };
       },
     }),

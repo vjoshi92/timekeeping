@@ -184,7 +184,7 @@ export const getODataFormatDateTime = (dateObj) => {
     const min = String(date.getMinutes()).padStart(2, "0");
     const seco = String(date.getSeconds()).padStart(2, "0");
 
-    return `${year}-${month}-${day}T10:37:32`;
+    return `${year}-${month}-${day}T${hours}:${min}:${seco}`;
   } else {
     return dateObj;
   }

@@ -887,8 +887,8 @@ const ReviewScreen = () => {
           weekRow[`${dayKey}Notes`] = entry?.TimeEntryDataFields?.LONGTEXT_DATA;
           weekRow[`${dayKey}RecRowNo`] = entry?.RecRowNo;
           weekRow[`${dayKey}WORKDATE`] = entry?.TimeEntryDataFields?.WORKDATE;
-          weekRow[`${dayKey}DateCreate`] = entry?.TimeEntryDataFields?.ERSDA;
-          weekRow[`${dayKey}TimeCreate`] = entry?.TimeEntryDataFields?.ERSTM;
+          weekRow[`${dayKey}DateCreate`] = entry?.TimeEntryDataFields?.LAEDA;
+          weekRow[`${dayKey}TimeCreate`] = entry?.TimeEntryDataFields?.LAETM;
         }
         weekRows[rowIndex] = weekRow;
         // all status check
@@ -949,14 +949,24 @@ const ReviewScreen = () => {
         const currentDate = dayjs(startDate).add(i, "day");
         const payloadDate = getODataFormatDate(currentDate.$d);
         const createDate = entry[`day${i}DateCreate`];
-        const dateCreate = createDate ? odataGetDateFormat(createDate) : "";
+        let dateCreate = createDate ? odataGetDateFormat(createDate) : "";
+        const time = entry[`day${i}TimeCreate`];
+        let datewithTime = dateCreate;
+        if (time) {
+          const hour = time.substr(0, 2);
+          const min = time.substr(2, 2);
+          const sec = time.substr(4, 2);
+          let aDateCreate = dateCreate.split("T");
+          datewithTime = `${aDateCreate[0]}T${hour}:${min}:${sec}`;
+        }
+
         if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
           const temp = {
             EmployeeID: userData?.results[0].EmployeeNumber,
             Counter: entry[`day${i}Counter`] || "",
             Status: "30",
             Reason: "",
-            DateCreate: dateCreate,
+            DateCreate: datewithTime,
             TimeCreate: entry[`day${i}TimeCreate`],
             __metadata: {
               type: "HCMFAB_APR_TIMESHEET_SRV.ApprovalDetails",
