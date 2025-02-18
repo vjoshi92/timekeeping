@@ -877,6 +877,7 @@ const ReviewScreen = () => {
             [`${dayKey}WORKDATE`]: entry?.TimeEntryDataFields?.WORKDATE,
             [`${dayKey}DateCreate`]: entry?.TimeEntryDataFields?.LAEDA,
             [`${dayKey}TimeCreate`]: entry?.TimeEntryDataFields?.LAETM,
+            [`${dayKey}PERNR`]: entry?.TimeEntryDataFields?.PERNR,
           };
         } else {
           weekRow[dayKey] = hours.toFixed(2);
@@ -889,6 +890,7 @@ const ReviewScreen = () => {
           weekRow[`${dayKey}WORKDATE`] = entry?.TimeEntryDataFields?.WORKDATE;
           weekRow[`${dayKey}DateCreate`] = entry?.TimeEntryDataFields?.LAEDA;
           weekRow[`${dayKey}TimeCreate`] = entry?.TimeEntryDataFields?.LAETM;
+          weekRow[`${dayKey}PERNR`]= entry?.TimeEntryDataFields?.PERNR;
         }
         weekRows[rowIndex] = weekRow;
         // all status check
