@@ -32,7 +32,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { setDateRange } from "store/slice/HomeSlice";
-import { useGetReporteeListQuery, useGetUserDataQuery } from "api/timesheetApi";
+import {
+  useGetReporteeListQuery,
+  useGetUserDataQuery,
+  useLazyGetPendingApprovalCountQuery,
+} from "api/timesheetApi";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -171,9 +175,14 @@ export default function Header() {
   const {
     data: reporteeData,
     isSuccess: reporteeDataIsSuccess,
-    isLoading: reporteeDataLoading,
+    isFetching: reporteeDataLoading,
     error: reporteeDataIsError,
   } = useGetReporteeListQuery();
+
+  const [
+    getPendingApprovalCount,
+    { data: pendingApprovalCount, isFetching: approvalCountFetching },
+  ] = useLazyGetPendingApprovalCountQuery();
 
   React.useEffect(() => {
     if (userData?.results) {
@@ -186,6 +195,7 @@ export default function Header() {
     if (reporteeDataIsSuccess) {
       if (reporteeData?.results?.length > 0) {
         setIsManager(true);
+        getPendingApprovalCount();
       } else {
         setIsManager(false);
       }
@@ -388,7 +398,11 @@ export default function Header() {
                   }}
                 >
                   <ApprovalsTypography>Pending Approvals</ApprovalsTypography>
-                  <StyledChip label="5" variant="filled" sx={{}} />
+                  <StyledChip
+                    label={pendingApprovalCount || ''}
+                    variant="filled"
+                    sx={{}}
+                  />
                 </ApprovalStyledBox>
                 <AllStyledBox
                   onClick={() => {

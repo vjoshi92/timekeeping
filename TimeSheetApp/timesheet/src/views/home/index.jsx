@@ -1444,7 +1444,11 @@ const Home = () => {
               )
             }
           >
-            <StyledFooterText>Submit Week for Approval</StyledFooterText>
+            <StyledFooterText>
+              {status !== "New" && status !== "Draft"
+                ? "Resubmit Week for Approval"
+                : "Submit Week for Approval"}
+            </StyledFooterText>
           </Button>
         )}
       </Footer>

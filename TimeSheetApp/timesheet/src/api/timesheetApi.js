@@ -59,7 +59,7 @@ export const TimesheetApi = createApi({
           body: body,
         };
       },
-      invalidatesTags: ["Get_Timesheet"],
+      invalidatesTags: ["Get_Review_Timesheet"],
     }),
     getDateWiseDetails: builder.query({
       query: ({ startDate, endDate, pernr }) => {
@@ -131,6 +131,20 @@ export const TimesheetApi = createApi({
       },
       providesTags: ["Get_Review_Timesheet"],
     }),
+    getPendingApprovalCount: builder.query({
+      query: () => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet/$count?$filter=STATUS%20eq%20%2720%27&sap-client=100&sap-language=EN`;
+
+        return {
+          url: URL,
+          method: "GET",
+          headers: {
+            Accept: "*/*",
+          },
+        };
+      },
+      providesTags: ["Get_Pending_Count"],
+    }),
   }),
 });
 
@@ -149,4 +163,5 @@ export const {
   useGetReviewDetailDataQuery,
   useGetRejectedReasonsQuery,
   useLazyGetDateWiseReviewDetailsQuery,
+  useLazyGetPendingApprovalCountQuery,
 } = TimesheetApi;
