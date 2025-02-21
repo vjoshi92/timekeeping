@@ -399,7 +399,7 @@ export default function Header() {
                 >
                   <ApprovalsTypography>Pending Approvals</ApprovalsTypography>
                   <StyledChip
-                    label={pendingApprovalCount || ''}
+                    label={pendingApprovalCount || '0'}
                     variant="filled"
                     sx={{}}
                   />

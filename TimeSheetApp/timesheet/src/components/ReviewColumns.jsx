@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Divider,
   IconButton,
   List,
@@ -24,7 +25,13 @@ import DecimalInput from "./DecimalInput";
 import Dropdown from "./Dropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { addNotes } from "store/slice/TimesheetSlice";
-import { formatFullDateString, formatFullTimeString, odataGetDateFormat, PrepareApprovalBatchPayload, PrepareBatchPayload } from "utils/AppUtil";
+import {
+  formatFullDateString,
+  formatFullTimeString,
+  odataGetDateFormat,
+  PrepareApprovalBatchPayload,
+  PrepareBatchPayload,
+} from "utils/AppUtil";
 import { isRejected } from "@reduxjs/toolkit";
 import {
   useGetRejectedReasonsQuery,
@@ -241,32 +248,19 @@ export const ReviewColumns = ({
     },
   ] = useMakeApprovalBatchCallMutation();
 
+  const [
+    makeNoteSaveBatchCall,
+    {
+      isSuccess: noteBatchCallIsSuccess,
+      isLoading: noteBatchCallLoading,
+      error: noteBatchCallIsError,
+    },
+  ] = useMakeBatchCallMutation();
+
   const handleApprovalClose = (type) => {
     if (type == "submit") {
       handleReject();
-      // if (activeInputId) {
-      //   setHasNote((prev) => new Set(prev).add(activeInputId));
-      //   setRejectedNote((prev) => new Set(prev).add(activeInputId));
-      //   if (hasNote?.size !== 0) {
-      //     handleRejected(hasNote);
-      //   } else {
-      //     handleRejected(new Set().add(activeInputId));
-      //   }
-      //   const cdate = formatFullDateString(new Date());
-      //   const ctime = formatFullTimeString(new Date());
-      //   // const noteItem = ;
-      //   dispatch(
-      //     addNotes({
-      //       id: Math.random(),
-      //       content: `Rejected Reason: ${selectedReason} ${otherReason ? `: ${otherReason}` : ""}`,
-      //       date: cdate,
-      //       time: ctime,
-      //       username: "Vijay Joshi",
-      //       rejected: true,
-      //     })
-      //   );
-      // }
-    }else{
+    } else {
       setOpenRejection(false);
     }
   };
@@ -278,15 +272,15 @@ export const ReviewColumns = ({
   const prepareRejectPayload = () => {
     const row = rowObject?.row;
     const index = rowObject?.index;
-    const date = formatFullDateString(new Date());
-    const notetime = formatFullTimeString(new Date());
-    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
-    const prevNote = row[`day${index}Notes`];
-    const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ''}`
-    let noteString = `${reason},${date},${notetime},${userName}\n`;
-    if (prevNote) {
-      noteString = prevNote + "\n" + noteString;
-    }
+    // const date = formatFullDateString(new Date());
+    // const notetime = formatFullTimeString(new Date());
+    // const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+    // const prevNote = row[`day${index}Notes`];
+    // const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
+    // let noteString = `${reason},${date},${notetime},${userName}\n`;
+    // if (prevNote) {
+    //   noteString = prevNote + "\n" + noteString;
+    // }
 
     const createDate = row[`day${index}DateCreate`];
     let dateCreate = createDate ? odataGetDateFormat(createDate) : "";
@@ -307,47 +301,69 @@ export const ReviewColumns = ({
       Reason: selectedReason?.value.toString() || "",
       DateCreate: datewithTime,
       TimeCreate: row[`day${index}TimeCreate`],
-      ShortText: reason.substring(0, 40),
-      Longtext: "X",
-      LongtextData: noteString,
+      // ShortText: reason.substring(0, 40),
+      // Longtext: "X",
+      // LongtextData: noteString,
       __metadata: {
         type: "HCMFAB_APR_TIMESHEET_SRV.ApprovalDetails",
       },
     };
-
-    // const temp = {
-    //   __metadata: {
-    //     type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
-    //   },
-    //   TimeEntryDataFields: {
-    //     __metadata: {
-    //       type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
-    //     },
-    //     CATSHOURS: row[`day${index}`],
-    //     PERNR: userData?.results[0].EmployeeNumber,
-    //     CATSQUANTITY: row[`day${index}`],
-    //     LTXA1: noteString.substring(0, 40),
-    //     LONGTEXT: "X",
-    //     MEINH: "H",
-    //     UNIT: "H",
-    //     WORKDATE: row[`day${index}WORKDATE`],
-    //     LONGTEXT_DATA: noteString,
-    //     POSID: row?.level,
-    //   },
-    //   Pernr: userData?.results[0].EmployeeNumber,
-    //   TimeEntryOperation: row[`day${index}timeEntryOperation`] || "C",
-    //   Counter: row[`day${index}Counter`] || "",
-    //   AllowRelease: "",
-    //   RecRowNo: "1",
-    // };
     return [temp];
   };
 
   const handleReject = async () => {
     const oPayload = prepareRejectPayload();
     const obatchPayload = PrepareApprovalBatchPayload(oPayload);
-    const response = await makeBatchCall({ body: obatchPayload });    
-    setOpenRejection(false);  
+    const response = await makeBatchCall({ body: obatchPayload });
+    saveNote();
+  };
+
+  const prepareNoteSavePayload = (note) => {
+    const row = rowObject?.row;
+    const index = rowObject?.index;
+    const date = formatFullDateString(new Date());
+    const notetime = formatFullTimeString(new Date());
+    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+    const prevNote = row[`day${index}Notes`];
+    const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
+    let noteString = `${reason},${date},${notetime},${userName}\n`;
+    if (prevNote) {
+      noteString = prevNote + "\n" + noteString;
+    }
+
+    const temp = {
+      __metadata: {
+        type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+      },
+      TimeEntryDataFields: {
+        __metadata: {
+          type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+        },
+        CATSHOURS: row[`day${index}`],
+        PERNR: row[`day${index}PERNR`],
+        CATSQUANTITY: row[`day${index}`],
+        LTXA1: noteString.substring(0, 40),
+        LONGTEXT: "X",
+        MEINH: "H",
+        UNIT: "H",
+        WORKDATE: row[`day${index}WORKDATE`],
+        LONGTEXT_DATA: noteString,
+        POSID: row?.level,
+      },
+      Pernr: row[`day${index}PERNR`],
+      TimeEntryOperation: row[`day${index}timeEntryOperation`] || "C",
+      Counter: row[`day${index}Counter`] || "",
+      AllowRelease: "",
+      RecRowNo: "1",
+    };
+    return [temp];
+  };
+
+  const saveNote = async () => {
+    const oPayload = prepareNoteSavePayload();
+    const obatchPayload = PrepareBatchPayload(oPayload);
+    const response = await makeNoteSaveBatchCall({ body: obatchPayload });
+    setOpenRejection(false);
   };
 
   const openRejectionModal = (inputId, row, i) => {
@@ -702,6 +718,19 @@ export const ReviewColumns = ({
               }}
             >
               <RejectionBox>
+                {(batchCallLoading || noteBatchCallLoading) && (
+                  <CircularProgress
+                    size={24}
+                    sx={{
+                      color: "green",
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      // marginTop: "-12px",
+                      // marginLeft: "-12px",
+                    }}
+                  />
+                )}
                 <RejectionMainBox>
                   <ModalTypography>Rejection Reason</ModalTypography>
                   <Stack

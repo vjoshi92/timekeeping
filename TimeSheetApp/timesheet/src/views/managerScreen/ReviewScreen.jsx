@@ -463,7 +463,7 @@ const ReviewScreen = () => {
   const [openApiMsg, setOpenApiMsg] = useState(false);
   const [apiMsg, setApiMsg] = useState("");
   const [reviewColumns, setReviewColumns] = useState([]);
-
+  const status = useSelector((state) => state?.CreateForm?.status);
   const navigate = useNavigate();
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const dispatch = useDispatch();
@@ -890,7 +890,7 @@ const ReviewScreen = () => {
           weekRow[`${dayKey}WORKDATE`] = entry?.TimeEntryDataFields?.WORKDATE;
           weekRow[`${dayKey}DateCreate`] = entry?.TimeEntryDataFields?.LAEDA;
           weekRow[`${dayKey}TimeCreate`] = entry?.TimeEntryDataFields?.LAETM;
-          weekRow[`${dayKey}PERNR`]= entry?.TimeEntryDataFields?.PERNR;
+          weekRow[`${dayKey}PERNR`] = entry?.TimeEntryDataFields?.PERNR;
         }
         weekRows[rowIndex] = weekRow;
         // all status check
@@ -1067,14 +1067,10 @@ const ReviewScreen = () => {
               <HeaderTypography>Status</HeaderTypography>
               <HeaderSubTypography
                 style={{
-                  color: StatusColorFormatter(
-                    reviewDetailData?.results[0]?.STATUS
-                  ),
+                  color: StatusColorFormatter(status),
                 }}
               >
-                {StatusCaseFormatting(
-                  StatusTextFormatting(reviewDetailData?.results[0]?.STATUS)
-                )}
+                {StatusCaseFormatting(status)}
               </HeaderSubTypography>
             </Stack>
           </HeaderStack>
@@ -1175,7 +1171,7 @@ const ReviewScreen = () => {
               marginBottom: "5%",
             }}
           >
-            <RejectButton
+            {/* <RejectButton
               disabled={!isTimeSheetRejected}
               variant="contained"
               color="#DD133F"
@@ -1188,9 +1184,12 @@ const ReviewScreen = () => {
               onClick={() => handleApproval("reject")}
             >
               Reject
-            </RejectButton>
+            </RejectButton> */}
             <ApproveButton
-              disabled={isTimeSheetRejected}
+              disabled={
+                status === "Approved" ||
+                status === "Rejected"
+              }
               variant="contained"
               color="success"
               sx={{ width: { xs: "100%", sm: "200px" } }}

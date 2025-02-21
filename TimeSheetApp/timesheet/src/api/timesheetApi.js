@@ -45,7 +45,7 @@ export const TimesheetApi = createApi({
           body: body,
         };
       },
-      invalidatesTags: ["Get_Timesheet"],
+      invalidatesTags: ["Get_Timesheet", "Get_Review_Timesheet"],
     }),
     makeApprovalBatchCall: builder.mutation({
       query: ({ body }) => {
@@ -59,7 +59,11 @@ export const TimesheetApi = createApi({
           body: body,
         };
       },
-      invalidatesTags: ["Get_Review_Timesheet"],
+      invalidatesTags: [
+        "Get_Review_Timesheet",
+        "Get_ReviewStatus_Timesheet",
+        "Get_Pending_Count",
+      ],
     }),
     getDateWiseDetails: builder.query({
       query: ({ startDate, endDate, pernr }) => {
@@ -107,6 +111,7 @@ export const TimesheetApi = createApi({
           },
         };
       },
+      providesTags: ["Get_ReviewStatus_Timesheet"],
     }),
     getRejectedReasons: builder.query({
       query: () => {
