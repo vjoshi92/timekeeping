@@ -45,7 +45,7 @@ export const TimesheetApi = createApi({
           body: body,
         };
       },
-      invalidatesTags: ["Get_Timesheet", "Get_Review_Timesheet"],
+      invalidatesTags: ["Get_Timesheet"],
     }),
     makeApprovalBatchCall: builder.mutation({
       query: ({ body }) => {
@@ -150,6 +150,17 @@ export const TimesheetApi = createApi({
       },
       providesTags: ["Get_Pending_Count"],
     }),
+    saveLongText: builder.mutation({
+      query: ({ body }) => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/RejectionNotesSet`;
+        return {
+          url: URL,
+          method: "POST",
+          body: body,
+        };
+      },
+      invalidatesTags: ["Get_Review_Timesheet"],
+    }),
   }),
 });
 
@@ -169,4 +180,5 @@ export const {
   useGetRejectedReasonsQuery,
   useLazyGetDateWiseReviewDetailsQuery,
   useLazyGetPendingApprovalCountQuery,
+  useSaveLongTextMutation
 } = TimesheetApi;

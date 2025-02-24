@@ -1,9 +1,10 @@
 import { Backdrop, CircularProgress } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 
-const BusyDialog = ({ open, setOpen }) => {
+const BusyDialog = ({ open }) => {
+  const [opendialog, setOpenDialog] = useState(open);
   const handleClose = () => {
-    setOpen(false);
+    setOpenDialog(false);
   };
   return (
     <Backdrop

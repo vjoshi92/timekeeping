@@ -61,6 +61,7 @@ import {
   useMakeApprovalBatchCallMutation,
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
+import BusyDialog from "components/BusyLoader";
 const style = {
   position: "absolute",
   top: "50%",
@@ -622,7 +623,7 @@ const ReviewScreen = () => {
     console.log("Approve response", response);
   };
 
-  const handleReject = () => {};
+  const handleReject = () => { };
 
   const handleInputChange = (field, value, rowId) => {
     let tempRows = [...rows];
@@ -640,11 +641,11 @@ const ReviewScreen = () => {
     // updateCount(tempRows);
   };
 
-  const handleRejected = (hasNote) => {
-    if (hasNote && hasNote?.size !== 0) {
-      setTimesheetRejected(true);
-    } else {
-      setTimesheetRejected(false);
+  const handleRejected = (isRejected) => {
+    if(isRejected == true){
+      setSnackBarMsg("Timesheet Reject !!");
+      setNewStatus("Rejected");
+      setSnackbarOpen(true);
     }
   };
 
@@ -724,7 +725,8 @@ const ReviewScreen = () => {
       if (actionMsg.indexOf("approve") >= 0) {
         setSnackBarMsg("Timesheet Approved !!");
         setShowRelease(true);
-        setNewStatus("Approved");
+        // setNewStatus("Approved");
+        setSnackbarOpen(true);
       }
     }
   }, [batchCallLoading]);
@@ -1113,10 +1115,10 @@ const ReviewScreen = () => {
                   value[0] === null && value[1] === null
                     ? null
                     : value
-                        .map((date) =>
-                          date ? date.format("MM/DD/YYYY") : "null"
-                        )
-                        .join(" - ")
+                      .map((date) =>
+                        date ? date.format("MM/DD/YYYY") : "null"
+                      )
+                      .join(" - ")
                 }
                 value={value}
                 onChange={(newValue) => setValue(newValue)}
@@ -1186,10 +1188,7 @@ const ReviewScreen = () => {
               Reject
             </RejectButton> */}
             <ApproveButton
-              disabled={
-                status === "Approved" ||
-                status === "Rejected"
-              }
+              disabled={status === "Approved" || status === "Rejected"}
               variant="contained"
               color="success"
               sx={{ width: { xs: "100%", sm: "200px" } }}
@@ -1310,7 +1309,6 @@ const ReviewScreen = () => {
       </Modal>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -1330,7 +1328,6 @@ const ReviewScreen = () => {
       </Snackbar>
       <Snackbar
         open={openApiMsg}
-        autoHideDuration={3000}
         onClose={() => setOpenApiMsg(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -1342,6 +1339,7 @@ const ReviewScreen = () => {
           {apiMsg}
         </Alert>
       </Snackbar>
+      <BusyDialog open={batchCallLoading} />
     </>
   );
 };

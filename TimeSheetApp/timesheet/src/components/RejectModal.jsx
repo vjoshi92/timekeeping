@@ -304,7 +304,7 @@ const RejectModal = ({
                       mb: 1,
                     }}
                   >
-                    {note?.rejected && (
+                    {note?.isRejected && (
                       <Stack
                         direction={"row"}
                         spacing={1}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -8,6 +9,7 @@ import {
   List,
   ListItem,
   Modal,
+  Snackbar,
   Stack,
   styled,
   Typography,
@@ -37,7 +39,7 @@ import {
   useGetRejectedReasonsQuery,
   useGetUserDataQuery,
   useMakeApprovalBatchCallMutation,
-  useMakeBatchCallMutation,
+  useSaveLongTextMutation,
 } from "api/timesheetApi";
 import RejectModal from "./RejectModal";
 
@@ -238,7 +240,6 @@ export const ReviewColumns = ({
   const { data: rejectionReasons } = useGetRejectedReasonsQuery();
   const [rowObject, setRowObject] = useState({});
   const { data: userData } = useGetUserDataQuery();
-
   const [
     makeBatchCall,
     {
@@ -249,13 +250,13 @@ export const ReviewColumns = ({
   ] = useMakeApprovalBatchCallMutation();
 
   const [
-    makeNoteSaveBatchCall,
+    saveLongText,
     {
-      isSuccess: noteBatchCallIsSuccess,
-      isLoading: noteBatchCallLoading,
-      error: noteBatchCallIsError,
+      isSuccess: noteCallIsSuccess,
+      isLoading: noteCallLoading,
+      error: noteCallIsError,
     },
-  ] = useMakeBatchCallMutation();
+  ] = useSaveLongTextMutation();
 
   const handleApprovalClose = (type) => {
     if (type == "submit") {
@@ -326,44 +327,53 @@ export const ReviewColumns = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
     const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
-    let noteString = `${reason},${date},${notetime},${userName}\n`;
+    let noteString = `Rejected Reason: ${reason},${date},${notetime},${userName}\n`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
 
     const temp = {
-      __metadata: {
-        type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
-      },
-      TimeEntryDataFields: {
-        __metadata: {
-          type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
-        },
-        CATSHOURS: row[`day${index}`],
-        PERNR: row[`day${index}PERNR`],
-        CATSQUANTITY: row[`day${index}`],
-        LTXA1: noteString.substring(0, 40),
-        LONGTEXT: "X",
-        MEINH: "H",
-        UNIT: "H",
-        WORKDATE: row[`day${index}WORKDATE`],
-        LONGTEXT_DATA: noteString,
-        POSID: row?.level,
-      },
-      Pernr: row[`day${index}PERNR`],
-      TimeEntryOperation: row[`day${index}timeEntryOperation`] || "C",
-      Counter: row[`day${index}Counter`] || "",
-      AllowRelease: "",
-      RecRowNo: "1",
+      "Pernr": row[`day${index}PERNR`],
+      "Counter": row[`day${index}Counter`],
+      "LONGTEXT_DATA": noteString,
+      "Msgtype": "",
+      "Message1": ""
     };
-    return [temp];
+
+    // const temp = {
+    //   __metadata: {
+    //     type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+    //   },
+    //   TimeEntryDataFields: {
+    //     __metadata: {
+    //       type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+    //     },
+    //     CATSHOURS: row[`day${index}`],
+    //     PERNR: row[`day${index}PERNR`],
+    //     CATSQUANTITY: row[`day${index}`],
+    //     LTXA1: noteString.substring(0, 40),
+    //     LONGTEXT: "X",
+    //     MEINH: "H",
+    //     UNIT: "H",
+    //     WORKDATE: row[`day${index}WORKDATE`],
+    //     LONGTEXT_DATA: noteString,
+    //     POSID: row?.level,
+    //   },
+    //   Pernr: row[`day${index}PERNR`],
+    //   TimeEntryOperation: row[`day${index}timeEntryOperation`] || "C",
+    //   Counter: row[`day${index}Counter`] || "",
+    //   AllowRelease: "",
+    //   RecRowNo: "1",
+    // };
+    return temp;
   };
 
   const saveNote = async () => {
     const oPayload = prepareNoteSavePayload();
-    const obatchPayload = PrepareBatchPayload(oPayload);
-    const response = await makeNoteSaveBatchCall({ body: obatchPayload });
+    // const obatchPayload = PrepareBatchPayload(oPayload);
+    const response = await saveLongText({ body: oPayload });
     setOpenRejection(false);
+    handleRejected(true);
   };
 
   const openRejectionModal = (inputId, row, i) => {
@@ -398,7 +408,7 @@ export const ReviewColumns = ({
     }
   };
 
-  const handleCopyModal = (inputId, row, i) => {
+  const openNotes = (inputId, row, i) => {
     setModalOpen(true);
     setActiveInputId(inputId);
     if (row[`day${i}Notes`]) {
@@ -406,14 +416,21 @@ export const ReviewColumns = ({
       const noteStrings = row[`day${i}Notes`].split("\n");
       noteStrings.forEach((note) => {
         const noteIntenalArray = note.split(",");
-        const tempNote = {
-          id: Math.random(),
-          content: noteIntenalArray[0],
-          date: noteIntenalArray[1],
-          time: noteIntenalArray[2],
-          username: noteIntenalArray[3],
-        };
-        notes.push(tempNote);
+        if (noteIntenalArray[0] && noteIntenalArray[0].trim()) {
+          let isRejected = false;
+          if (noteIntenalArray[0].startsWith("Rejected Reason")) {
+            isRejected = true;
+          }
+          const tempNote = {
+            id: Math.random(),
+            content: noteIntenalArray[0],
+            date: noteIntenalArray[1],
+            time: noteIntenalArray[2],
+            username: noteIntenalArray[3],
+            isRejected: isRejected
+          };
+          notes.push(tempNote);
+        }
       });
 
       setRowObject({
@@ -644,8 +661,8 @@ export const ReviewColumns = ({
 
               <IconButton
                 size="small"
-                onClick={() => handleCopyModal(inputId, row, i)}
-                // disabled={isFirstInput}
+                onClick={() => openNotes(inputId, row, i)}
+              // disabled={isFirstInput}
               >
                 {/* <TextSnippetOutlined
                   sx={{
@@ -658,7 +675,7 @@ export const ReviewColumns = ({
                     fontWeight: "400",
                     color:
                       row[`day${i}Notes`] !== "" &&
-                      row[`day${i}Notes`] !== undefined
+                        row[`day${i}Notes`] !== undefined
                         ? "#ed6a15"
                         : "grey",
                   }}
@@ -718,7 +735,7 @@ export const ReviewColumns = ({
               }}
             >
               <RejectionBox>
-                {(batchCallLoading || noteBatchCallLoading) && (
+                {(batchCallLoading || noteCallLoading) && (
                   <CircularProgress
                     size={24}
                     sx={{
