@@ -8,6 +8,9 @@ import {
 } from "@mui/material";
 import ApprovalsDatagrid from "views/managerScreen/ApprovalsDatagrid";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useSaveWeekApprovalMutation } from "api/timesheetApi";
+import BusyDialog from "components/BusyLoader";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(5),
@@ -45,6 +48,28 @@ const PendingApprovals = () => {
     setSnackbarOpen(false);
   };
 
+  const [saveWeekApproval, { isSuccess: saveWeekSuccess, isLoading: saveWeekLoading, isError: isSaveWeekError,
+    error: saveWeekError
+  }] = useSaveWeekApprovalMutation();
+
+  const selectedPendingApprovals = useSelector((state) => state?.CreateForm?.selectedPendingApprovals);
+
+  const handleApprove = () => {
+    console.log("selectedPendingApprovals", selectedPendingApprovals);
+    selectedPendingApprovals.forEach(element => {
+      const payload = { ...element, STATUS: "30" };
+      delete payload.id;
+      delete payload.__metadata;
+      saveWeekApproval({ body: payload });
+    });
+  };
+
+  useEffect(() => {
+    if (saveWeekSuccess) {
+      setSnackbarOpen(true)
+    }
+  }, [saveWeekLoading])
+
   return (
     <StyledBox>
       <StyledTypography>Pending Approvals</StyledTypography>
@@ -56,7 +81,7 @@ const PendingApprovals = () => {
       </Box>
       <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
         <StyledButton
-          onClick={() => setSnackbarOpen(true)}
+          onClick={() => handleApprove()}
           variant="contained"
           disabled={!checkboxChecked && !showApproveAll}
           sx={{
@@ -87,6 +112,7 @@ const PendingApprovals = () => {
           Timesheet approved successfully.
         </Alert>
       </Snackbar>
+      <BusyDialog open={saveWeekLoading} />
     </StyledBox>
   );
 };

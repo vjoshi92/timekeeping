@@ -15,6 +15,8 @@ import {
   useLazyGetPendingApprovalListQuery,
 } from "api/timesheetApi";
 import { weekTimesheetFormat } from "utils/AppUtil";
+import { setSelectedPendingApprovals } from "store/slice/TimesheetSlice";
+import { useDispatch, useSelector } from "react-redux";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 const StyledBox = styled(Stack)(({ theme }) => ({
@@ -49,9 +51,9 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
     display: "none",
   },
   "& .MuiDataGrid-columnHeaders > .MuiDataGrid-columnHeader:last-child .MuiDataGrid-columnSeparator":
-    {
-      display: "none",
-    },
+  {
+    display: "none",
+  },
 }));
 
 export default function ApprovalsDatagrid({
@@ -61,12 +63,28 @@ export default function ApprovalsDatagrid({
   const [isChecked, setIsChecked] = React.useState(false);
   const [checkedItems, setCheckedItems] = React.useState({});
   const [checkboxClickedCount, setCheckboxClickedCount] = React.useState(0);
+  const [approvalData, setApprovalData] = React.useState([]);
   const navigate = useNavigate();
-
-  const { data: pendingApprovalList, isFetching: fetchingPendingApproval } =
+  const dispatch = useDispatch();
+  const { data: pendingApprovalList, isSuccess: successPendingData, isFetching: fetchingPendingApproval } =
     useGetPendingApprovalListQuery();
 
   console.log("pendingApprovalList", pendingApprovalList);
+  const selectedPendingApprovals = useSelector((state) => state?.CreateForm?.selectedPendingApprovals);
+
+  React.useEffect(() => {
+    if (successPendingData) {
+      let data = [];
+      data = pendingApprovalList?.results?.map(x => {
+        return {
+          ...x,
+          id: Math.random()
+        }
+      });
+      setApprovalData(data);
+    }
+
+  }, [fetchingPendingApproval])
 
   const handleEyeClick = (params) => {
     const allData = params.row;
@@ -74,11 +92,11 @@ export default function ApprovalsDatagrid({
   };
 
   // Modified to handle individual checkbox states
-  const handleChecked = (event, id) => {
+  const handleChecked = (event, row) => {
     // Create new state object with the toggled value for the specific checkbox
     const newCheckedItems = {
       ...checkedItems,
-      [id]: !checkedItems[id],
+      [row.id]: !checkedItems[row.id],
     };
     setCheckedItems(newCheckedItems);
 
@@ -103,6 +121,16 @@ export default function ApprovalsDatagrid({
       setShowApproveAll(false);
       setCheckboxChecked(false);
     }
+
+    // add the item to array if checked or remove it
+    let selectedData = [...selectedPendingApprovals];
+    if (event.target.checked) {
+      selectedData.push(row);
+    } else {
+      const i = selectedData.indexOf(row);
+      selectedData.splice(i, 1);
+    }
+    dispatch(setSelectedPendingApprovals(selectedData));
   };
 
   const columns = [
@@ -125,7 +153,7 @@ export default function ApprovalsDatagrid({
           <Checkbox
             {...label}
             checked={!!checkedItems[params.row.id]}
-            onChange={(event) => handleChecked(event, params.row.id)}
+            onChange={(event) => handleChecked(event, params.row)}
             sx={{
               padding: 0,
               margin: 0,
@@ -176,11 +204,11 @@ export default function ApprovalsDatagrid({
       ),
     },
   ];
-  
+
   return (
     <Box sx={{ width: "100%" }}>
       <MuiDataGrid
-        rows={pendingApprovalList?.results || []}
+        rows={approvalData}
         columns={columns}
         pagination
         pageSize={5}

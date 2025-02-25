@@ -170,6 +170,16 @@ export const TimesheetApi = createApi({
         };
       },
     }),
+    saveWeekApproval: builder.mutation({
+      query: ({ body }) => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/ApprovalDetailsSet`;
+        return {
+          url: URL,
+          method: "POST",
+          body: body,
+        };
+      },
+    }),
   }),
 });
 
@@ -190,5 +200,6 @@ export const {
   useLazyGetDateWiseReviewDetailsQuery,
   useLazyGetPendingApprovalCountQuery,
   useSaveLongTextMutation,
-  useGetHierarchyDataQuery
+  useGetHierarchyDataQuery,
+  useSaveWeekApprovalMutation
 } = TimesheetApi;

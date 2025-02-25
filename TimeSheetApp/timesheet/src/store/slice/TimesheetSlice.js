@@ -4,13 +4,7 @@ const initialState = {
   projectData: [],
   total: {},
   approvalCount: 0,
-  notes: [{
-        id: 1,
-        content: "Notes go here",
-        date: "10-Jan-2025",
-        time: "05:30:00",
-        username: "Jon Doe",
-      },],
+  notes: [],
   // notes: [
   //   {
   //     id: 1,
@@ -28,7 +22,8 @@ const initialState = {
   //   },
   // ],
   status: "New",
-  newRow: false
+  newRow: false,
+  selectedPendingApprovals: []
 };
 
 const createFormSlice = createSlice({
@@ -80,6 +75,9 @@ const createFormSlice = createSlice({
     setNewRowAdded: (state, action) => {
       state.newRow = action.payload;
     },
+    setSelectedPendingApprovals: (state, action) => {
+      state.selectedPendingApprovals = action.payload;
+    },
   },
 });
 
@@ -91,7 +89,8 @@ export const {
   addNotes,
   setStatus,
   setApprovalCount,
-  setNewRowAdded
+  setNewRowAdded,
+  setSelectedPendingApprovals
 } = createFormSlice.actions;
 
 export default createFormSlice.reducer;
