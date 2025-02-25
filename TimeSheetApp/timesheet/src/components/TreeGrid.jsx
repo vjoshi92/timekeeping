@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { Box, Stack, Step, StepLabel, Stepper, styled, Tooltip, Typography } from "@mui/material";
 import { useGridApiRef } from "@mui/x-data-grid-premium";
 import CustomPopover from "./CustomPopover";
+import { useGetHierarchyDataQuery } from "api/timesheetApi";
 
 const EmptyBox = styled(Typography)(({ theme }) => ({
   width: "100%",
@@ -15,32 +16,34 @@ const getTreeDataPath = (row) => {
   if (row.isTotal) return ["Total"];
   return row?.hierarchy;
 };
-const steps = [
-  {
-    label: "JMA NOFO 2 O-RU",
-  },
-  {
-    label: "1.4 / Phase 2",
-  },
-  {
-    label: "1.4.10 / AT&T RU [XR35TWV4/ACT-O] C-Band 4x30W (Ph2)",
-  },
-  {
-    label: "1.4.10.2 / Design Implementation (Second Run)",
-  },
-  {
-    label: "1.4.10.2.1 / Mechanical Design",
-  },
-];
+// const steps = [
+//   {
+//     label: "JMA NOFO 2 O-RU",
+//   },
+//   {
+//     label: "1.4 / Phase 2",
+//   },
+//   {
+//     label: "1.4.10 / AT&T RU [XR35TWV4/ACT-O] C-Band 4x30W (Ph2)",
+//   },
+//   {
+//     label: "1.4.10.2 / Design Implementation (Second Run)",
+//   },
+//   {
+//     label: "1.4.10.2.1 / Mechanical Design",
+//   },
+// ];
 
-const customStepper = () => {
+const customStepper = (steps) => {
+  // console.log("steps in custom stepper", steps);
   return (
     <Stepper orientation="vertical" activeStep={-1}>
       {steps.map((step, index) => (
-        <Step key={step.label}>
+        <Step key={step.Posid_up}>
           <StepLabel>
             <Typography sx={{ fontWeight: index === steps.length - 1 ? "bold" : "normal" }}>
-              {step.label}
+              {/* {`${step.Posid_up} - ${step.Posid_up_Desc}`} */}
+              {step.Posid_up_Desc}
             </Typography>
           </StepLabel>
         </Step>
@@ -49,32 +52,44 @@ const customStepper = () => {
   );
 };
 
-const groupingColDef = {
-  headerName: "",
-  pinnable: true,
-  pinned: "left",
-  minWidth: 180,
-  flex: 1,
-  renderCell: (params) => {
-    return params.row.title ? (
+const groupingColDef = (hierarchyData) => {
+  return {
+    headerName: "",
+    pinnable: true,
+    pinned: "left",
+    minWidth: 180,
+    flex: 1,
+    renderCell: (params) => {
+      // get level wise heirachi data
+      const posId = params.row.level;
+      let datas = [...hierarchyData?.results];
+      let heirachyDataforPosId = datas?.find(x => x.POSID == posId);
+      let dataArray = [];
+      if(heirachyDataforPosId?.WBSHIERLEVEL?.results){
+        dataArray = [...heirachyDataforPosId?.WBSHIERLEVEL?.results];
+      }
+      const sortedSteps = dataArray?.sort((a, b) => a.Stufe - b.Stufe);
+      // ;
 
-      <Stack ml={"1rem"}>
-        <CustomPopover content={customStepper()}>
-          <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
-            <Typography mt={"0.2rem"} fontSize={"0.9rem"} sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", }}>
-              {params.row.level}
-            </Typography>
-          </Tooltip>
-        </CustomPopover>
-        <Typography fontWeight={700}>{params.row.title}</Typography>
-      </Stack>
+      return params.row.title ? (
+        <Stack ml={"1rem"}>
+          <CustomPopover content={customStepper(sortedSteps)}>
+            <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
+              <Typography mt={"0.2rem"} fontSize={"0.9rem"} sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", }}>
+                {params.row.level}
+              </Typography>
+            </Tooltip>
+          </CustomPopover>
+          <Typography fontWeight={700}>{params.row.title}</Typography>
+        </Stack>
 
-    ) : (
-      <Typography mt={"1rem"} fontWeight={700}>
-        {params.value}
-      </Typography>
-    );
-  },
+      ) : (
+        <Typography mt={"1rem"} fontWeight={700}>
+          {params.value}
+        </Typography>
+      );
+    },
+  }
 };
 
 const customStyles = {
@@ -122,6 +137,10 @@ LicenseInfo.setLicenseKey(
 );
 
 export default function TreeGrid({ columns, density, data }) {
+
+  // get heirachy data
+  const { data: heirachyData } = useGetHierarchyDataQuery();
+
   return (
     <Box sx={{ height: "60vh", width: "100%", border: "none" }}>
       <DataGridPro
@@ -132,7 +151,7 @@ export default function TreeGrid({ columns, density, data }) {
         density={density || "compact"}
         apiRef={useGridApiRef()}
         getTreeDataPath={getTreeDataPath}
-        groupingColDef={groupingColDef}
+        groupingColDef={() => groupingColDef(heirachyData)}
         sx={customStyles}
         getRowClassName={getRowClassName}
         pinnedColumns={{ left: ["__tree_data__"] }}

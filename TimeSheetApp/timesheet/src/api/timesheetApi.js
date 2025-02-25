@@ -161,6 +161,15 @@ export const TimesheetApi = createApi({
       },
       invalidatesTags: ["Get_Review_Timesheet"],
     }),
+    getHierarchyData: builder.query({
+      query: () => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WbsHierarchieSet?$expand=WBSHIERLEVEL&sap-client=100&sap-language=EN&$format=json`;
+        return {
+          url: URL,
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
@@ -180,5 +189,6 @@ export const {
   useGetRejectedReasonsQuery,
   useLazyGetDateWiseReviewDetailsQuery,
   useLazyGetPendingApprovalCountQuery,
-  useSaveLongTextMutation
+  useSaveLongTextMutation,
+  useGetHierarchyDataQuery
 } = TimesheetApi;

@@ -61,6 +61,7 @@ import {
   StatusColorFormatter,
 } from "utils/AppUtil";
 import {
+  useGetHierarchyDataQuery,
   useGetUserDataQuery,
   useLazyGetDateWiseDetailsQuery,
   useMakeBatchCallMutation,
@@ -528,6 +529,9 @@ const Home = () => {
       isFetching: timeSheetDataFetching,
     },
   ] = useLazyGetDateWiseDetailsQuery();
+
+  // get heirachy data
+  const { data: heirachyData } = useGetHierarchyDataQuery();
 
   const { data: userData } = useGetUserDataQuery();
 
@@ -1332,8 +1336,8 @@ const Home = () => {
               value[0] === null && value[1] === null
                 ? null
                 : value
-                    .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                    .join(" - ")
+                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
+                  .join(" - ")
             }
             value={value}
             onChange={(newValue) => setValue(newValue)}
