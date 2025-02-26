@@ -180,6 +180,31 @@ export const TimesheetApi = createApi({
         };
       },
     }),
+    getTimesheetWeekly: builder.query({
+      query: () => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=STATUS%20ne%20%27%27&sap-client=100&sap-language=EN&$format=json`;
+        return {
+          url: URL,
+          method: "GET",
+          headers: {
+            //   Selection: "Complete Data",
+            timesheet: "employee"
+          },
+        };
+      },
+    }),
+    getTeamTimesheetWeekly: builder.query({
+      query: () => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=STATUS%20ne%20%27%27&sap-client=100&sap-language=EN&$format=json`;
+        return {
+          url: URL,
+          method: "GET",
+          // headers: {
+          //   //   Selection: "Complete Data",            
+          // },
+        };
+      },
+    }),
   }),
 });
 
@@ -201,5 +226,9 @@ export const {
   useLazyGetPendingApprovalCountQuery,
   useSaveLongTextMutation,
   useGetHierarchyDataQuery,
-  useSaveWeekApprovalMutation
+  useSaveWeekApprovalMutation,
+  useGetTimesheetWeeklyQuery,
+  useLazyGetTimesheetWeeklyQuery,
+  useGetTeamTimesheetWeeklyQuery,
+  useLazyGetTeamTimesheetWeeklyQuery
 } = TimesheetApi;

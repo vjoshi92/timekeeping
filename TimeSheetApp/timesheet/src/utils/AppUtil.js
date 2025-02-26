@@ -93,6 +93,9 @@ export const StatusTextFormatting = (status) => {
     return "Approved";
   } else if (status == "40") {    
     return "Rejected";
+  } 
+  else if (status == "10") {    
+    return "Draft";
   }    
   else {
     return "";

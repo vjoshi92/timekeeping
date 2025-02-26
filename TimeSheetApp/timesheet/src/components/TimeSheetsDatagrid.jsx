@@ -8,29 +8,32 @@ import Checkbox from "@mui/material/Checkbox";
 import MuiDataGrid from "./MuiDataGrid";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tooltip, Typography } from "@mui/material";
-import { StatusColorFormatter } from "utils/AppUtil";
+import { StatusColorFormatter, StatusTextFormatting, weekTimesheetFormat } from "utils/AppUtil";
 import ApprovalIcon from "@mui/icons-material/Approval";
+import { useGetTimesheetWeeklyQuery, useLazyGetTeamTimesheetWeeklyQuery, useLazyGetTimesheetWeeklyQuery } from "api/timesheetApi";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 export default function TimeSheetsDatagrid() {
   const navigate = useNavigate();
   const [pageSize, setPageSize] = React.useState(5);
-  const [page, setPage] = React.useState(0);
+  const [page, setPage] = React.useState(0); 
   const handleEyeClick = (params) => {
     const allData = params.row;
-    navigate("/Review/false", { state: { data: allData } });
+    navigate(`/Review/false/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}`, { state: { data: allData } });
   };
+
   const MyColumns = [
     {
-      field: "timesheet",
+      field: "Week",
       headerName: "TIMESHEET",
-      minWidth: 200,
+      minWidth: 180,
       flex: 1,
+      renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
     },
 
     {
       headerName: "STATUS",
-      field: "status",
+      field: "STATUS",
       flex: 1,
       minWidth: 120,
       renderCell: (params) => (
@@ -39,12 +42,12 @@ export default function TimeSheetsDatagrid() {
           textTransform={"uppercase"}
           sx={{ fontWeight: "600", color: StatusColorFormatter(params.value), marginTop: "2%", fontSize: "14px" }}
         >
-          {params.value}
+          {StatusTextFormatting(params.value)}
         </Typography>
       ),
     },
     {
-      field: "totalHours",
+      field: "CatsHours",
       headerName: "TOTAL HOURS",
       minWidth: 200,
       hAlign: "Right",
@@ -66,7 +69,7 @@ export default function TimeSheetsDatagrid() {
         <Box>
           <RemoveRedEyeIcon
             sx={{ color: "#0073E6", cursor: "pointer" }}
-            onClick={() => handleEyeClick(params)}
+            onClick={() => handleEyeClick(params?.row)}
           />
         </Box>
       ),
@@ -75,7 +78,7 @@ export default function TimeSheetsDatagrid() {
 
   const ManagerColumns = [
     {
-      field: "employeeName",
+      field: "EName",
       headerName: "EMPLOYEE NAME",
       minWidth: 190,
       flex: 1,
@@ -87,13 +90,14 @@ export default function TimeSheetsDatagrid() {
     //   flex: 1,
     // },
     {
-      field: "timesheet",
+      field: "Week",
       headerName: "TIMESHEET",
       minWidth: 180,
       flex: 1,
+      renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
     },
     {
-      field: "status",
+      field: "STATUS",
       headerName: "STATUS",
       minWidth: 180,
       flex: 1,
@@ -103,13 +107,13 @@ export default function TimeSheetsDatagrid() {
           textTransform={"uppercase"}
           sx={{ fontWeight: 600, color: StatusColorFormatter(params.value), marginTop: "3%", fontSize: "14px " }}
         >
-          {params.value}
+          {StatusTextFormatting(params.value)}
         </Typography>
       ),
     },
 
     {
-      field: "totalHours",
+      field: "CatsHours",
       headerName: "TOTAL HOURS",
       minWidth: 180,
       flex: 1,
@@ -131,7 +135,7 @@ export default function TimeSheetsDatagrid() {
         <Box>
           <RemoveRedEyeIcon
             sx={{ color: "#0073E6", cursor: "pointer" }}
-            onClick={() => handleEyeClick(params)}
+            onClick={() => handleEyeClick(params?.row)}
           />
           {params?.row?.status == "APPROVED" && (
             <Tooltip title="Release timesheet">
@@ -192,12 +196,40 @@ export default function TimeSheetsDatagrid() {
   ];
   const { isManager } = useParams();
   const columns = isManager == "true" ? ManagerColumns : MyColumns;
+  const [timesheetData, setTimesheetData] = React.useState([]);
+
+  const [getMyTimesheet,
+    { data: myTimesheetData, isSuccess: isMyTimesheetSuccess, isFetching: loadingMyTimesheetData }] = useLazyGetTimesheetWeeklyQuery();
+  const [getTeamsTimesheet,
+    { data: teamTimesheetData, isSuccess: isTeamTimesheetSuccess, isFetching: loadingTeamTimesheetData }] = useLazyGetTeamTimesheetWeeklyQuery();
+
+  React.useEffect(() => {
+    if (isManager === "true") {
+      getTeamsTimesheet();
+    } else {
+      getMyTimesheet();
+    }
+  }, [isManager]);
+
+  React.useEffect(() => {
+    if (isMyTimesheetSuccess) {
+      setTimesheetData(myTimesheetData?.results);
+    }
+
+  }, [loadingMyTimesheetData]);
+
+  React.useEffect(() => {
+    if (isTeamTimesheetSuccess) {
+      setTimesheetData(teamTimesheetData?.results);
+    }
+  }, [loadingTeamTimesheetData]);
 
   return (
     <MuiDataGrid
-      rows={rows}
+      rows={timesheetData}
       columns={columns}
       pageSize={pageSize}
+      loading={loadingMyTimesheetData || loadingTeamTimesheetData}
       page={page}
       onPageChange={(newPage) => setPage(newPage)}
       onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
