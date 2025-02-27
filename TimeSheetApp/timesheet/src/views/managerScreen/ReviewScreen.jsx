@@ -178,8 +178,8 @@ const ApproveButton = styled(Button)(({ theme }) => ({
 const ButtonStack = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: { xs: "column", sm: "row" },
-  justifyContent: "flex-start",
-  alignItems: "flex-start",
+  justifyContent: "flex-end",
+  alignItems: "flex-end",
   gap: { xs: "10px", sm: "20px" },
   width: "100%",
   marginBottom: "2%",
@@ -537,7 +537,7 @@ const ReviewScreen = () => {
       // setShowRelease(true);
       // setNewStatus("Approved");
     } else if (actionMsg.indexOf("reject") >= 0) {
-      setSnackBarMsg("Timesheet Reject !!");
+      setSnackBarMsg("Timesheet Rejected.");
       setNewStatus("Rejected");
       setShowRelease(true);
       setSnackbarOpen(true);
@@ -642,8 +642,8 @@ const ReviewScreen = () => {
   };
 
   const handleRejected = (isRejected) => {
-    if(isRejected == true){
-      setSnackBarMsg("Timesheet Reject !!");
+    if (isRejected == true) {
+      setSnackBarMsg("Timesheet Rejected.");
       setNewStatus("Rejected");
       setSnackbarOpen(true);
     }
@@ -1161,18 +1161,7 @@ const ReviewScreen = () => {
           />
         </Stack>
         {isReviewer == "true" ? (
-          <ButtonStack
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              justifyContent: "flex-start",
-              alignItems: { xs: "stretch", sm: "flex-start" },
-              gap: { xs: "10px", sm: "20px" },
-              width: "100%",
-              marginTop: "1%",
-              marginBottom: "5%",
-            }}
-          >
+          <ButtonStack>
             {/* <RejectButton
               disabled={!isTimeSheetRejected}
               variant="contained"

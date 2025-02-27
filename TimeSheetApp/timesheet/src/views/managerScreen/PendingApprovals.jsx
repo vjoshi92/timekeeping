@@ -64,6 +64,13 @@ const PendingApprovals = () => {
     });
   };
 
+  const approveLineItem = (row) => {
+    const payload = { ...row, STATUS: "30" };
+    delete payload.id;
+    delete payload.__metadata;
+    saveWeekApproval({ body: payload });
+  };
+
   useEffect(() => {
     if (saveWeekSuccess) {
       setSnackbarOpen(true)
@@ -77,6 +84,7 @@ const PendingApprovals = () => {
         <ApprovalsDatagrid
           setCheckboxChecked={setCheckboxChecked}
           setShowApproveAll={setShowApproveAll}
+          handleApprove={approveLineItem}
         />
       </Box>
       <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>

@@ -63,6 +63,7 @@ export const TimesheetApi = createApi({
         "Get_Review_Timesheet",
         "Get_ReviewStatus_Timesheet",
         "Get_Pending_Count",
+        "Get_pending_approval"
       ],
     }),
     getDateWiseDetails: builder.query({
@@ -99,6 +100,7 @@ export const TimesheetApi = createApi({
           },
         };
       },
+      providesTags: ["Get_pending_approval"],
     }),
     getReviewDetailData: builder.query({
       query: ({ week, pernr }) => {
@@ -179,6 +181,7 @@ export const TimesheetApi = createApi({
           body: body,
         };
       },
+      invalidatesTags: ["Get_Pending_Count","Get_pending_approval"],
     }),
     getTimesheetWeekly: builder.query({
       query: () => {
@@ -195,7 +198,7 @@ export const TimesheetApi = createApi({
     }),
     getTeamTimesheetWeekly: builder.query({
       query: () => {
-        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=STATUS%20ne%20%27%27&sap-client=100&sap-language=EN&$format=json`;
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=(STATUS ne '' and STATUS ne '10')&sap-client=100&sap-language=EN&$format=json`;
         return {
           url: URL,
           method: "GET",

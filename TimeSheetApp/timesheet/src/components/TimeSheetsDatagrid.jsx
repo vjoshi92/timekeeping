@@ -19,7 +19,11 @@ export default function TimeSheetsDatagrid() {
   const [page, setPage] = React.useState(0); 
   const handleEyeClick = (params) => {
     const allData = params.row;
-    navigate(`/Review/false/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}`, { state: { data: allData } });
+    if(allData?.STATUS == '20'){
+      navigate(`/Review/true/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}`, { state: { data: allData } });
+    }else{
+      navigate(`/Review/false/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}`, { state: { data: allData } });
+    }
   };
 
   const MyColumns = [

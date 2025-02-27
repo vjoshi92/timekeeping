@@ -198,14 +198,16 @@ export const RowsDataColumns = ({
       const noteStrings = row[`day${i}Notes`].split("\n");
       noteStrings.forEach((note) => {
         const noteIntenalArray = note.split(",");
-        const tempNote = {
-          id: Math.random(),
-          content: noteIntenalArray[0],
-          date: noteIntenalArray[1],
-          time: noteIntenalArray[2],
-          username: noteIntenalArray[3],
-        };
-        notes.push(tempNote);
+        if (noteIntenalArray[0] && noteIntenalArray[0].trim()) {
+          const tempNote = {
+            id: Math.random(),
+            content: noteIntenalArray[0],
+            date: noteIntenalArray[1],
+            time: noteIntenalArray[2],
+            username: noteIntenalArray[3],
+          };
+          notes.push(tempNote);
+        }
       });
 
       setRowObject({
@@ -280,9 +282,9 @@ export const RowsDataColumns = ({
                 borderBottom: "5px solid orange !important",
               },
               "& .css-1k5yziq-MuiDataGrid-root .MuiDataGrid-row--borderBottom .MuiDataGrid-columnHeader":
-                {
-                  borderBottom: "5px solid green !important",
-                },
+              {
+                borderBottom: "5px solid green !important",
+              },
             }}
           >
             <DayBox sx={{ color: isToday ? "#ED6A15" : "#121212DE" }}>
@@ -430,7 +432,7 @@ export const RowsDataColumns = ({
                     fontWeight: "400",
                     color:
                       row[`day${i}Notes`] !== "" &&
-                      row[`day${i}Notes`] !== undefined
+                        row[`day${i}Notes`] !== undefined
                         ? "#ed6a15"
                         : "grey",
                   }}

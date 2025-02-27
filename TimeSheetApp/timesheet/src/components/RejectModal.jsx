@@ -192,24 +192,6 @@ const RejectModal = ({
     }
   };
 
-  // const addLocalNotes = () => {
-  //   if (newNote) {
-  //     dispatch(
-  //       addNotes({
-  //         id: Math.random(),
-  //         content: newNote,
-  //         date: formatFullDateString(new Date()),
-  //         time: formatFullTimeString(new Date()),
-  //         username: "Vijay Joshi",
-  //       })
-  //     );
-  //     if (activeInputId) {
-  //       setHasNote((prev) => new Set(prev).add(activeInputId));
-  //     }
-  //   }
-  //   setNewNote("");
-  // };
-
   return (
     <>
       <Modal

@@ -59,6 +59,7 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
 export default function ApprovalsDatagrid({
   setCheckboxChecked,
   setShowApproveAll,
+  handleApprove
 }) {
   const [isChecked, setIsChecked] = React.useState(false);
   const [checkedItems, setCheckedItems] = React.useState({});
@@ -198,7 +199,7 @@ export default function ApprovalsDatagrid({
             />
           </Tooltip>
           <Tooltip title="Approve timesheet">
-            <CheckIcon color="success" style={{ cursor: "pointer" }} />
+            <CheckIcon color="success" style={{ cursor: "pointer" }} onClick={() => handleApprove(params?.row)} />
           </Tooltip>
         </StyledBox>
       ),
