@@ -82,6 +82,7 @@ const RejectModal = ({
   const { data: userData } = useGetUserDataQuery();
   const status = useSelector((state) => state?.CreateForm?.status);
   const selectedDate = useSelector((state) => state?.home?.daterange);
+  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   // use notes from props
   // const notes = useSelector((state) => state?.CreateForm?.notes);
   console.log("rowObject", rowObject);
@@ -142,52 +143,106 @@ const RejectModal = ({
       };
       return [temp];
     } else {
+      // change the logic to process all the entries  
+      const timesheetEntries = projectedData.filter(
+        (item) => item?.totalRow !== true
+      );
       let entries = [];
-      for (let i = 0; i < 7; i++) {
+      timesheetEntries.forEach((entry) => {
         let startDate = new Date();
-        let entry = row;
         if (selectedDate && selectedDate.length && selectedDate.length > 0) {
           const dates = selectedDate.split(" - ");
           startDate = dates[0];
         } else {
           startDate = getWeekStartDate();
         }
-        let note = "";
-        if(index === i){
-          note = noteString;
-        }
 
-        const currentDate = dayjs(startDate).add(i, "day");
-        const payloadDate = getODataFormatDate(currentDate.$d);
-        if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
-          const temp = {
-            __metadata: {
-              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
-            },
-            TimeEntryDataFields: {
+        for (let i = 0; i < 7; i++) {
+          const currentDate = dayjs(startDate).add(i, "day");
+          const payloadDate = getODataFormatDate(currentDate.$d);
+          const entryStatus = entry[`day${i}STATUS`];
+          let note = "";
+          if (index === i && entry?.level === row?.level) {
+            note = noteString;
+          }
+          if (entryStatus !== "40") {
+            const temp = {
               __metadata: {
-                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
               },
-              CATSHOURS: entry[`day${i}`],
-              PERNR: userData?.results[0].EmployeeNumber,
-              CATSQUANTITY: entry[`day${i}`],
-              LTXA1: note.substring(0, 40),
-              LONGTEXT: note ? "X" : "",
-              MEINH: "H",
-              UNIT: "H",
-              WORKDATE: payloadDate,
-              LONGTEXT_DATA: note,
-              POSID: entry?.level,
-            },
-            Pernr: userData?.results[0].EmployeeNumber,
-            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
-            Counter: entry[`day${i}Counter`] || "",
-            AllowRelease: "",
-            RecRowNo: (entries.length + 1).toString(),
-          };
-          entries.push(temp);
+              TimeEntryDataFields: {
+                __metadata: {
+                  type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+                },
+                CATSHOURS: entry[`day${i}`] || '0.00',
+                PERNR: userData?.results[0].EmployeeNumber,
+                CATSQUANTITY: entry[`day${i}`] || '0.00',
+                LTXA1: note?.substring(0, 40),
+                LONGTEXT: note ? "X" : "",
+                MEINH: "H",
+                UNIT: "H",
+                WORKDATE: payloadDate,
+                LONGTEXT_DATA: note,
+                POSID: entry?.level,
+              },
+              Pernr: userData?.results[0].EmployeeNumber,
+              TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+              Counter: entry[`day${i}Counter`] || "",
+              AllowRelease: "",
+              RecRowNo: (entries.length + 1).toString(),
+            };
+            entries.push(temp);
+          }
         }
-      }
+      });
+
+      // older code with sending only one row
+      // let entries = [];
+      // for (let i = 0; i < 7; i++) {
+      //   let startDate = new Date();
+      //   let entry = row;
+      //   if (selectedDate && selectedDate.length && selectedDate.length > 0) {
+      //     const dates = selectedDate.split(" - ");
+      //     startDate = dates[0];
+      //   } else {
+      //     startDate = getWeekStartDate();
+      //   }
+      //   let note = "";
+      //   if (index === i) {
+      //     note = noteString;
+      //   }
+
+      //   const currentDate = dayjs(startDate).add(i, "day");
+      //   const payloadDate = getODataFormatDate(currentDate.$d);
+      //   if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+      //     const temp = {
+      //       __metadata: {
+      //         type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+      //       },
+      //       TimeEntryDataFields: {
+      //         __metadata: {
+      //           type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+      //         },
+      //         CATSHOURS: entry[`day${i}`],
+      //         PERNR: userData?.results[0].EmployeeNumber,
+      //         CATSQUANTITY: entry[`day${i}`],
+      //         LTXA1: note.substring(0, 40),
+      //         LONGTEXT: note ? "X" : "",
+      //         MEINH: "H",
+      //         UNIT: "H",
+      //         WORKDATE: payloadDate,
+      //         LONGTEXT_DATA: note,
+      //         POSID: entry?.level,
+      //       },
+      //       Pernr: userData?.results[0].EmployeeNumber,
+      //       TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+      //       Counter: entry[`day${i}Counter`] || "",
+      //       AllowRelease: "",
+      //       RecRowNo: (entries.length + 1).toString(),
+      //     };
+      //     entries.push(temp);
+      //   }
+      // }
       return entries;
     }
   };

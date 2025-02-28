@@ -504,6 +504,7 @@ const Home = () => {
   const handleOpen = () => setOpen(true);
   const [batchCallType, setBatchCallType] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMsg, setAlertMsg] = useState('');
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenApproval(false);
   const navigate = useNavigate();
@@ -598,7 +599,30 @@ const Home = () => {
   // });
 
   //---------------------for showing different  modals on approvals----------------------------------------------
+  const checkStatusCondition = (objectsArray) => {
+    // Loop through each object in the array
+    for (let obj of objectsArray) {
+      // Check each day0STATUS to day6STATUS key for the "40" value
+      for (let i = 0; i <= 6; i++) {
+        const statusKey = `day${i}STATUS`;
+        if (obj[statusKey] === "40") {
+          return true; // Return true if the condition is met
+        }
+      }
+    }
+    return false; // Return false if no object meets the condition
+  };
+
   const handleApproval = () => {
+    // const rejectedItems = projectedData
+    const isRejectedItem = checkStatusCondition(projectedData);
+    console.log(isRejectedItem);
+    if (isRejectedItem === true) {
+      setAlertMsg("Please rectify the rejected entries and then resubmit for approval.");
+      setAlertOpen(true);
+      return;
+    }
+
     if (status !== "New" && status !== "Draft") {
       setApprovalMsg(
         "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
@@ -609,9 +633,6 @@ const Home = () => {
       );
     }
     setOpenApproval(true);
-    if (approvalCount > 0) {
-      // dispatch(setStatus("Pending for approval"));
-    }
   };
 
   const handlePrevWeekApproval = (approvalCount) => {
@@ -764,6 +785,7 @@ const Home = () => {
 
     // Validation: Prevent selecting a future week beyond the current date
     if (startOfNextWeek.isAfter(today)) {
+      setAlertMsg("You can not select future date(s).");
       setAlertOpen(true);
       return;
     }
@@ -808,32 +830,35 @@ const Home = () => {
         const currentDate = dayjs(startDate).add(i, "day");
         const payloadDate = getODataFormatDate(currentDate.$d);
         if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
-          const temp = {
-            __metadata: {
-              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
-            },
-            TimeEntryDataFields: {
+          const entryStatus = entry[`day${i}STATUS`];
+          if (entryStatus !== "40") {
+            const temp = {
               __metadata: {
-                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
               },
-              CATSHOURS: entry[`day${i}`],
-              PERNR: userData?.results[0].EmployeeNumber,
-              CATSQUANTITY: entry[`day${i}`],
-              LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
-              LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
-              MEINH: "H",
-              UNIT: "H",
-              WORKDATE: payloadDate,
-              LONGTEXT_DATA: entry[`day${i}Notes`],
-              POSID: entry?.level,
-            },
-            Pernr: userData?.results[0].EmployeeNumber,
-            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
-            Counter: entry[`day${i}Counter`] || "",
-            AllowRelease: type === "approve" ? "X" : "",
-            RecRowNo: (entries.length + 1).toString(),
-          };
-          entries.push(temp);
+              TimeEntryDataFields: {
+                __metadata: {
+                  type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+                },
+                CATSHOURS: entry[`day${i}`],
+                PERNR: userData?.results[0].EmployeeNumber,
+                CATSQUANTITY: entry[`day${i}`],
+                LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
+                LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
+                MEINH: "H",
+                UNIT: "H",
+                WORKDATE: payloadDate,
+                LONGTEXT_DATA: entry[`day${i}Notes`],
+                POSID: entry?.level,
+              },
+              Pernr: userData?.results[0].EmployeeNumber,
+              TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+              Counter: entry[`day${i}Counter`] || "",
+              AllowRelease: type === "approve" ? "X" : "",
+              RecRowNo: (entries.length + 1).toString(),
+            };
+            entries.push(temp);
+          }
         }
       }
     });
@@ -1619,7 +1644,6 @@ const Home = () => {
       </Modal>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -1633,7 +1657,6 @@ const Home = () => {
       </Snackbar>
       <Snackbar
         open={deleteMsgOpen}
-        autoHideDuration={3000}
         onClose={() => setDeleteMsgOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -1647,7 +1670,6 @@ const Home = () => {
       </Snackbar>
       <Snackbar
         open={alertOpen}
-        autoHideDuration={3000}
         onClose={() => setAlertOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -1656,7 +1678,7 @@ const Home = () => {
           severity={"warning"}
           sx={{ width: "100%" }}
         >
-          You can not select future date(s).
+          {alertMsg}
         </Alert>
       </Snackbar>
       <BusyDialog open={batchCallLoading || timeSheetDataFetching} />
