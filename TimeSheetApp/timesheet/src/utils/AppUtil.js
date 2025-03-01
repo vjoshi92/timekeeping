@@ -79,7 +79,7 @@ export const formatFullTimeString = (dateValue) => {
 };
 
 export const StatusCaseFormatting = (status) => {
-  if (status) {    
+  if (status) {
     return status.toUpperCase();
   } else {
     return status;
@@ -87,16 +87,16 @@ export const StatusCaseFormatting = (status) => {
 };
 
 export const StatusTextFormatting = (status) => {
-  if (status == "20") {    
+  if (status == "20") {
     return "Pending for Approval";
-  }else if (status == "30") {    
+  } else if (status == "30") {
     return "Approved";
-  } else if (status == "40") {    
+  } else if (status == "40") {
     return "Rejected";
-  } 
-  else if (status == "10") {    
+  }
+  else if (status == "10") {
     return "Draft";
-  }    
+  }
   else {
     return "";
   }
@@ -241,4 +241,61 @@ export const weekTimesheetFormat = (yearWeek) => {
   } else {
     return `${formatDate(startDate)} - ${formatDate(endDate)}`;
   }
+};
+
+export const xmlToJson = (xml) => {
+  // Create the return object
+  let obj = {};
+
+  if (xml.nodeType === 1) {
+    // element
+    // do attributes
+    if (xml.attributes.length > 0) {
+      obj["@attributes"] = {};
+      for (let j = 0; j < xml.attributes.length; j++) {
+        const attribute = xml.attributes.item(j);
+        obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+      }
+    }
+  } else if (xml.nodeType === 3) {
+    // text
+    obj = xml.nodeValue;
+  }
+
+  // do children
+  if (xml.hasChildNodes()) {
+    for (let i = 0; i < xml.childNodes.length; i++) {
+      const item = xml.childNodes.item(i);
+      const nodeName = item.nodeName;
+      if (typeof obj[nodeName] === "undefined") {
+        obj[nodeName] = xmlToJson(item);
+      } else {
+        if (typeof obj[nodeName].push === "undefined") {
+          const old = obj[nodeName];
+          obj[nodeName] = [];
+          obj[nodeName].push(old);
+        }
+        obj[nodeName].push(xmlToJson(item));
+      }
+    }
+  }
+  return obj;
+};
+
+export const readXmlData = (metaData) => {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(metaData, 'application/xml');
+  const xmljson = xmlToJson(xml);
+  const entities = xmljson['edmx:Edmx']['edmx:DataServices'].Schema.EntityType;
+  return entities;
+};
+
+export const hasNonZeroEntry = (data) => {
+  for (let i = 0; i <= 6; i++) {
+    const dayKey = `day${i}`;
+    if (parseFloat(data[dayKey]) > 0) {
+      return true; // Found a non-zero value
+    }
+  }
+  return false; // No non-zero value found
 };

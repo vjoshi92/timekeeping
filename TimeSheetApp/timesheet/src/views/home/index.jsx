@@ -56,6 +56,7 @@ import { ReviewColumns } from "components/ReviewColumns";
 import {
   getODataFormatDate,
   getWeekStartDate,
+  hasNonZeroEntry,
   PrepareBatchPayload,
   StatusCaseFormatting,
   StatusColorFormatter,
@@ -519,8 +520,11 @@ const Home = () => {
       isSuccess: batchCallIsSuccess,
       isLoading: batchCallLoading,
       error: batchCallIsError,
+      data: batchSuccessData
     },
   ] = useMakeBatchCallMutation();
+
+  console.log("batchSuccessData", batchSuccessData);
   // this is service call to get Timesheet data for selected week
   const [
     getTimesheetEntry,
@@ -817,6 +821,30 @@ const Home = () => {
       (item) => item?.totalRow !== true
     );
     let entries = [];
+
+    // check non zero entry
+    let isNonZeroEntry = {
+      isNonZero: true,
+      msg: ""
+    };
+    timesheetEntries.forEach(element => {
+      const tempValue = hasNonZeroEntry(element);
+      if (tempValue == false) {
+        isNonZeroEntry = {
+          isNonZero: tempValue,
+          msg: `Please provide non-zero entry for <b>${element?.level} - ${element?.title}</b> or delete the row.`
+        };
+        return;
+      }
+    });
+
+    if (isNonZeroEntry?.isNonZero == false) {
+      const msg = isNonZeroEntry?.msg;
+      setAlertMsg(<span dangerouslySetInnerHTML={{ __html: msg }} />);
+      setAlertOpen(true);
+      return;
+    }
+
     timesheetEntries.forEach((entry) => {
       let startDate = new Date();
       if (selectedDate && selectedDate.length && selectedDate.length > 0) {
@@ -829,37 +857,37 @@ const Home = () => {
       for (let i = 0; i < 7; i++) {
         const currentDate = dayjs(startDate).add(i, "day");
         const payloadDate = getODataFormatDate(currentDate.$d);
-        if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
-          const entryStatus = entry[`day${i}STATUS`];
-          if (entryStatus !== "40") {
-            const temp = {
+        // if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+        const entryStatus = entry[`day${i}STATUS`];
+        if (entryStatus !== "40") {
+          const temp = {
+            __metadata: {
+              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+            },
+            TimeEntryDataFields: {
               __metadata: {
-                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
               },
-              TimeEntryDataFields: {
-                __metadata: {
-                  type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
-                },
-                CATSHOURS: entry[`day${i}`],
-                PERNR: userData?.results[0].EmployeeNumber,
-                CATSQUANTITY: entry[`day${i}`],
-                LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
-                LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
-                MEINH: "H",
-                UNIT: "H",
-                WORKDATE: payloadDate,
-                LONGTEXT_DATA: entry[`day${i}Notes`],
-                POSID: entry?.level,
-              },
-              Pernr: userData?.results[0].EmployeeNumber,
-              TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
-              Counter: entry[`day${i}Counter`] || "",
-              AllowRelease: type === "approve" ? "X" : "",
-              RecRowNo: (entries.length + 1).toString(),
-            };
-            entries.push(temp);
-          }
+              CATSHOURS: entry[`day${i}`] || '0.00',
+              PERNR: userData?.results[0].EmployeeNumber,
+              CATSQUANTITY: entry[`day${i}`] || '0.00',
+              LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
+              LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
+              MEINH: "H",
+              UNIT: "H",
+              WORKDATE: payloadDate,
+              LONGTEXT_DATA: entry[`day${i}Notes`],
+              POSID: entry?.level,
+            },
+            Pernr: userData?.results[0].EmployeeNumber,
+            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+            Counter: entry[`day${i}Counter`] || "",
+            AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
+            // RecRowNo: (entries.length + 1).toString(),
+          };
+          entries.push(temp);
         }
+        // }
       }
     });
     return entries;
@@ -924,9 +952,11 @@ const Home = () => {
     setBatchCallType(type);
     // make a batch call with payload
     const timesheetEntries = prepareTimesheetPayload(type);
-    const batchPayload = PrepareBatchPayload(timesheetEntries);
-    const response = await makeBatchCall({ body: batchPayload });
-    console.log("response", response);
+    if (timesheetEntries && timesheetEntries.length > 0) {
+      const batchPayload = PrepareBatchPayload(timesheetEntries);
+      const response = await makeBatchCall({ body: batchPayload });
+      console.log("response", response);
+    }
   };
 
   const handleYes = () => {
@@ -1078,6 +1108,8 @@ const Home = () => {
     isParent: false,
     dateWiseData,
     status,
+    setAlertMsg,
+    setAlertOpen
   });
 
   const handleRejected = (hasNote) => {
@@ -1180,12 +1212,17 @@ const Home = () => {
         }
         weekRows[rowIndex] = weekRow;
         // all status check
-        if (entry?.Status === "40") {
+        if (entry?.Status === "10") {
+          weeklyStatus.Draft = weeklyStatus.Draft + 1;
+        }
+        else if (entry?.Status === "40") {
           weeklyStatus.Rejected = weeklyStatus.Rejected + 1;
-        } else if (entry?.Status === "30") {
-          weeklyStatus.Approved = weeklyStatus.Approved + 1;
-        } else if (entry?.Status === "20") {
+        }
+        else if (entry?.Status === "20") {
           weeklyStatus.SubmitForApproval = weeklyStatus.SubmitForApproval + 1;
+        }
+        else if (entry?.Status === "30") {
+          weeklyStatus.Approved = weeklyStatus.Approved + 1;
         } else {
           weeklyStatus.Draft = weeklyStatus.Draft + 1;
         }
@@ -1205,14 +1242,15 @@ const Home = () => {
     });
 
     // overall status check
-    if (weeklyStatus.Rejected > 0) {
+    if (weeklyStatus.Draft > 0) {
+      dispatch(setStatus("Draft"));
+    }
+    else if (weeklyStatus.Rejected > 0) {
       dispatch(setStatus("Rejected"));
-    } else if (weeklyStatus.Approved > 0) {
-      dispatch(setStatus("Approved"));
     } else if (weeklyStatus.SubmitForApproval > 0) {
       dispatch(setStatus("Pending For Approval"));
-    } else if (weeklyStatus.Draft > 0) {
-      dispatch(setStatus("Draft"));
+    } else if (weeklyStatus.Approved > 0) {
+      dispatch(setStatus("Approved"));
     } else {
       dispatch(setStatus("New"));
     }
@@ -1239,10 +1277,13 @@ const Home = () => {
 
     let data = [...transformedData];
     data.forEach((item) => {
-      for (let i = 0; i <= 6; i++) {
-        totalsRow[`day${i}`] += parseFloat(item[`day${i}`] || "0");
+      if (item) {
+        for (let i = 0; i <= 6; i++) {
+          totalsRow[`day${i}`] = parseFloat(totalsRow[`day${i}`] || "0") + parseFloat(item[`day${i}`] || "0");
+        }
+        totalsRow.weekTotal = parseFloat(totalsRow.weekTotal || "0") + parseFloat(item.weekTotal || "0");
       }
-      totalsRow.weekTotal += parseFloat(item.weekTotal || "0");
+
     });
 
     // Convert totals to string format with 2 decimal places
@@ -1306,11 +1347,21 @@ const Home = () => {
       if (!newRow) {
         const responseData = dateWiseData;
         let transformedData = transformToWeeklyRows(responseData);
-        const projectArray = transformedData.map((x) => x.project);
-        // projectArray.forEach(project => {
-        //   const
-        // });
-        transformedData = addTotalRow(transformedData);
+        // add older data in array and then do total
+        // check this condition properly to rectify the issue
+        if (batchCallType !== "approve" && batchCallType !== "save" && batchCallType !== "delete"
+          && batchCallType !== "newData"
+        ) {
+          const oldData = [...projectedData];
+          const newRows = oldData.filter(item => item.newRow);
+          newRows.forEach(element => {
+            transformedData.unshift(element);
+          });
+        } else {
+          setBatchCallType("");
+        }
+        const data = transformedData.map(x => { if (x) return x; })
+        transformedData = addTotalRow(data);
         console.log("transformedData>>>>>>>", transformedData);
         // setProductTime(transformedData);
         dispatch(setProjectData(transformedData));
@@ -1350,6 +1401,7 @@ const Home = () => {
   useEffect(() => {
     if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
       getTimesheetDataWeekWise();
+      setBatchCallType("newData");
     }
   }, [selectedDate, userData?.results[0].EmployeeNumber]);
 
@@ -1439,7 +1491,7 @@ const Home = () => {
             <Box sx={{ marginRight: "2%" }}>
               <Search onSearch={handleSearch} />
             </Box>
-            <StyledButton2
+            {/* <StyledButton2
               size="small"
               variant="outlined"
               boxShadow="5"
@@ -1450,7 +1502,7 @@ const Home = () => {
                 backgroundColor="#FFFF"
                 sx={{ color: "#ED6A15" }}
               />
-            </StyledButton2>
+            </StyledButton2> */}
             <StyledButton2
               size="small"
               variant="outlined"

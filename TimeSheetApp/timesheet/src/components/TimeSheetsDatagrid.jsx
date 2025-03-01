@@ -16,13 +16,15 @@ const label = { inputProps: { "aria-label": "Checkbox demo" } };
 export default function TimeSheetsDatagrid() {
   const navigate = useNavigate();
   const [pageSize, setPageSize] = React.useState(5);
-  const [page, setPage] = React.useState(0); 
+  const [page, setPage] = React.useState(0);
+  const { isManager } = useParams();
   const handleEyeClick = (params) => {
-    const allData = params.row;
-    if(allData?.STATUS == '20'){
-      navigate(`/Review/true/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}`, { state: { data: allData } });
-    }else{
-      navigate(`/Review/false/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}`, { state: { data: allData } });
+    const allData = params;
+    const type = isManager === "true" ? "team" : "my";
+    if (allData?.STATUS == '20' && isManager === "true") {
+      navigate(`/Review/true/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}/${type}`, { state: { data: allData } });
+    } else {
+      navigate(`/Review/false/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}/${type}`, { state: { data: allData } });
     }
   };
 
@@ -198,7 +200,7 @@ export default function TimeSheetsDatagrid() {
       dateSubmitted: "02-Sep-2024",
     },
   ];
-  const { isManager } = useParams();
+
   const columns = isManager == "true" ? ManagerColumns : MyColumns;
   const [timesheetData, setTimesheetData] = React.useState([]);
 

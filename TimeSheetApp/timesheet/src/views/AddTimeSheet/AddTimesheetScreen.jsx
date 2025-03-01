@@ -211,6 +211,7 @@ const AddRowsScreen = () => {
       } else {
         tData.unshift(data);
       }
+      // do order by
       dispatch(setProjectData(tData));
       dispatch(setNewRowAdded(true));
 

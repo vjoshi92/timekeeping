@@ -89,7 +89,7 @@ export default function ApprovalsDatagrid({
 
   const handleEyeClick = (params) => {
     const allData = params.row;
-    navigate(`/Review/true/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}`, { state: { data: allData } });
+    navigate(`/Review/true/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}/team`, { state: { data: allData } });
   };
 
   // Modified to handle individual checkbox states

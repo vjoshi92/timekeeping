@@ -35,7 +35,7 @@ const NavigationRoutes = [
     key: "AllTimesheet",
   },
   {
-    path: "/Review/:isReviewer/:pernr?/:start?/:stop?/:week?",
+    path: "/Review/:isReviewer/:pernr?/:start?/:stop?/:week?/:type?",
     component: <ReviewScreen />,
     key: "ReviewScreen",
   },

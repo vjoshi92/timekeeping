@@ -11,17 +11,21 @@ import {
 import {
   formatFullDateString,
   formatFullTimeString,
+  getODataFormatDate,
+  getWeekStartDate,
   PrepareBatchPayload,
 } from "utils/AppUtil";
 import MuiInput from "./MuiInput";
 import styled from "@emotion/styled";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   useGetUserDataQuery,
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
 import DecimalInput from "./DecimalInput";
 import BusyDialog from "./BusyLoader";
+import { setNewRowAdded } from "store/slice/TimesheetSlice";
+import dayjs from "dayjs";
 
 // rejection component
 const RejectionBox = styled(Box)(({ theme }) => ({
@@ -107,7 +111,7 @@ const ChangeEntry = ({
 }) => {
   const dispatch = useDispatch();
   const { data: userData } = useGetUserDataQuery();
-
+  const selectedDate = useSelector((state) => state?.home?.daterange);
   const [hours, setHours] = useState();
   const [changeReason, setChangeReason] = useState("");
 
@@ -135,6 +139,7 @@ const ChangeEntry = ({
     const oPayload = prepareNoteSavePayload(changeReason);
     const obatchPayload = PrepareBatchPayload([oPayload]);
     const response = await makeBatchCall({ body: obatchPayload });
+    dispatch(setNewRowAdded(false));
     handleClose();
   };
 
@@ -150,6 +155,19 @@ const ChangeEntry = ({
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
+
+    // make the date for payload in case of new entry 
+    let startDate = new Date();
+    if (selectedDate && selectedDate.length && selectedDate.length > 0) {
+      const dates = selectedDate.split(" - ");
+      startDate = dates[0];
+    } else {
+      startDate = getWeekStartDate();
+    }
+
+    const currentDate = dayjs(startDate).add(index, "day");
+    const payloadDate = getODataFormatDate(currentDate.$d);
+
     const temp = {
       __metadata: {
         type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
@@ -165,7 +183,7 @@ const ChangeEntry = ({
         MEINH: "H",
         LONGTEXT: "X",
         UNIT: "H",
-        WORKDATE: row[`day${index}WORKDATE`],
+        WORKDATE: row[`day${index}WORKDATE`] || payloadDate,
         LONGTEXT_DATA: noteString,
         POSID: row?.level,
       },
@@ -212,14 +230,14 @@ const ChangeEntry = ({
         <RejectionBox>
           <RejectionMainBox>
             <ModalTypography>{"Change Entry"}</ModalTypography>
-            <br/>
+            <br />
             <Stack
               direction={"column"}
               justifyContent={"space-between"}
               sx={{ width: "100%" }}
             >
               <Box sx={{ width: "100%" }} direction={"row"}>
-                <Typography sx={{ fontWeight: "600" }}>Prev. Hours <span style={{color:"red"}}>*</span> </Typography>
+                <Typography sx={{ fontWeight: "600" }}>Prev. Hours <span style={{ color: "red" }}>*</span> </Typography>
                 <Box
                   component="div"
                   sx={{
@@ -241,7 +259,7 @@ const ChangeEntry = ({
               </Box>
               <Box sx={{ width: "100%" }}>
                 <Typography sx={{ fontWeight: "600", marginTop: "20px" }}>
-                  New Hours <span style={{color:"red"}}>*</span>
+                  New Hours <span style={{ color: "red" }}>*</span>
                 </Typography>
                 <DecimalInput
                   disabled={false}
@@ -256,9 +274,9 @@ const ChangeEntry = ({
                   value={hours}
                 />
               </Box>
-              <Box sx={{ width: "100%"}}>
+              <Box sx={{ width: "100%" }}>
                 <Typography sx={{ fontWeight: "600", marginTop: "20px" }}>
-                  Reason <span style={{color:"red"}}>*</span>
+                  Reason <span style={{ color: "red" }}>*</span>
                 </Typography>
                 <MuiInput
                   rows={2}

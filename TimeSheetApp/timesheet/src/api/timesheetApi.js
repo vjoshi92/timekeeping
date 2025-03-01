@@ -57,6 +57,10 @@ export const TimesheetApi = createApi({
           },
 
           body: body,
+          responseHandler: (response) => {
+            console.log("response.text();", response.text());
+            return response.text();
+          },
         };
       },
       invalidatesTags: [
@@ -132,7 +136,7 @@ export const TimesheetApi = createApi({
           url: URL,
           method: "GET",
           headers: {
-            Accept: "*/*",
+            Selection: "Complete Data",
           },
         };
       },
@@ -146,7 +150,7 @@ export const TimesheetApi = createApi({
           url: URL,
           method: "GET",
           headers: {
-            Accept: "*/*",
+            Selection: "Complete Data",
           },
         };
       },

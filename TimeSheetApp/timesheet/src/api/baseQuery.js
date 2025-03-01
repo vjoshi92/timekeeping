@@ -3,7 +3,7 @@ export const baseUrl = '/sap/opu/odata/sap/';
 
 // https://jmwwdad1.jmawireless.com/sap/opu/odata/sap/HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json
 
-console.log("baseUrl" , baseUrl)
+console.log("baseUrl", baseUrl)
 
 const customBaseQuery = fetchBaseQuery({
     baseUrl,
@@ -29,9 +29,12 @@ const customBaseQuery = fetchBaseQuery({
 
 export const baseQuery = async (args, api, extraOptions = {}) => {
     try {
-        const response = await customBaseQuery(args, api, extraOptions);
-
-        // console.log("response" ,response)
+        let response = "";
+        if (api?.endpoint === "makeBatchCall" || api?.endpoint === "makeApprovalBatchCall") {
+            response = await metadataBaseQuery(args, api, extraOptions);
+        } else {
+            response = await customBaseQuery(args, api, extraOptions);
+        }
 
         return {
             data: response?.data?.d ?? response.data,
@@ -45,7 +48,20 @@ export const baseQuery = async (args, api, extraOptions = {}) => {
 
 export const metaDataCustomBaseQuery = fetchBaseQuery({
     baseUrl,
-    prepareHeaders: (headers) => {
+    prepareHeaders: async (headers) => {
+
+        const response = await fetch(
+            `${baseUrl}HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json`,
+            {
+                method: "GET",
+                headers: {
+                    "X-CSRF-Token": "Fetch",
+                },
+            }
+        );
+
+        headers.set("X-CSRF-Token", response.headers.get("X-CSRF-Token"));
+        // headers.set("Accept", "application/json");
         headers.set('Accept', 'application/xml');
         return headers;
     },
@@ -54,6 +70,7 @@ export const metaDataCustomBaseQuery = fetchBaseQuery({
 export const metadataBaseQuery = async (args, api, extraOptions = {}) => {
     try {
         const response = await metaDataCustomBaseQuery(args, api, extraOptions);
+        console.log("metabase query",response);
         return { data: response?.data?.d ?? response.data };
     } catch (error) {
         console.log('error', error);

@@ -20,9 +20,10 @@ import {
   formatFullTimeString,
   getODataFormatDate,
   getWeekStartDate,
+  hasNonZeroEntry,
   PrepareBatchPayload,
 } from "utils/AppUtil";
-import { addNotes, setNewRowAdded } from "store/slice/TimesheetSlice";
+import { addNotes, setNewRowAdded, updateRow } from "store/slice/TimesheetSlice";
 import MuiInput from "./MuiInput";
 import styled from "@emotion/styled";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,6 +33,7 @@ import {
 } from "api/timesheetApi";
 import BusyDialog from "./BusyLoader";
 import dayjs from "dayjs";
+import { useRef } from "react";
 
 const ModalBox = styled(Box)(({ theme }) => ({
   position: "absolute",
@@ -76,8 +78,18 @@ const RejectModal = ({
   setHasNote,
   activeInputId,
   rowObject,
+  setAlertMsg,
+  setAlertOpen
 }) => {
   const [newNote, setNewNote] = React.useState("");
+  // Create a reference for the input element
+  // const inputRef = useRef(null);
+
+  // Focus on the input when the component mounts
+  // useEffect(() => {
+  //   inputRef.current.focus();
+  // }, []);
+
   const dispatch = useDispatch();
   const { data: userData } = useGetUserDataQuery();
   const status = useSelector((state) => state?.CreateForm?.status);
@@ -96,11 +108,33 @@ const RejectModal = ({
   ] = useMakeBatchCallMutation();
 
   const saveNote = async () => {
-    const oPayload = prepareNoteSavePayload(newNote);
-    const obatchPayload = PrepareBatchPayload(oPayload);
-    const response = await makeBatchCall({ body: obatchPayload });
-    dispatch(setNewRowAdded(false));
+    // save notes in store code
+    let row = {...rowObject?.row};
+    const rowIndex = projectedData.indexOf(rowObject?.row);
+    const index = rowObject?.index;
+    const date = formatFullDateString(new Date());
+    const time = formatFullTimeString(new Date());
+    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+    const prevNote = row[`day${index}Notes`];
+    let noteString = `${newNote},${date},${time},${userName}\n`;
+    if (prevNote) {
+      noteString = prevNote + "\n" + noteString;
+    }
+    row[`day${index}Notes`] = noteString;
+    dispatch(updateRow({
+      rowIndex: rowIndex,
+      rowObj: row
+    }));
     onClose();
+
+    // older working code on save note
+    // const oPayload = prepareNoteSavePayload(newNote);
+    // if (oPayload && oPayload.length > 0) {
+    //   const obatchPayload = PrepareBatchPayload(oPayload);
+    //   const response = await makeBatchCall({ body: obatchPayload });
+    //   dispatch(setNewRowAdded(false));
+    //   onClose();
+    // }
   };
 
   const prepareNoteSavePayload = (note) => {
@@ -148,6 +182,29 @@ const RejectModal = ({
         (item) => item?.totalRow !== true
       );
       let entries = [];
+      // check non zero entry
+      let isNonZeroEntry = {
+        isNonZero: true,
+        msg: ""
+      };
+      timesheetEntries.forEach(element => {
+        const tempValue = hasNonZeroEntry(element);
+        if (tempValue == false) {
+          isNonZeroEntry = {
+            isNonZero: tempValue,
+            msg: `Please provide non-zero entry for <b>${element?.level} - ${element?.title}</b> or delete the row.`
+          };
+          return;
+        }
+      });
+
+      if (isNonZeroEntry?.isNonZero == false) {
+        const msg = isNonZeroEntry?.msg;
+        setAlertMsg(<span dangerouslySetInnerHTML={{ __html: msg }} />);
+        setAlertOpen(true);
+        return;
+      }
+
       timesheetEntries.forEach((entry) => {
         let startDate = new Date();
         if (selectedDate && selectedDate.length && selectedDate.length > 0) {
@@ -162,9 +219,14 @@ const RejectModal = ({
           const payloadDate = getODataFormatDate(currentDate.$d);
           const entryStatus = entry[`day${i}STATUS`];
           let note = "";
-          if (index === i && entry?.level === row?.level) {
+
+          if (entry[`day${i}Notes`]) {
+            note = entry[`day${i}Notes`];
+          }
+          else if (index === i && entry?.level === row?.level) {
             note = noteString;
           }
+
           if (entryStatus !== "40") {
             const temp = {
               __metadata: {
@@ -381,6 +443,7 @@ const RejectModal = ({
                 }}
               >
                 <MuiInput
+                  // ref={inputRef}
                   multiline={true}
                   onChange={(value) => setNewNote(value)}
                   // value={newNote}
@@ -407,7 +470,7 @@ const RejectModal = ({
                   onClick={saveNote}
                   disabled={status === "Approved"}
                 >
-                  Save
+                  Ok
                 </Button>
               </Box>
             </Box>

@@ -42,6 +42,8 @@ import {
   useSaveLongTextMutation,
 } from "api/timesheetApi";
 import RejectModal from "./RejectModal";
+import { useParams } from "react-router-dom";
+import ChangeEntry from "./ChangeEntry";
 
 const StyledStack = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -240,6 +242,10 @@ export const ReviewColumns = ({
   const { data: rejectionReasons } = useGetRejectedReasonsQuery();
   const [rowObject, setRowObject] = useState({});
   const { data: userData } = useGetUserDataQuery();
+  const { isReviewer, pernr, start, stop, week } = useParams();
+  const [openChangeEntry, setOpenChangeEntry] = useState(false);
+  const status = useSelector((state) => state?.CreateForm?.status);
+
   const [
     makeBatchCall,
     {
@@ -500,6 +506,16 @@ export const ReviewColumns = ({
     handleRemoveRejection && handleRemoveRejection(activeInputId);
   };
 
+  const openChangePopup = (inputId, row, i, value) => {
+    setActiveInputId(inputId);
+    setRowObject({
+      row: row,
+      index: i,
+      value: value,
+    });
+    setOpenChangeEntry(true);
+  };
+
   const handleSaveNotes = () => {
     if (activeInputId) {
       setHasNote((prev) => new Set(prev).add(activeInputId));
@@ -587,7 +603,7 @@ export const ReviewColumns = ({
           const isNote = i === 3 && params.row.isNote;
           return (
             <InputStyleBox>
-              {!isFirstInput ? (
+              {isReviewer === 'true' ? (
                 <Box
                   component="div"
                   sx={{
@@ -623,40 +639,55 @@ export const ReviewColumns = ({
                   </Typography>
                 </Box>
               ) : (
-                <Box
-                  component="div"
-                  sx={{
-                    width: "87% !important",
-                    verticalAlign: "unset",
-                    backgroundColor: isFirstInput
-                      ? "#ef0c0c30"
-                      : inputRejectedNote
-                        ? "#ef0c0c30"
-                        : "#FFFFFF",
-                    border: `1px solid ${isFirstInput ? "#FF0000" : inputRejectedNote ? "#FF0000" : "#000000"}`,
-                    borderRadius: "4px",
-                    padding: "0.5rem",
-                    cursor: isFirstInput ? "pointer" : "pointer",
-                    height: "1.2rem",
-                    "&:hover": {
-                      borderColor: isFirstInput
-                        ? "#FF0000"
-                        : inputRejectedNote
-                          ? "#FF0000"
-                          : "#000000",
-                    },
-                  }}
-                  onClick={() => {
-                    if (isFirstInput && isPrevious) {
-                      setActiveInputId(inputId);
-                      openRejectionModal(inputId, row, i);
+                status !== "Draft" ?
+                  <Box
+                    component="div"
+                    sx={{
+                      width: "87% !important",
+                      verticalAlign: "unset",
+                      backgroundColor:
+                        row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#fff",
+                      border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
+                      borderRadius: "4px",
+                      padding: "0.5rem",
+                      cursor: status === 'Approved' ? "none" : "pointer",
+                      height: "1.2rem",
+                      "&:hover": {
+                        borderColor:
+                          row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d",
+                      },
+                    }}
+                    onClick={() => {
+                      if (status !== 'Approved') {
+                        openChangePopup(inputId, row, i, params?.value);
+                      }
+                    }}
+                  >
+                    <Typography color="#797b79 !important">
+                      {params?.value}
+                    </Typography>
+                  </Box> :
+                  <DecimalInput
+                    onChange={(value) =>
+                      handleInputChange(`day${i}`, value, params?.row?.id)
                     }
-                  }}
-                >
-                  <Typography color="#797b79 !important">
-                    {params?.value}
-                  </Typography>
-                </Box>
+                    value={params?.value}                    
+                    sx={{
+                      width: "80% !important",
+                      verticalAlign: "unset",
+                      borderColor: row[`day${i}STATUS`] === "40" ? "red" : "grey",
+                      backgroundColor: "#FFFFFF",
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          border: isActive ? "1px solid #ED6A15" : "inherit",
+                        },
+                        "&  .MuiOutlinedInput-input": {
+                          border: isActive ? "1px solid #ED6A15" : "inherit",
+                        },
+                      },
+                    }}
+                  />
+
               )}
 
               <IconButton
@@ -686,6 +717,12 @@ export const ReviewColumns = ({
                 onClose={handleCloseModal}
                 activeInputId={activeInputId}
                 setHasNote={setHasNote}
+                rowObject={rowObject}
+              />
+              <ChangeEntry
+                open={openChangeEntry}
+                handleClose={() => setOpenChangeEntry(false)}
+                activeInputId={activeInputId}
                 rowObject={rowObject}
               />
             </InputStyleBox>

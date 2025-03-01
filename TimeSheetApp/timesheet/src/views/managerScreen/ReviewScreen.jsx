@@ -38,13 +38,15 @@ import { useLocation } from "react-router-dom";
 import { ReviewColumns } from "components/ReviewColumns";
 import { ArrowBackIosNew } from "@mui/icons-material";
 import { setDateRange } from "store/slice/HomeSlice";
-import { setProjectData, setStatus } from "store/slice/TimesheetSlice";
+import { setProjectData, setStatus, updateRow } from "store/slice/TimesheetSlice";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Dropdown from "components/Dropdown";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import {
   formatDate,
   getODataFormatDate,
   getWeekStartDate,
+  hasNonZeroEntry,
   odataGetDateFormat,
   PrepareApprovalBatchPayload,
   PrepareBatchPayload,
@@ -62,6 +64,7 @@ import {
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
+import { Footer } from "components/Footer";
 const style = {
   position: "absolute",
   top: "50%",
@@ -82,6 +85,20 @@ const StyledTypography = styled(Typography)({
   color: "#0073E6",
   fontWeight: "500",
 });
+
+const StyledModalBox = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-start",
+  alignItems: "center",
+  marginBottom: "5%",
+}));
+
+const AcknowledgeTypography = styled(Typography)(({ theme }) => ({
+  color: "#DD133F",
+  fontWeight: "700",
+  fontSize: "16px",
+}));
 
 const ApprovalBox = styled(Box)(({ theme }) => ({
   backgroundColor: "#FFFFFF",
@@ -114,6 +131,11 @@ const RejectionMainBox = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
   marginBottom: "5%",
+}));
+
+const SaveTimeButton = styled(Button)(({ theme }) => ({
+  border: "1px solid #ED6A15",
+  marginBottom: "0.5rem",
 }));
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -155,6 +177,12 @@ const StyledDateTypography = styled(Typography)(({ theme }) => ({
   fontWeight: "500",
   padding: "0 8px",
   borderRadius: "4px",
+}));
+
+const StyledFooterText = styled(Typography)(({ theme }) => ({
+  color: "#FFFF",
+  fontWeight: "700",
+  fontSize: "14px",
 }));
 
 const RejectButton = styled(Button)(({ theme }) => ({
@@ -303,6 +331,12 @@ const StyledBox = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
+}));
+
+const StyledSavedTimeText = styled(Typography)(({ theme }) => ({
+  color: "#ED6A15",
+  fontWeight: "700",
+  fontSize: "14px", // Smaller text for small screens
 }));
 
 const ModalTypography = styled(Typography)(({ theme }) => ({
@@ -468,8 +502,13 @@ const ReviewScreen = () => {
   const navigate = useNavigate();
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const dispatch = useDispatch();
-  const { isReviewer, pernr, start, stop, week } = useParams();
-  const [selectedReason, setSelectedReason] = useState(""); // Add this new state
+  const { isReviewer, pernr, start, stop, week, type } = useParams();
+  const [selectedReason, setSelectedReason] = useState(""); // Add this new state  
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMsg, setAlertMsg] = useState('');
+  const [batchCallType, setBatchCallType] = useState("");
+  const [approvalMsg, setApprovalMsg] = useState();
+
   // API methods
   const [
     getTimesheetEntry,
@@ -491,6 +530,15 @@ const ReviewScreen = () => {
       error: batchCallIsError,
     },
   ] = useMakeApprovalBatchCallMutation();
+
+  const [
+    makeSubmitApprovalBatchCall,
+    {
+      isSuccess: submitBatchCallIsSuccess,
+      isLoading: submitBatchCallLoading,
+      error: submitBatchCallIsError,
+    },
+  ] = useMakeBatchCallMutation();
 
   const [
     getReviewDetailData,
@@ -515,6 +563,53 @@ const ReviewScreen = () => {
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenRejection(false);
 
+  const checkStatusCondition = (objectsArray) => {
+    // Loop through each object in the array
+    for (let obj of objectsArray) {
+      // Check each day0STATUS to day6STATUS key for the "40" value
+      for (let i = 0; i <= 6; i++) {
+        const statusKey = `day${i}STATUS`;
+        if (obj[statusKey] === "40") {
+          return true; // Return true if the condition is met
+        }
+      }
+    }
+    return false; // Return false if no object meets the condition
+  };
+
+  const handleSaveTime = async (type) => {
+    // setSnackbarOpen(true);
+    setBatchCallType(type);
+    // make a batch call with payload
+    const timesheetEntries = prepareTimesheetPayload(type);
+    if (timesheetEntries && timesheetEntries.length > 0) {
+      const batchPayload = PrepareBatchPayload(timesheetEntries);
+      const response = await makeBatchCall({ body: batchPayload });
+      console.log("response", response);
+    }
+  };
+
+  const handleSubmitForApproval = () => {
+    // const rejectedItems = projectedData
+    const isRejectedItem = checkStatusCondition(projectedData);
+    if (isRejectedItem === true) {
+      setAlertMsg("Please rectify the rejected entries and then resubmit for approval.");
+      setAlertOpen(true);
+      return;
+    }
+
+    if (status !== "New" && status !== "Draft") {
+      setActionMsg(
+        "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
+      );
+    } else {
+      setActionMsg(
+        "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
+      );
+    }
+    setOpenApproval(true);
+  };
+
   const handleApproval = (type) => {
     if (type == "reject") {
       setActionMsg("Are you sure you want to reject this timesheet?");
@@ -526,6 +621,83 @@ const ReviewScreen = () => {
       setNewStatus("Pending for Approval");
     }
     setOpenApproval(true);
+  };
+
+  const prepareTimesheetPayload = (type) => {
+    const timesheetEntries = projectedData.filter(
+      (item) => item?.totalRow !== true
+    );
+    let entries = [];
+
+    // check non zero entry
+    let isNonZeroEntry = {
+      isNonZero: true,
+      msg: ""
+    };
+    timesheetEntries.forEach(element => {
+      const tempValue = hasNonZeroEntry(element);
+      if (tempValue == false) {
+        isNonZeroEntry = {
+          isNonZero: tempValue,
+          msg: `Please provide non-zero entry for <b>${element?.level} - ${element?.title}</b> or delete the row.`
+        };
+        return;
+      }
+    });
+
+    if (isNonZeroEntry?.isNonZero == false) {
+      const msg = isNonZeroEntry?.msg;
+      setAlertMsg(<span dangerouslySetInnerHTML={{ __html: msg }} />);
+      setAlertOpen(true);
+      return;
+    }
+
+    timesheetEntries.forEach((entry) => {
+      let startDate = new Date();
+      if (selectedDate && selectedDate.length && selectedDate.length > 0) {
+        const dates = selectedDate.split(" - ");
+        startDate = dates[0];
+      } else {
+        startDate = getWeekStartDate();
+      }
+
+      for (let i = 0; i < 7; i++) {
+        const currentDate = dayjs(startDate).add(i, "day");
+        const payloadDate = getODataFormatDate(currentDate.$d);
+        // if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+        const entryStatus = entry[`day${i}STATUS`];
+        if (entryStatus !== "40") {
+          const temp = {
+            __metadata: {
+              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+            },
+            TimeEntryDataFields: {
+              __metadata: {
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+              },
+              CATSHOURS: entry[`day${i}`] || '0.00',
+              PERNR: userData?.results[0].EmployeeNumber,
+              CATSQUANTITY: entry[`day${i}`] || '0.00',
+              LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
+              LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
+              MEINH: "H",
+              UNIT: "H",
+              WORKDATE: payloadDate,
+              LONGTEXT_DATA: entry[`day${i}Notes`],
+              POSID: entry?.level,
+            },
+            Pernr: userData?.results[0].EmployeeNumber,
+            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+            Counter: entry[`day${i}Counter`] || "",
+            AllowRelease: type === "approve" ? "X" : "",
+            RecRowNo: (entries.length + 1).toString(),
+          };
+          entries.push(temp);
+        }
+        // }
+      }
+    });
+    return entries;
   };
 
   const handleYesPress = () => {
@@ -542,12 +714,33 @@ const ReviewScreen = () => {
       setShowRelease(true);
       setSnackbarOpen(true);
     } else {
-      setSnackBarMsg("Timesheet Released !!");
-      // setNewStatus("Release")
-      setNewStatus("Pending for Approval");
-      setSnackbarOpen(true);
+
     }
   };
+
+  const onSubmitYes = async () => {
+    // make a batch call with payload
+    setBatchCallType("approve");
+    const timesheetEntries = prepareTimesheetPayload("approve");
+    if (timesheetEntries && timesheetEntries.length > 0) {
+      const batchPayload = PrepareBatchPayload(timesheetEntries);
+      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });
+      console.log("response", response);
+    }
+  }
+
+  useEffect(() => {
+    if (submitBatchCallIsSuccess) {
+      if(batchCallType === "approve"){
+        setSnackBarMsg("Timesheet submitted for approval !!");
+        setSnackbarOpen(true);
+      }else{
+        setSnackBarMsg("Timesheet saved successfully.");
+        setSnackbarOpen(true);
+      }
+      
+    }
+  }, [submitBatchCallLoading]);
 
   const handleReasonChange = (event, value) => {
     setSelectedReason({
@@ -626,11 +819,74 @@ const ReviewScreen = () => {
   const handleReject = () => { };
 
   const handleInputChange = (field, value, rowId) => {
-    let tempRows = [...rows];
-    let tempRow = tempRows[rowId];
-    tempRow = { ...tempRow, [field]: value };
-    tempRows[rowId] = tempRow;
-    // setRows(tempRows);
+    const rows = [...projectedData];
+    let rowObj = rows.find((item) => item.id === rowId);
+    const rowIndex = rows.indexOf(rowObj);
+    // Convert input value to a number
+    let parsedValue = parseFloat(value || 0);
+    // do the sum of the row
+    let rowSum = 0;
+    for (let i = 0; i < 7; i++) {
+      if (`day${i}` !== field) {
+        rowSum = rowSum + parseFloat(rowObj[`day${i}`] || 0);
+      } else {
+        rowSum = rowSum + parsedValue;
+        rowObj = { ...rowObj, [field]: parsedValue.toFixed(2) };
+      }
+    }
+    rowObj = { ...rowObj, weekTotal: parseFloat(rowSum).toFixed(2) };
+
+    // Dispatch the update for this specific row and field
+    dispatch(
+      updateRow({
+        rowIndex,
+        rowObj,
+      })
+    );
+    updateTotalRow(field, rowIndex, rowObj);
+  };
+
+  const updateTotalRow = (field, rowIndex, rowObj) => {
+    const rows = [...projectedData];
+    const dataRows = rows.filter(
+      (x) => x.totalRow !== true && x.id !== rowObj.id
+    );
+    const dayColumn = dataRows.map((item) => item[field]);
+    let dayTotal = dayColumn.reduce(
+      (a, c) => parseFloat(a || 0) + parseFloat(c || 0),
+      0
+    );
+    dayTotal = parseFloat(dayTotal) + parseFloat(rowObj[field]);
+    const totalRow = rows.find((x) => x.totalRow === true);
+    let totalRowObj = {
+      ...totalRow,
+    };
+    const totalRowIndex = rows.indexOf(totalRow);
+    let rowSum = 0;
+    for (let i = 0; i < 7; i++) {
+      if (`day${i}` !== field) {
+        rowSum = rowSum + parseFloat(totalRowObj[`day${i}`] || 0);
+      } else {
+        rowSum = rowSum + dayTotal;
+        totalRowObj = {
+          ...totalRowObj,
+          [field]: parseFloat(dayTotal).toFixed(2),
+        };
+      }
+    }
+    totalRowObj = {
+      ...totalRowObj,
+      weekTotal: parseFloat(rowSum).toFixed(2),
+    };
+
+    dispatch(
+      updateRow({
+        rowIndex: totalRowIndex,
+        rowObj: totalRowObj,
+      })
+    );
+    // to check the total hours if equal to 40 then enable the button
+    checkForTotalHours(totalRowObj);
   };
 
   const handleDelete = (rowId) => {
@@ -1160,35 +1416,49 @@ const ReviewScreen = () => {
             }}
           />
         </Stack>
-        {isReviewer == "true" ? (
-          <ButtonStack>
-            {/* <RejectButton
-              disabled={!isTimeSheetRejected}
-              variant="contained"
-              color="#DD133F"
-              backgroundColor="#DD133F"
-              sx={{
-                width: { xs: "100%", sm: "200px" },
-                backgroundColor: "#DD133F",
-                color: "#fff",
-              }}
-              onClick={() => handleApproval("reject")}
-            >
-              Reject
-            </RejectButton> */}
-            <ApproveButton
-              disabled={status === "Approved" || status === "Rejected"}
-              variant="contained"
-              color="success"
-              sx={{ width: { xs: "100%", sm: "200px" } }}
-              onClick={() => handleApproval("approve")}
-            >
-              Approve
-            </ApproveButton>
-          </ButtonStack>
-        ) : (
-          <></>
-        )}
+        <>
+          {isReviewer === 'false' && status !== 'Approved' && type === "my" && (
+            <Stack justifyContent={"space-between"} direction={"row"}>
+              <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
+                <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
+              </SaveTimeButton>
+              <Button
+                onClick={handleSubmitForApproval}
+                sx={{
+                  backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+                  padding: "0.4rem",
+                  marginBottom: "0.5rem",
+                }}
+                disabled={
+                  !(
+                    projectedData &&
+                    Object?.keys(projectedData)?.length > 0 &&
+                    saveTimeClick
+                  )
+                }
+              >
+                <StyledFooterText>
+                  {status !== "New" && status !== "Draft"
+                    ? "Resubmit Week for Approval"
+                    : "Submit Week for Approval"}
+                </StyledFooterText>
+              </Button>
+
+            </Stack>
+          )}
+          {isReviewer === 'true' && type == "team" &&
+            <ButtonStack>
+              <ApproveButton
+                disabled={status === "Approved" || status === "Rejected"}
+                variant="contained"
+                color="success"
+                sx={{ width: { xs: "100%", sm: "200px" } }}
+                onClick={() => handleApproval("approve")}
+              >
+                Approve
+              </ApproveButton>
+            </ButtonStack>}
+        </>
       </StyledStack>
       <Modal
         keepMounted
@@ -1296,6 +1566,63 @@ const ReviewScreen = () => {
           </NoteButtonStack>
         </ApprovalBox>
       </Modal>
+      {/* <Modal
+        keepMounted
+        open={openApproval}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        aria-labelledby="keep-mounted-modal-title"
+        aria-describedby="keep-mounted-modal-description"
+        BackdropProps={{
+          style: {
+            backgroundColor: "#121212",
+            opacity: "80%",
+          },
+        }}
+      >
+        <ApprovalBox>
+          <Stack direction={"row"} justifyContent={"end"}>
+            <IconButton onClick={handleApprovalClose}>
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          <Stack direction={"row"} justifyContent={"center"}>
+            <StyledModalBox>
+              <AcknowledgeTypography>
+                <ErrorOutlineIcon sx={{ width: "50px", height: "50px" }} />
+              </AcknowledgeTypography>
+              <AcknowledgeTypography>Acknowledgement</AcknowledgeTypography>
+            </StyledModalBox>
+          </Stack>
+          <DescriptionTypography>{approvalMsg}</DescriptionTypography>
+          <NoteButtonStack
+            direction="row"
+            justifyContent={"space-between"}
+            spacing={3}
+          >
+            <CancelNoteButton
+              id="keep-mounted-modal-title"
+              variant="h6"
+              component="h2"
+              size="small"
+              onClick={() => handleApprovalClose()}
+            >
+              <CancelNoteTypography>Cancel</CancelNoteTypography>
+            </CancelNoteButton>
+            <SaveNoteButton
+              id="keep-mounted-modal-description"
+              sx={{ mt: 2 }}
+              size="small"
+              onClick={onSubmitYes}
+            >
+              <SaveNoteTypography>OK</SaveNoteTypography>
+            </SaveNoteButton>
+          </NoteButtonStack>
+        </ApprovalBox>
+      </Modal> */}
       <Snackbar
         open={snackbarOpen}
         onClose={handleSnackbarClose}
@@ -1328,7 +1655,20 @@ const ReviewScreen = () => {
           {apiMsg}
         </Alert>
       </Snackbar>
-      <BusyDialog open={batchCallLoading} />
+      <Snackbar
+        open={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlertOpen(false)}
+          severity={"warning"}
+          sx={{ width: "100%" }}
+        >
+          {alertMsg}
+        </Alert>
+      </Snackbar>
+      <BusyDialog open={batchCallLoading || timeSheetDataFetching} />
     </>
   );
 };

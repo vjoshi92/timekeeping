@@ -164,6 +164,8 @@ export const RowsDataColumns = ({
   selectedDate,
   dateWiseData,
   status,
+  setAlertMsg,
+  setAlertOpen
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [openChangeEntry, setOpenChangeEntry] = useState(false);
@@ -371,7 +373,7 @@ export const RowsDataColumns = ({
                     {params?.value}
                   </Typography>
                 </Box>
-              ) : (row[`day${i}STATUS`] === "40" ||
+              ) : (row[`day${i}STATUS`] === "40" || row[`day${i}STATUS`] === "20"  || 
                 status === "Pending For Approval" ||
                 status === "Rejected") && !row.newRow ? (
                 <Box
@@ -424,7 +426,7 @@ export const RowsDataColumns = ({
               )}
               <IconButton
                 size="small"
-                disabled={!params?.value}
+                disabled={!params?.value || params?.value === '0.00'} 
                 onClick={() => openNotesPopup(inputId, row, i)}
               >
                 <TextSnippetOutlined
@@ -454,6 +456,8 @@ export const RowsDataColumns = ({
                 activeInputId={activeInputId}
                 setHasNote={setHasNote}
                 rowObject={rowObject}
+                setAlertMsg={setAlertMsg}
+                setAlertOpen={setAlertOpen}
               />
               <ChangeEntry
                 open={openChangeEntry}
