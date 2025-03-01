@@ -181,6 +181,7 @@ const AddRowsScreen = () => {
         selectedLevels.project,
         `${lastSelectedTitle}\n${lastSelectedLevel}`,
       ],
+      newRow: true
     };
 
     const isDuplicate = projectedData.some(

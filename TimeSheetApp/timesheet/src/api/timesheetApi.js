@@ -181,7 +181,7 @@ export const TimesheetApi = createApi({
           body: body,
         };
       },
-      invalidatesTags: ["Get_Pending_Count","Get_pending_approval"],
+      invalidatesTags: ["Get_Pending_Count", "Get_pending_approval"],
     }),
     getTimesheetWeekly: builder.query({
       query: () => {
@@ -190,7 +190,7 @@ export const TimesheetApi = createApi({
           url: URL,
           method: "GET",
           headers: {
-            //   Selection: "Complete Data",
+            Selection: "Complete Data",
             timesheet: "employee"
           },
         };
@@ -202,9 +202,9 @@ export const TimesheetApi = createApi({
         return {
           url: URL,
           method: "GET",
-          // headers: {
-          //   //   Selection: "Complete Data",            
-          // },
+          headers: {
+            Selection: "Complete Data",
+          },
         };
       },
     }),

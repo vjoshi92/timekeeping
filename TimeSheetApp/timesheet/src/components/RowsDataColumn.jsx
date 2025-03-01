@@ -371,9 +371,9 @@ export const RowsDataColumns = ({
                     {params?.value}
                   </Typography>
                 </Box>
-              ) : row[`day${i}STATUS`] === "40" ||
+              ) : (row[`day${i}STATUS`] === "40" ||
                 status === "Pending For Approval" ||
-                status === "Rejected" ? (
+                status === "Rejected") && !row.newRow ? (
                 <Box
                   component="div"
                   sx={{
