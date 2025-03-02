@@ -107,14 +107,23 @@ export const TimesheetApi = createApi({
       providesTags: ["Get_pending_approval"],
     }),
     getReviewDetailData: builder.query({
-      query: ({ week, pernr }) => {
+      query: ({ week, pernr, type }) => {
         const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=Week eq '${week}'and Pernr eq '${pernr}'&sap-client=100&sap-language=EN&$format=json`;
+        let header = {};
+        if (type === "my") {
+          header = {
+            Selection: "Complete Data",
+            timesheet: "employee"
+          }
+        } else {
+          header = {
+            Selection: "Complete Data",
+          }
+        }
         return {
           url: URL,
           method: "GET",
-          headers: {
-            Selection: "Complete Data",
-          },
+          headers: header
         };
       },
       providesTags: ["Get_ReviewStatus_Timesheet"],
@@ -129,15 +138,23 @@ export const TimesheetApi = createApi({
       },
     }),
     getDateWiseReviewDetails: builder.query({
-      query: ({ startDate, endDate, pernr }) => {
+      query: ({ startDate, endDate, pernr, type }) => {
         const URL = `ZCATS_NOFO_TIMESHEET_SRV/WorkCalendarSet?$expand=TIMEENTRIES&$filter=StartDate eq datetime'${startDate}' and EndDate eq datetime'${endDate}' and Pernr eq '${pernr}' and ProfileId eq 'ZJMA1'&$format=json&sap-client=100`;
-
+        let header = {};
+        if (type === "my") {
+          header = {
+            Selection: "Complete Data",
+            timesheet: "employee"
+          }
+        } else {
+          header = {
+            Selection: "Complete Data",
+          }
+        }
         return {
           url: URL,
           method: "GET",
-          headers: {
-            Selection: "Complete Data",
-          },
+          headers: header
         };
       },
       providesTags: ["Get_Review_Timesheet"],

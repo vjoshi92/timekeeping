@@ -112,6 +112,17 @@ const ApprovalBox = styled(Box)(({ theme }) => ({
   padding: "20px",
 }));
 
+const ApprovalBox2 = styled(Box)(({ theme }) => ({
+  backgroundColor: "#FFFFFF",
+  display: "flex",
+  borderRadius: "6px",
+  width: "30%",
+  // height: "300px",
+  position: "relative",
+  flexDirection: "column",
+  padding: "20px",
+}));
+
 const RejectionBox = styled(Box)(({ theme }) => ({
   backgroundColor: "#FFFFFF",
   display: "flex",
@@ -486,6 +497,7 @@ const ReviewScreen = () => {
   const newRow = useSelector((state) => state?.CreateForm?.newRow);
   const [open, setOpen] = React.useState(false);
   const [openApproval, setOpenApproval] = React.useState(false);
+  const [certificate, setOpenCertificate] = useState(false);
   const [actionMsg, setActionMsg] = useState("");
   const [openRejection, setOpenRejection] = React.useState(false);
   const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
@@ -554,7 +566,7 @@ const ReviewScreen = () => {
 
   useEffect(() => {
     if (week && pernr) {
-      getReviewDetailData({ week, pernr });
+      getReviewDetailData({ week, pernr, type });
     }
   }, [week, pernr]);
 
@@ -607,7 +619,7 @@ const ReviewScreen = () => {
         "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
       );
     }
-    setOpenApproval(true);
+    setOpenCertificate(true);
   };
 
   const handleApproval = (type) => {
@@ -719,6 +731,7 @@ const ReviewScreen = () => {
   };
 
   const onSubmitYes = async () => {
+    setOpenCertificate(false);
     // make a batch call with payload
     setBatchCallType("approve");
     const timesheetEntries = prepareTimesheetPayload("approve");
@@ -731,14 +744,14 @@ const ReviewScreen = () => {
 
   useEffect(() => {
     if (submitBatchCallIsSuccess) {
-      if(batchCallType === "approve"){
+      if (batchCallType === "approve") {
         setSnackBarMsg("Timesheet submitted for approval !!");
         setSnackbarOpen(true);
-      }else{
+      } else {
         setSnackBarMsg("Timesheet saved successfully.");
         setSnackbarOpen(true);
       }
-      
+
     }
   }, [submitBatchCallLoading]);
 
@@ -1012,6 +1025,7 @@ const ReviewScreen = () => {
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         pernr: pernr,
+        type: type
         // pernr: userData?.results[0].EmployeeNumber,
       });
     }
@@ -1566,9 +1580,9 @@ const ReviewScreen = () => {
           </NoteButtonStack>
         </ApprovalBox>
       </Modal>
-      {/* <Modal
+      <Modal
         keepMounted
-        open={openApproval}
+        open={certificate}
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -1583,7 +1597,7 @@ const ReviewScreen = () => {
           },
         }}
       >
-        <ApprovalBox>
+        <ApprovalBox2>
           <Stack direction={"row"} justifyContent={"end"}>
             <IconButton onClick={handleApprovalClose}>
               <CloseIcon />
@@ -1597,11 +1611,12 @@ const ReviewScreen = () => {
               <AcknowledgeTypography>Acknowledgement</AcknowledgeTypography>
             </StyledModalBox>
           </Stack>
-          <DescriptionTypography>{approvalMsg}</DescriptionTypography>
-          <NoteButtonStack
+          <DescriptionTypography>{actionMsg}</DescriptionTypography>
+          <Stack
             direction="row"
             justifyContent={"space-between"}
             spacing={3}
+            mt={"1rem"}
           >
             <CancelNoteButton
               id="keep-mounted-modal-title"
@@ -1620,9 +1635,9 @@ const ReviewScreen = () => {
             >
               <SaveNoteTypography>OK</SaveNoteTypography>
             </SaveNoteButton>
-          </NoteButtonStack>
-        </ApprovalBox>
-      </Modal> */}
+          </Stack>
+        </ApprovalBox2>
+      </Modal>
       <Snackbar
         open={snackbarOpen}
         onClose={handleSnackbarClose}
@@ -1668,7 +1683,7 @@ const ReviewScreen = () => {
           {alertMsg}
         </Alert>
       </Snackbar>
-      <BusyDialog open={batchCallLoading || timeSheetDataFetching} />
+      <BusyDialog open={batchCallLoading || timeSheetDataFetching || submitBatchCallLoading} />
     </>
   );
 };

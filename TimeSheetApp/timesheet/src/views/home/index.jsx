@@ -857,37 +857,37 @@ const Home = () => {
       for (let i = 0; i < 7; i++) {
         const currentDate = dayjs(startDate).add(i, "day");
         const payloadDate = getODataFormatDate(currentDate.$d);
-        // if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
-        const entryStatus = entry[`day${i}STATUS`];
-        if (entryStatus !== "40") {
-          const temp = {
-            __metadata: {
-              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
-            },
-            TimeEntryDataFields: {
+        if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+          const entryStatus = entry[`day${i}STATUS`];
+          if (entryStatus !== "40") {
+            const temp = {
               __metadata: {
-                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
               },
-              CATSHOURS: entry[`day${i}`] || '0.00',
-              PERNR: userData?.results[0].EmployeeNumber,
-              CATSQUANTITY: entry[`day${i}`] || '0.00',
-              LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
-              LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
-              MEINH: "H",
-              UNIT: "H",
-              WORKDATE: payloadDate,
-              LONGTEXT_DATA: entry[`day${i}Notes`],
-              POSID: entry?.level,
-            },
-            Pernr: userData?.results[0].EmployeeNumber,
-            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
-            Counter: entry[`day${i}Counter`] || "",
-            AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
-            // RecRowNo: (entries.length + 1).toString(),
-          };
-          entries.push(temp);
+              TimeEntryDataFields: {
+                __metadata: {
+                  type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+                },
+                CATSHOURS: entry[`day${i}`] || '0.00',
+                PERNR: userData?.results[0].EmployeeNumber,
+                CATSQUANTITY: entry[`day${i}`] || '0.00',
+                LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
+                LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
+                MEINH: "H",
+                UNIT: "H",
+                WORKDATE: payloadDate,
+                LONGTEXT_DATA: entry[`day${i}Notes`],
+                POSID: entry?.level,
+              },
+              Pernr: userData?.results[0].EmployeeNumber,
+              TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+              Counter: entry[`day${i}Counter`] || "",
+              AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
+              RecRowNo: (entries.length + 1).toString(),
+            };
+            entries.push(temp);
+          }
         }
-        // }
       }
     });
     return entries;
@@ -1158,17 +1158,18 @@ const Home = () => {
         const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
         const dayKey = `day${i}`;
         let weekRow;
-        let rowIndex;
+        let rowIndex = -1;
         let rowExist = weekRows.filter(
           (x) => x.level === entry?.TimeEntryDataFields?.POSID
         );
         if (rowExist && rowExist.length && rowExist.length > 0) {
           weekRow = rowExist[0];
           rowIndex = weekRows.indexOf(weekRow);
-        } else {
-          weekRow = weekRows[j];
-          rowIndex = j;
         }
+        // else {
+        //   weekRow = weekRows[j];
+        //   rowIndex = j;
+        // }
         // Update the hours for the correct day of the week
         if (!weekRow) {
           weekRow = {
@@ -1210,7 +1211,11 @@ const Home = () => {
           weekRow[`${dayKey}RecRowNo`] = entry?.RecRowNo;
           weekRow[`${dayKey}WORKDATE`] = entry?.TimeEntryDataFields?.WORKDATE;
         }
-        weekRows[rowIndex] = weekRow;
+        if (rowIndex >= 0) {
+          weekRows[rowIndex] = weekRow;
+        } else {
+          weekRows.push(weekRow);
+        }
         // all status check
         if (entry?.Status === "10") {
           weeklyStatus.Draft = weeklyStatus.Draft + 1;
