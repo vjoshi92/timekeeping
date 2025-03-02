@@ -1249,8 +1249,7 @@ const Home = () => {
     // overall status check
     if (weeklyStatus.Draft > 0) {
       dispatch(setStatus("Draft"));
-    }
-    else if (weeklyStatus.Rejected > 0) {
+    } else if (weeklyStatus.Rejected > 0) {
       dispatch(setStatus("Rejected"));
     } else if (weeklyStatus.SubmitForApproval > 0) {
       dispatch(setStatus("Pending For Approval"));

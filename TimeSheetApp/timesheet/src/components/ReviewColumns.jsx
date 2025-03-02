@@ -609,23 +609,17 @@ export const ReviewColumns = ({
                   sx={{
                     width: "87% !important",
                     verticalAlign: "unset",
-                    backgroundColor: isFirstInput
-                      ? "#ef0c0c30"
-                      : inputRejectedNote
-                        ? "#ef0c0c30"
-                        : "#FFFFFF",
-                    border: `1px solid ${isFirstInput ? "#FF0000" : inputRejectedNote ? "#FF0000" : "#000000"}`,
+                    backgroundColor:
+                        row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#fff",
+                        border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
                     borderRadius: "4px",
                     padding: "0.5rem",
                     cursor: isFirstInput ? "default" : "pointer",
                     height: "1.2rem",
                     "&:hover": {
-                      borderColor: isFirstInput
-                        ? "#FF0000"
-                        : inputRejectedNote
-                          ? "#FF0000"
-                          : "#000000",
-                    },
+                        borderColor:
+                          row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d",
+                      },
                   }}
                   onClick={() => {
                     if (!isFirstInput && !isPrevious) {
@@ -639,7 +633,7 @@ export const ReviewColumns = ({
                   </Typography>
                 </Box>
               ) : (
-                status !== "Draft" ?
+                (status !== "Draft" || row[`day${i}STATUS`] === "20" || row[`day${i}STATUS`] === "40") ?
                   <Box
                     component="div"
                     sx={{

@@ -596,7 +596,7 @@ const ReviewScreen = () => {
     const timesheetEntries = prepareTimesheetPayload(type);
     if (timesheetEntries && timesheetEntries.length > 0) {
       const batchPayload = PrepareBatchPayload(timesheetEntries);
-      const response = await makeBatchCall({ body: batchPayload });
+      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });
       console.log("response", response);
     }
   };
@@ -676,37 +676,37 @@ const ReviewScreen = () => {
       for (let i = 0; i < 7; i++) {
         const currentDate = dayjs(startDate).add(i, "day");
         const payloadDate = getODataFormatDate(currentDate.$d);
-        // if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
-        const entryStatus = entry[`day${i}STATUS`];
-        if (entryStatus !== "40") {
-          const temp = {
-            __metadata: {
-              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
-            },
-            TimeEntryDataFields: {
+        if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+          const entryStatus = entry[`day${i}STATUS`];
+          if (entryStatus !== "40") {
+            const temp = {
               __metadata: {
-                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
               },
-              CATSHOURS: entry[`day${i}`] || '0.00',
-              PERNR: userData?.results[0].EmployeeNumber,
-              CATSQUANTITY: entry[`day${i}`] || '0.00',
-              LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
-              LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
-              MEINH: "H",
-              UNIT: "H",
-              WORKDATE: payloadDate,
-              LONGTEXT_DATA: entry[`day${i}Notes`],
-              POSID: entry?.level,
-            },
-            Pernr: userData?.results[0].EmployeeNumber,
-            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
-            Counter: entry[`day${i}Counter`] || "",
-            AllowRelease: type === "approve" ? "X" : "",
-            RecRowNo: (entries.length + 1).toString(),
-          };
-          entries.push(temp);
+              TimeEntryDataFields: {
+                __metadata: {
+                  type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
+                },
+                CATSHOURS: entry[`day${i}`] || '0.00',
+                PERNR: userData?.results[0].EmployeeNumber,
+                CATSQUANTITY: entry[`day${i}`] || '0.00',
+                LTXA1: entry[`day${i}Notes`] ? entry[`day${i}Notes`]?.substring(0, 40) : "",
+                LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
+                MEINH: "H",
+                UNIT: "H",
+                WORKDATE: payloadDate,
+                LONGTEXT_DATA: entry[`day${i}Notes`] || "",
+                POSID: entry?.level,
+              },
+              Pernr: userData?.results[0].EmployeeNumber,
+              TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+              Counter: entry[`day${i}Counter`] || "",
+              AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",              
+              RecRowNo: (entries.length + 1).toString(),
+            };
+            entries.push(temp);
+          }
         }
-        // }
       }
     });
     return entries;
@@ -1095,7 +1095,16 @@ const ReviewScreen = () => {
     // here i is consider as row data
     for (let i = 0; i < results?.length; i++) {
       let dayData = results[i];
-      const timeEntries = dayData.TIMEENTRIES.results;
+      let timeEntries = dayData?.TIMEENTRIES?.results;
+      if (type == "my") {
+        timeEntries = dayData?.TimeEntries?.results;
+      }
+      timeEntries = [...timeEntries];
+      timeEntries?.sort((a, b) =>
+        a?.TimeEntryDataFields?.POSID?.localeCompare(
+          b?.TimeEntryDataFields?.POSID
+        )
+      );
       // here j is consider as day number
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
@@ -1106,17 +1115,18 @@ const ReviewScreen = () => {
         const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
         const dayKey = `day${i}`;
         let weekRow;
-        let rowIndex;
+        let rowIndex = -1;
         let rowExist = weekRows.filter(
           (x) => x.level === entry?.TimeEntryDataFields?.POSID
         );
         if (rowExist && rowExist.length && rowExist.length > 0) {
           weekRow = rowExist[0];
           rowIndex = weekRows.indexOf(weekRow);
-        } else {
-          weekRow = weekRows[j];
-          rowIndex = j;
         }
+        // else {
+        //   weekRow = weekRows[j];
+        //   rowIndex = j;
+        // }
         // Update the hours for the correct day of the week
         if (!weekRow) {
           weekRow = {
@@ -1164,14 +1174,23 @@ const ReviewScreen = () => {
           weekRow[`${dayKey}TimeCreate`] = entry?.TimeEntryDataFields?.LAETM;
           weekRow[`${dayKey}PERNR`] = entry?.TimeEntryDataFields?.PERNR;
         }
-        weekRows[rowIndex] = weekRow;
+        if (rowIndex >= 0) {
+          weekRows[rowIndex] = weekRow;
+        } else {
+          weekRows.push(weekRow);
+        }
         // all status check
-        if (entry?.Status === "40") {
+        if (entry?.Status === "10") {
+          weeklyStatus.Draft = weeklyStatus.Draft + 1;
+        }
+        else if (entry?.Status === "40") {
           weeklyStatus.Rejected = weeklyStatus.Rejected + 1;
-        } else if (entry?.Status === "30") {
-          weeklyStatus.Approved = weeklyStatus.Approved + 1;
-        } else if (entry?.Status === "20") {
+        }
+        else if (entry?.Status === "20") {
           weeklyStatus.SubmitForApproval = weeklyStatus.SubmitForApproval + 1;
+        }
+        else if (entry?.Status === "30") {
+          weeklyStatus.Approved = weeklyStatus.Approved + 1;
         } else {
           weeklyStatus.Draft = weeklyStatus.Draft + 1;
         }
@@ -1191,14 +1210,14 @@ const ReviewScreen = () => {
     });
 
     // overall status check
-    if (weeklyStatus.Rejected > 0) {
+    if (weeklyStatus.Draft > 0) {
+      dispatch(setStatus("Draft"));
+    } else if (weeklyStatus.Rejected > 0) {
       dispatch(setStatus("Rejected"));
-    } else if (weeklyStatus.Approved > 0) {
-      dispatch(setStatus("Approved"));
     } else if (weeklyStatus.SubmitForApproval > 0) {
       dispatch(setStatus("Pending For Approval"));
-    } else if (weeklyStatus.Draft > 0) {
-      dispatch(setStatus("Draft"));
+    } else if (weeklyStatus.Approved > 0) {
+      dispatch(setStatus("Approved"));
     } else {
       dispatch(setStatus("New"));
     }

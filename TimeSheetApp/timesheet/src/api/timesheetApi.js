@@ -45,7 +45,7 @@ export const TimesheetApi = createApi({
           body: body,
         };
       },
-      invalidatesTags: ["Get_Timesheet"],
+      invalidatesTags: ["Get_Timesheet", "Get_Review_Timesheet", "Get_ReviewStatus_Timesheet",],
     }),
     makeApprovalBatchCall: builder.mutation({
       query: ({ body }) => {
@@ -108,7 +108,7 @@ export const TimesheetApi = createApi({
     }),
     getReviewDetailData: builder.query({
       query: ({ week, pernr, type }) => {
-        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=Week eq '${week}'and Pernr eq '${pernr}'&sap-client=100&sap-language=EN&$format=json`;
+        let URL = `ZCATS_NOFO_TIMESHEET_SRV/WeekSummarySet?$filter=Week eq '${week}'and Pernr eq '${pernr}'&sap-client=100&sap-language=EN&$format=json`;
         let header = {};
         if (type === "my") {
           header = {
@@ -139,7 +139,10 @@ export const TimesheetApi = createApi({
     }),
     getDateWiseReviewDetails: builder.query({
       query: ({ startDate, endDate, pernr, type }) => {
-        const URL = `ZCATS_NOFO_TIMESHEET_SRV/WorkCalendarSet?$expand=TIMEENTRIES&$filter=StartDate eq datetime'${startDate}' and EndDate eq datetime'${endDate}' and Pernr eq '${pernr}' and ProfileId eq 'ZJMA1'&$format=json&sap-client=100`;
+        let URL = `ZCATS_NOFO_TIMESHEET_SRV/WorkCalendarSet?$expand=TIMEENTRIES&$filter=StartDate eq datetime'${startDate}' and EndDate eq datetime'${endDate}' and Pernr eq '${pernr}' and ProfileId eq 'ZJMA1'&$format=json&sap-client=100`;
+        if (type === "my") {
+          URL = `HCMFAB_TIMESHEET_MAINT_SRV/WorkCalendarCollection?$expand=TimeEntries&$filter=StartDate eq datetime'${startDate}' and EndDate eq datetime'${endDate}' and Pernr eq '${pernr}' and ProfileId eq 'ZJMA1'&$format=json`;
+        }
         let header = {};
         if (type === "my") {
           header = {
