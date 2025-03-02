@@ -299,3 +299,27 @@ export const hasNonZeroEntry = (data) => {
   }
   return false; // No non-zero value found
 };
+
+export const hasValidTimeEntry = (data) => {
+  for (let i = 0; i <= 6; i++) {
+    const dayKey = `day${i}`;
+    if (parseFloat(data[dayKey]) > 23) {
+      return false;
+    }
+  }
+  return true; 
+};
+
+export const checkStatusCondition = (objectsArray, status) => {
+  // Loop through each object in the array
+  for (let obj of objectsArray) {
+    // Check each day0STATUS to day6STATUS key for the "40" value
+    for (let i = 0; i <= 6; i++) {
+      const statusKey = `day${i}STATUS`;
+      if (obj[statusKey] === status) {
+        return true; // Return true if the condition is met
+      }
+    }
+  }
+  return false; // Return false if no object meets the condition
+};

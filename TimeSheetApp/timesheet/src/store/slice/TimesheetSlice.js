@@ -23,7 +23,8 @@ const initialState = {
   // ],
   status: "New",
   newRow: false,
-  selectedPendingApprovals: []
+  selectedPendingApprovals: [],
+  BatchCallType: ""
 };
 
 const createFormSlice = createSlice({
@@ -78,6 +79,9 @@ const createFormSlice = createSlice({
     setSelectedPendingApprovals: (state, action) => {
       state.selectedPendingApprovals = action.payload;
     },
+    setBatchCallTypeGlobal: (state, action) => {
+      state.BatchCallType = action.payload;
+    },
   },
 });
 
@@ -90,7 +94,8 @@ export const {
   setStatus,
   setApprovalCount,
   setNewRowAdded,
-  setSelectedPendingApprovals
+  setSelectedPendingApprovals,
+  setBatchCallTypeGlobal
 } = createFormSlice.actions;
 
 export default createFormSlice.reducer;

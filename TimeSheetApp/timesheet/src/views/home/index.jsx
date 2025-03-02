@@ -45,6 +45,7 @@ import { Footer } from "components/Footer";
 import {
   deleteProjectDataById,
   setApprovalCount,
+  setBatchCallTypeGlobal,
   setNewRowAdded,
   setProjectData,
   setStatus,
@@ -54,9 +55,11 @@ import {
 } from "store/slice/TimesheetSlice";
 import { ReviewColumns } from "components/ReviewColumns";
 import {
+  checkStatusCondition,
   getODataFormatDate,
   getWeekStartDate,
   hasNonZeroEntry,
+  hasValidTimeEntry,
   PrepareBatchPayload,
   StatusCaseFormatting,
   StatusColorFormatter,
@@ -259,9 +262,7 @@ const StyledSaveStack = styled(Stack)(({ theme }) => ({
 }));
 
 const StyledSavedTimeText = styled(Typography)(({ theme }) => ({
-  color: "#ED6A15",
-  fontWeight: "700",
-  fontSize: "14px", // Smaller text for small screens
+  // Smaller text for small screens
 }));
 
 const ModalTypography = styled(Typography)(({ theme }) => ({
@@ -482,6 +483,7 @@ const Home = () => {
   const selectedDate = useSelector((state) => state?.home?.daterange);
   const status = useSelector((state) => state?.CreateForm?.status);
   const newRow = useSelector((state) => state?.CreateForm?.newRow);
+  const batchCallTypeGlobal = useSelector((state) => state?.CreateForm?.BatchCallType);
   const approvalCount = useSelector(
     (state) => state?.CreateForm?.approvalCount
   );
@@ -505,6 +507,7 @@ const Home = () => {
   const handleOpen = () => setOpen(true);
   const [batchCallType, setBatchCallType] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
+  const [totalError, setTotalError] = useState(false);
   const [alertMsg, setAlertMsg] = useState('');
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenApproval(false);
@@ -513,6 +516,7 @@ const Home = () => {
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const dispatch = useDispatch();
   const [filteredData, setFilteredData] = useState([]);
+  const [showSaveBtn, setShowSaveBtn] = useState(false);
 
   const [
     makeBatchCall,
@@ -556,6 +560,8 @@ const Home = () => {
 
   useEffect(() => {
     setFilteredData(projectedData);
+    const saveBtn = projectedData?.filter(x => !x.totalRow).length > 0;
+    setShowSaveBtn(saveBtn);
   }, [projectedData]);
 
   // console.log("filteredData", filteredData)
@@ -602,24 +608,10 @@ const Home = () => {
   //   });
   // });
 
-  //---------------------for showing different  modals on approvals----------------------------------------------
-  const checkStatusCondition = (objectsArray) => {
-    // Loop through each object in the array
-    for (let obj of objectsArray) {
-      // Check each day0STATUS to day6STATUS key for the "40" value
-      for (let i = 0; i <= 6; i++) {
-        const statusKey = `day${i}STATUS`;
-        if (obj[statusKey] === "40") {
-          return true; // Return true if the condition is met
-        }
-      }
-    }
-    return false; // Return false if no object meets the condition
-  };
-
+  //---------------------for showing different  modals on approvals----------------------------------------------  
   const handleApproval = () => {
     // const rejectedItems = projectedData
-    const isRejectedItem = checkStatusCondition(projectedData);
+    const isRejectedItem = checkStatusCondition(projectedData, "40");
     console.log(isRejectedItem);
     if (isRejectedItem === true) {
       setAlertMsg("Please rectify the rejected entries and then resubmit for approval.");
@@ -627,13 +619,14 @@ const Home = () => {
       return;
     }
 
-    if (status !== "New" && status !== "Draft") {
+    const isPendingApr = checkStatusCondition(projectedData, "20");
+    if (isPendingApr === true) {
       setApprovalMsg(
-        "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
+        "By modifying this signed timesheet, you are certifying that your time has been updated to align with your actual time worked, in accordance with company policies and procedures."
       );
     } else {
       setApprovalMsg(
-        "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
+        "By signing this timesheet, you are certifying that the hours incurred on the charge code and date specified are in accordance with company policies and procedures, and represent your actual time worked."
       );
     }
     setOpenApproval(true);
@@ -825,22 +818,40 @@ const Home = () => {
     // check non zero entry
     let isNonZeroEntry = {
       isNonZero: true,
-      msg: ""
+      msg: "",
+      isValidEntry: true,
     };
     timesheetEntries.forEach(element => {
       const tempValue = hasNonZeroEntry(element);
       if (tempValue == false) {
         isNonZeroEntry = {
           isNonZero: tempValue,
-          msg: `Please provide non-zero entry for <b>${element?.level} - ${element?.title}</b> or delete the row.`
+          msg: `Please provide non-zero entry for <b>${element?.level} - ${element?.title}</b> or delete the row.`,
+          isValidEntry: true
         };
         return;
+      }
+      const validEntry = hasValidTimeEntry(element);
+      if (!validEntry) {
+        isNonZeroEntry = { ...isNonZeroEntry, isValidEntry: validEntry };
       }
     });
 
     if (isNonZeroEntry?.isNonZero == false) {
       const msg = isNonZeroEntry?.msg;
       setAlertMsg(<span dangerouslySetInnerHTML={{ __html: msg }} />);
+      setAlertOpen(true);
+      return;
+    }
+
+    if (isNonZeroEntry?.isValidEntry == false) {      
+      setAlertMsg("Please provide valid input. Time entry must be less than or equal to 23 hours.");
+      setAlertOpen(true);
+      return;
+    }
+
+    if(totalError){
+      setAlertMsg("Please provide valid input. Time entry for given day, must be less than or equal to 24 hours.");
       setAlertOpen(true);
       return;
     }
@@ -992,7 +1003,7 @@ const Home = () => {
     let rowObj = rows.find((item) => item.id === rowId);
     const rowIndex = rows.indexOf(rowObj);
     // Convert input value to a number
-    let parsedValue = parseFloat(value || 0);
+    let parsedValue = parseFloat(value || 0);    
     // do the sum of the row
     let rowSum = 0;
     for (let i = 0; i < 7; i++) {
@@ -1028,6 +1039,13 @@ const Home = () => {
       0
     );
     dayTotal = parseFloat(dayTotal) + parseFloat(rowObj[field]);
+    if (dayTotal > 24) {
+      setAlertMsg("Please provide valid input. Time entry for given day, must be less than or equal to 24 hours.");
+      setAlertOpen(true);    
+      setTotalError(true);  
+    }else{
+      setTotalError(false);  
+    }
     const totalRow = rows.find((x) => x.totalRow === true);
     let totalRowObj = {
       ...totalRow,
@@ -1109,7 +1127,8 @@ const Home = () => {
     dateWiseData,
     status,
     setAlertMsg,
-    setAlertOpen
+    setAlertOpen,
+    setBatchCallType
   });
 
   const handleRejected = (hasNote) => {
@@ -1142,7 +1161,8 @@ const Home = () => {
     // here i is consider as row data
     for (let i = 0; i < results?.length; i++) {
       let dayData = results[i];
-      let timeEntries = [...dayData.TimeEntries.results];
+      const data = dayData?.TimeEntries?.results;
+      let timeEntries = [...data];
       timeEntries.sort((a, b) =>
         a?.TimeEntryDataFields?.POSID?.localeCompare(
           b?.TimeEntryDataFields?.POSID
@@ -1346,6 +1366,12 @@ const Home = () => {
     }));
   };
 
+  // useEffect(() => {
+  //   if (batchCallTypeGlobal == "changeEntry") {
+  //     setBatchCallType(batchCallTypeGlobal);
+  //   }
+  // }, [batchCallTypeGlobal]);
+
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
       if (!newRow) {
@@ -1363,6 +1389,7 @@ const Home = () => {
           });
         } else {
           setBatchCallType("");
+          dispatch(setBatchCallTypeGlobal(""));
         }
         const data = transformedData.map(x => { if (x) return x; })
         transformedData = addTotalRow(data);
@@ -1559,9 +1586,18 @@ const Home = () => {
       </StyledStack>
       <Footer>
         {status !== "Approved" && (
-          <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
-            <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
-          </SaveTimeButton>
+          <Button
+            disabled={!showSaveBtn}
+            sx={{
+              backgroundColor: showSaveBtn ? "#FFF" : "#BDBDBD",
+              color: showSaveBtn ? '#ED6A15' : '#fff',
+              border: `1px solid ${showSaveBtn ? '#ED6A15' : '#fff'}`,
+              marginBottom: "0.5rem",
+            }}
+            size="medium" onClick={() => handleSaveTime("save")}>
+            <Typography fontWeight={"700"} fontSize={"14px"}
+              color={showSaveBtn ? '#ED6A15' : '#fff'}>Save My Time</Typography>
+          </Button>
         )}
 
         {status !== "Approved" && (
@@ -1581,7 +1617,7 @@ const Home = () => {
             }
           >
             <StyledFooterText>
-              {status !== "New" && status !== "Draft"
+              {checkStatusCondition(projectedData, "20")
                 ? "Resubmit Week for Approval"
                 : "Submit Week for Approval"}
             </StyledFooterText>

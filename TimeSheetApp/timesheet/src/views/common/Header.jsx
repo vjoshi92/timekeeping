@@ -301,7 +301,7 @@ export default function Header() {
             marginLeft: "10px",
           }}
         >
-          CATS 2.0
+          Malamute
         </HeadingTypography>
 
         <IconButton
@@ -353,7 +353,7 @@ export default function Header() {
           open={drawer}
           handleClose={handleClose}
           resizable={true}
-          // minWidth={"720px"}
+        // minWidth={"720px"}
         >
           <IconBox>
             <CloseIcon

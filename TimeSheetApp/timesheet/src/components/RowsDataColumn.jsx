@@ -165,7 +165,8 @@ export const RowsDataColumns = ({
   dateWiseData,
   status,
   setAlertMsg,
-  setAlertOpen
+  setAlertOpen,
+  setBatchCallType
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [openChangeEntry, setOpenChangeEntry] = useState(false);
@@ -201,12 +202,17 @@ export const RowsDataColumns = ({
       noteStrings.forEach((note) => {
         const noteIntenalArray = note.split(",");
         if (noteIntenalArray[0] && noteIntenalArray[0].trim()) {
+          let isRejected = false;
+          if (noteIntenalArray[0].startsWith("Rejected Reason")) {
+            isRejected = true;
+          }
           const tempNote = {
             id: Math.random(),
             content: noteIntenalArray[0],
             date: noteIntenalArray[1],
             time: noteIntenalArray[2],
             username: noteIntenalArray[3],
+            isRejected: isRejected
           };
           notes.push(tempNote);
         }
@@ -373,7 +379,7 @@ export const RowsDataColumns = ({
                     {params?.value}
                   </Typography>
                 </Box>
-              ) : (row[`day${i}STATUS`] === "40" || row[`day${i}STATUS`] === "20"  || 
+              ) : (row[`day${i}STATUS`] === "40" || row[`day${i}STATUS`] === "20" ||
                 status === "Pending For Approval" ||
                 status === "Rejected") && !row.newRow ? (
                 <Box
@@ -426,7 +432,7 @@ export const RowsDataColumns = ({
               )}
               <IconButton
                 size="small"
-                disabled={!params?.value || params?.value === '0.00'} 
+                disabled={!params?.value || params?.value === '0.00'}
                 onClick={() => openNotesPopup(inputId, row, i)}
               >
                 <TextSnippetOutlined
@@ -464,6 +470,7 @@ export const RowsDataColumns = ({
                 handleClose={handleCloseEntryModal}
                 activeInputId={activeInputId}
                 rowObject={rowObject}
+                setBatchCallType={setBatchCallType}
               />
             </InputStyleBox>
           );

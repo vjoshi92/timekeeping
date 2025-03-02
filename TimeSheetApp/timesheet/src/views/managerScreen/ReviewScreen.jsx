@@ -43,10 +43,12 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Dropdown from "components/Dropdown";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import {
+  checkStatusCondition,
   formatDate,
   getODataFormatDate,
   getWeekStartDate,
   hasNonZeroEntry,
+  hasValidTimeEntry,
   odataGetDateFormat,
   PrepareApprovalBatchPayload,
   PrepareBatchPayload,
@@ -518,6 +520,7 @@ const ReviewScreen = () => {
   const [selectedReason, setSelectedReason] = useState(""); // Add this new state  
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMsg, setAlertMsg] = useState('');
+  const [totalError, setTotalError] = useState(false);
   const [batchCallType, setBatchCallType] = useState("");
   const [approvalMsg, setApprovalMsg] = useState();
 
@@ -575,20 +578,6 @@ const ReviewScreen = () => {
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenRejection(false);
 
-  const checkStatusCondition = (objectsArray) => {
-    // Loop through each object in the array
-    for (let obj of objectsArray) {
-      // Check each day0STATUS to day6STATUS key for the "40" value
-      for (let i = 0; i <= 6; i++) {
-        const statusKey = `day${i}STATUS`;
-        if (obj[statusKey] === "40") {
-          return true; // Return true if the condition is met
-        }
-      }
-    }
-    return false; // Return false if no object meets the condition
-  };
-
   const handleSaveTime = async (type) => {
     // setSnackbarOpen(true);
     setBatchCallType(type);
@@ -603,20 +592,21 @@ const ReviewScreen = () => {
 
   const handleSubmitForApproval = () => {
     // const rejectedItems = projectedData
-    const isRejectedItem = checkStatusCondition(projectedData);
+    const isRejectedItem = checkStatusCondition(projectedData, "40");
     if (isRejectedItem === true) {
       setAlertMsg("Please rectify the rejected entries and then resubmit for approval.");
       setAlertOpen(true);
       return;
     }
 
-    if (status !== "New" && status !== "Draft") {
+    const isPendingApr = checkStatusCondition(projectedData, "20");
+    if (isPendingApr === true) {
       setActionMsg(
-        "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
+        "By modifying this signed timesheet, you are certifying that your time has been updated to align with your actual time worked, in accordance with company policies and procedures."
       );
     } else {
       setActionMsg(
-        "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
+        "By signing this timesheet, you are certifying that the hours incurred on the charge code and date specified are in accordance with company policies and procedures, and represent your actual time worked."
       );
     }
     setOpenCertificate(true);
@@ -644,22 +634,41 @@ const ReviewScreen = () => {
     // check non zero entry
     let isNonZeroEntry = {
       isNonZero: true,
-      msg: ""
+      msg: "",
+      isValidEntry: true,
     };
     timesheetEntries.forEach(element => {
       const tempValue = hasNonZeroEntry(element);
       if (tempValue == false) {
         isNonZeroEntry = {
           isNonZero: tempValue,
-          msg: `Please provide non-zero entry for <b>${element?.level} - ${element?.title}</b> or delete the row.`
+          msg: `Please provide non-zero entry for <b>${element?.level} - ${element?.title}</b> or delete the row.`,
+          isValidEntry: true
         };
         return;
+      }
+
+      const validEntry = hasValidTimeEntry(element);
+      if (!validEntry) {
+        isNonZeroEntry = { ...isNonZeroEntry, isValidEntry: validEntry };
       }
     });
 
     if (isNonZeroEntry?.isNonZero == false) {
       const msg = isNonZeroEntry?.msg;
       setAlertMsg(<span dangerouslySetInnerHTML={{ __html: msg }} />);
+      setAlertOpen(true);
+      return;
+    }
+
+    if (isNonZeroEntry?.isValidEntry == false) {
+      setAlertMsg("Please provide valid input. Time entry must be less than or equal to 23 hours.");
+      setAlertOpen(true);
+      return;
+    }
+
+    if (totalError) {
+      setAlertMsg("Please provide valid input. Time entry for given day, must be less than or equal to 24 hours.");
       setAlertOpen(true);
       return;
     }
@@ -701,7 +710,7 @@ const ReviewScreen = () => {
               Pernr: userData?.results[0].EmployeeNumber,
               TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
               Counter: entry[`day${i}Counter`] || "",
-              AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",              
+              AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
               RecRowNo: (entries.length + 1).toString(),
             };
             entries.push(temp);
@@ -870,6 +879,13 @@ const ReviewScreen = () => {
       0
     );
     dayTotal = parseFloat(dayTotal) + parseFloat(rowObj[field]);
+    if (dayTotal > 24) {
+      setAlertMsg("Please provide valid input. Time entry for given day, must be less than or equal to 24 hours.");
+      setAlertOpen(true);
+      setTotalError(true);
+    } else {
+      setTotalError(false);
+    }
     const totalRow = rows.find((x) => x.totalRow === true);
     let totalRowObj = {
       ...totalRow,
@@ -1112,7 +1128,7 @@ const ReviewScreen = () => {
         //   parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[j], 10)
         // );
         // const dayOfWeek = workDate.getDay(); // Get day of the week (0 = Sunday, 6 = Saturday)
-        const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
+        const hours = parseFloat(entry?.TimeEntryDataFields?.CATSHOURS || "0");
         const dayKey = `day${i}`;
         let weekRow;
         let rowIndex = -1;
@@ -1471,7 +1487,7 @@ const ReviewScreen = () => {
                 }
               >
                 <StyledFooterText>
-                  {status !== "New" && status !== "Draft"
+                  {checkStatusCondition(projectedData, "20")
                     ? "Resubmit Week for Approval"
                     : "Submit Week for Approval"}
                 </StyledFooterText>
@@ -1483,6 +1499,7 @@ const ReviewScreen = () => {
             <ButtonStack>
               <ApproveButton
                 disabled={status === "Approved" || status === "Rejected"}
+
                 variant="contained"
                 color="success"
                 sx={{ width: { xs: "100%", sm: "200px" } }}
