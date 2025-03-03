@@ -24,7 +24,7 @@ import {
 } from "api/timesheetApi";
 import DecimalInput from "./DecimalInput";
 import BusyDialog from "./BusyLoader";
-import { setBatchCallType, setBatchCallTypeGlobal, setNewRowAdded } from "store/slice/TimesheetSlice";
+import { setNewRowAdded } from "store/slice/TimesheetSlice";
 import dayjs from "dayjs";
 
 // rejection component
@@ -136,8 +136,10 @@ const ChangeEntry = ({
   //   }
   // }, [batchCallLoading]);
 
-  const saveHours = async () => {    
-    setBatchCallType("changeEntry");
+  const saveHours = async () => {
+    if (setBatchCallType) {
+      setBatchCallType("changeEntry");
+    }
     const oPayload = prepareNoteSavePayload(changeReason);
     const obatchPayload = PrepareBatchPayload([oPayload]);
     const response = await makeBatchCall({ body: obatchPayload });

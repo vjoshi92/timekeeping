@@ -62,13 +62,22 @@ const groupingColDef = (hierarchyData) => {
     renderCell: (params) => {
       // get level wise heirachi data
       const posId = params.row.level;
-      let datas = [...hierarchyData?.results];
-      let heirachyDataforPosId = datas?.find(x => x.POSID == posId);
-      let dataArray = [];
-      if(heirachyDataforPosId?.WBSHIERLEVEL?.results){
-        dataArray = [...heirachyDataforPosId?.WBSHIERLEVEL?.results];
+      let hData = [];
+      let sortedSteps = [];
+      if (hierarchyData?.results) {
+        hData = hierarchyData?.results;
+        let datas = [...hData];
+        let heirachyDataforPosId = datas?.find(x => x.POSID == posId);
+        let dataArray = [];
+        if (heirachyDataforPosId?.WBSHIERLEVEL?.results) {
+          const temp = heirachyDataforPosId?.WBSHIERLEVEL?.results;
+          if (temp) {
+            dataArray = [...temp];
+          }
+        }
+        sortedSteps = dataArray?.sort((a, b) => a.Stufe - b.Stufe);
       }
-      const sortedSteps = dataArray?.sort((a, b) => a.Stufe - b.Stufe);
+
       // ;
 
       return params.row.title ? (
