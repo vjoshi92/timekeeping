@@ -8,9 +8,10 @@ import {
 } from "@mui/material";
 import ApprovalsDatagrid from "views/managerScreen/ApprovalsDatagrid";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSaveWeekApprovalMutation } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
+import { setSelectedPendingApprovals } from "store/slice/TimesheetSlice";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(5),
@@ -38,6 +39,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const PendingApprovals = () => {
+  const dispatch = useDispatch();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [checkboxChecked, setCheckboxChecked] = useState(false);
   const [showApproveAll, setShowApproveAll] = useState(false);
@@ -60,6 +62,7 @@ const PendingApprovals = () => {
       const payload = { ...element, STATUS: "30" };
       delete payload.id;
       delete payload.__metadata;
+      delete payload.LAEDA;
       saveWeekApproval({ body: payload });
     });
   };
@@ -68,12 +71,14 @@ const PendingApprovals = () => {
     const payload = { ...row, STATUS: "30" };
     delete payload.id;
     delete payload.__metadata;
+    delete payload.LAEDA;
     saveWeekApproval({ body: payload });
   };
 
   useEffect(() => {
     if (saveWeekSuccess) {
-      setSnackbarOpen(true)
+      setSnackbarOpen(true);
+      dispatch(setSelectedPendingApprovals([]));
     }
   }, [saveWeekLoading])
 

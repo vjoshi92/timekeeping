@@ -108,20 +108,7 @@ export default function ApprovalsDatagrid({
     // Count how many checkboxes are currently checked
     const checkedCount = Object.values(newCheckedItems).filter(Boolean).length;
 
-    // Update UI state based on number of checked items
-    if (checkedCount > 1) {
-      // Multiple items checked - show approve all button
-      setShowApproveAll(true);
-      setCheckboxChecked(false);
-    } else if (checkedCount === 1) {
-      // Single item checked - show individual approve
-      setShowApproveAll(false);
-      setCheckboxChecked(true);
-    } else {
-      // No items checked - reset UI
-      setShowApproveAll(false);
-      setCheckboxChecked(false);
-    }
+
 
     // add the item to array if checked or remove it
     let selectedData = [...selectedPendingApprovals];
@@ -131,6 +118,22 @@ export default function ApprovalsDatagrid({
       const i = selectedData.indexOf(row);
       selectedData.splice(i, 1);
     }
+
+    // Update UI state based on number of checked items
+    if (selectedData?.length > 1) {
+      // Multiple items checked - show approve all button
+      setShowApproveAll(true);
+      setCheckboxChecked(false);
+    } else if (selectedData?.length === 1) {
+      // Single item checked - show individual approve
+      setShowApproveAll(false);
+      setCheckboxChecked(true);
+    } else {
+      // No items checked - reset UI
+      setShowApproveAll(false);
+      setCheckboxChecked(false);
+    }
+
     dispatch(setSelectedPendingApprovals(selectedData));
   };
 
