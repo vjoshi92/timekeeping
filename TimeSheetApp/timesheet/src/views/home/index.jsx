@@ -1,16 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Accordion,
-  AccordionSummary,
   Alert,
-  Autocomplete,
-  Backdrop,
   Box,
   Button,
-  Fade,
-  Grid2,
   Modal,
-  Popper,
   Snackbar,
   Stack,
   ToggleButton,
@@ -18,17 +11,12 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "@emotion/styled";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 // import AddIcon from "@mui/icons-material/Add";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import MuiDataGrid from "../../components/MuiDataGrid";
-import { getCurrentWeekDays, PRColumns } from "../../constant/Columns";
 import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeild";
 import { useLocation, useNavigate } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -37,7 +25,6 @@ import dayjs from "dayjs";
 import { DaysColumns } from "components/CurrentWeekColumns";
 import { RowsDataColumns } from "components/RowsDataColumn";
 import TreeGrid from "components/TreeGrid";
-import MuiInput from "components/MuiInput";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import IconButton from "@mui/material/IconButton";
 import { setDateRange } from "store/slice/HomeSlice";
@@ -49,11 +36,8 @@ import {
   setNewRowAdded,
   setProjectData,
   setStatus,
-  setTotal,
   updateRow,
-  updateRowTotal,
 } from "store/slice/TimesheetSlice";
-import { ReviewColumns } from "components/ReviewColumns";
 import {
   checkStatusCondition,
   getODataFormatDate,
@@ -71,9 +55,11 @@ import {
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
-import { useGetDateWiseDetailsQuery } from "api/timesheetDashboardApi";
 import Search from "components/Search";
 
+/**
+ * Styled component
+ */
 const style = {
   position: "absolute",
   top: "50%",
@@ -90,7 +76,7 @@ const style = {
   flexDirection: "column",
 };
 
-const ApprovalBox = styled(Box)(({ theme }) => ({
+const ApprovalBox = styled(Box)(() => ({
   backgroundColor: "#FFFFFF",
   display: "flex",
   borderRadius: "6px",
@@ -101,18 +87,8 @@ const ApprovalBox = styled(Box)(({ theme }) => ({
   padding: "20px",
 }));
 
-const SubModalstyle = styled(Box)(({ theme }) => ({
-  backgroundColor: "#FFFFFF",
-  display: "flex",
-  borderRadius: "6px",
-  width: "320px",
-  height: "300px",
-  position: "relative",
-  flexDirection: "column",
-  padding: "20px",
-}));
 
-const StyledDateTypography = styled(Typography)(({ theme }) => ({
+const StyledDateTypography = styled(Typography)(() => ({
   fontSize: "22px",
   lineHeight: "26px",
   fontWeight: "500",
@@ -120,46 +96,46 @@ const StyledDateTypography = styled(Typography)(({ theme }) => ({
   borderRadius: "4px",
 }));
 
-const HeaderTypography = styled(Typography)(({ theme }) => ({
+const HeaderTypography = styled(Typography)(() => ({
   fontWeight: "600",
   fontSize: { xs: "12px", sm: "14px" },
   color: "#121212DE",
 }));
 
-const HeaderSubTypography = styled(Typography)(({ theme }) => ({
+const HeaderSubTypography = styled(Typography)(() => ({
   fontWeight: "600",
   fontSize: { xs: "14px", sm: "16px" },
   color: "#121212DE",
 }));
 
-const SaveTypography = styled(Typography)(({ theme }) => ({
+const SaveTypography = styled(Typography)(() => ({
   fontSize: "16px",
   fontWeight: "700",
   color: "#FFFF",
 }));
-const SaveNoteTypography = styled(Typography)(({ theme }) => ({
+const SaveNoteTypography = styled(Typography)(() => ({
   fontSize: "15px",
   fontWeight: "700",
   color: "#FFFF",
 }));
 
-const CancelTypography = styled(Typography)(({ theme }) => ({
+const CancelTypography = styled(Typography)(() => ({
   fontSize: "16px",
   fontWeight: "700",
   color: "#ED6A15",
 }));
-const CancelNoteTypography = styled(Typography)(({ theme }) => ({
+const CancelNoteTypography = styled(Typography)(() => ({
   fontSize: "14px",
   fontWeight: "600",
   color: "#ED6A15",
 }));
 
-const StyledStackButton = styled(Stack)(({ theme }) => ({
+const StyledStackButton = styled(Stack)(() => ({
   direction: "row",
   height: "34px",
 }));
 
-const ButtonStack = styled(Stack)(({ theme }) => ({
+const ButtonStack = styled(Stack)(() => ({
   direction: "row",
   display: "flex",
   justifyContent: "center",
@@ -167,7 +143,7 @@ const ButtonStack = styled(Stack)(({ theme }) => ({
   marginTop: "4%",
 }));
 
-const NoteButtonStack = styled(Stack)(({ theme }) => ({
+const NoteButtonStack = styled(Stack)(() => ({
   direction: "row",
   display: "flex",
   // justifyContent: "flex-start",
@@ -175,19 +151,7 @@ const NoteButtonStack = styled(Stack)(({ theme }) => ({
   marginTop: "8%",
 }));
 
-const StyledButton1 = styled(Button)(({ theme }) => ({
-  width: "34px",
-  height: "34px",
-  marginRight: "10px",
-  borderRadius: "6px",
-  border: "1px solid #BDBDBD",
-  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-  transition: "box-shadow 0.3s ease-in-out",
-  "&:hover": {
-    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
-  },
-}));
-const StyledButton2 = styled(Button)(({ theme }) => ({
+const StyledButton2 = styled(Button)(() => ({
   width: "34px",
   height: "34px",
   marginRight: "10px",
@@ -200,7 +164,7 @@ const StyledButton2 = styled(Button)(({ theme }) => ({
   },
 }));
 
-const SaveButton = styled(Button)(({ theme }) => ({
+const SaveButton = styled(Button)(() => ({
   width: "100px",
   height: "45px",
   marginRight: "10px",
@@ -208,7 +172,7 @@ const SaveButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#ED6A15",
   boxShadow: 1,
 }));
-const SaveNoteButton = styled(Button)(({ theme }) => ({
+const SaveNoteButton = styled(Button)(() => ({
   width: "54px",
   height: "42px",
   marginRight: "10px",
@@ -217,7 +181,7 @@ const SaveNoteButton = styled(Button)(({ theme }) => ({
   boxShadow: 1,
 }));
 
-const CancelButton = styled(Button)(({ theme }) => ({
+const CancelButton = styled(Button)(() => ({
   width: "100px",
   height: "45px",
   marginRight: "10px",
@@ -226,7 +190,7 @@ const CancelButton = styled(Button)(({ theme }) => ({
   boxShadow: 1,
 }));
 
-const CancelNoteButton = styled(Button)(({ theme }) => ({
+const CancelNoteButton = styled(Button)(() => ({
   width: "100px",
   height: "42px",
   marginRight: "10px",
@@ -235,66 +199,37 @@ const CancelNoteButton = styled(Button)(({ theme }) => ({
   boxShadow: 1,
 }));
 
-const FooterButton = styled(Button)(({ theme }) => ({
-  width: "100%",
-}));
-
-const SaveTimeButton = styled(Button)(({ theme }) => ({
-  border: "1px solid #ED6A15",
-  marginBottom: "0.5rem",
-}));
-
-const StyledFooterText = styled(Typography)(({ theme }) => ({
+const StyledFooterText = styled(Typography)(() => ({
   color: "#FFFF",
   fontWeight: "700",
   fontSize: "14px",
 }));
 
-const StyledSaveStack = styled(Stack)(({ theme }) => ({
-  flexDirection: "column", // Default for small screens
-  alignItems: "flex-start", // Adjust alignment for small screens
-  gap: "10px", // Add spacing between children
-  [theme.breakpoints.up("sm")]: {
-    flexDirection: "row", // Horizontal layout for larger screens
-    alignItems: "center",
-    gap: "20px",
-  },
-}));
-
-const StyledSavedTimeText = styled(Typography)(({ theme }) => ({
-  // Smaller text for small screens
-}));
-
-const ModalTypography = styled(Typography)(({ theme }) => ({
+const ModalTypography = styled(Typography)(() => ({
   color: "#121212DE",
   fontWeight: "700",
   fontSize: "16px",
 }));
 
-const AcknowledgeTypography = styled(Typography)(({ theme }) => ({
+const AcknowledgeTypography = styled(Typography)(() => ({
   color: "#DD133F",
   fontWeight: "700",
   fontSize: "16px",
 }));
 
-const TimesheetText = styled(Typography)(({ theme }) => ({
+const TimesheetText = styled(Typography)(() => ({
   color: "#41AF6E",
   fontWeight: "700",
   fontSize: "16px",
 }));
-const DescriptionTypography = styled(Typography)(({ theme }) => ({
+
+const DescriptionTypography = styled(Typography)(() => ({
   color: "#121212DE",
   fontWeight: "400",
   fontSize: "16px",
 }));
 
-const StyledIconButton = styled(IconButton)(({ theme }) => ({
-  position: "absolute",
-  right: "-10px",
-  top: "-30px",
-  zIndex: 1,
-}));
-const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+const StyledToggleButtonGroup = styled(ToggleButtonGroup)(() => ({
   mr: 1,
   boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
   transition: "box-shadow 0.3s ease-in-out",
@@ -316,124 +251,7 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   },
 }));
 
-const StyledCircularBox = styled(Box)(({ theme }) => ({
-  width: "23px",
-  height: "23px",
-  borderRadius: "50px",
-  backgroundColor: "#ED6A15",
-  boxShadow: 1,
-  justifyContent: "center",
-  alignItems: "center",
-}));
-
-const FooterBox = styled(Box)(({ theme }) => ({
-  width: "100%",
-  padding: theme.spacing(2),
-  display: "flex",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  backgroundColor: "#ffffff",
-  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-  boxSizing: "border-box",
-
-  // Container layout
-  flexDirection: "column",
-  [theme.breakpoints.up("md")]: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  // Spacing and margins
-  gap: theme.spacing(2),
-  marginTop: "auto",
-
-  // Height adjustments
-  minHeight: {
-    xs: "auto",
-    sm: "80px",
-    md: "70px",
-  },
-
-  // Inner content layout
-  "& .footer-content": {
-    width: "100%",
-    display: "flex",
-    flexDirection: "column",
-    gap: theme.spacing(2),
-
-    [theme.breakpoints.up("md")]: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-  },
-
-  // Save time section
-  "& .save-time-section": {
-    display: "flex",
-    flexDirection: "column",
-    gap: theme.spacing(1),
-
-    [theme.breakpoints.up("sm")]: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
-  },
-
-  // Button sizes
-  "& .save-time-button": {
-    width: {
-      xs: "100%",
-      sm: "auto",
-    },
-    minWidth: {
-      sm: "150px",
-    },
-  },
-
-  "& .submit-button": {
-    width: {
-      xs: "100%",
-      md: "auto",
-    },
-    minWidth: {
-      md: "200px",
-    },
-  },
-
-  // Last saved text
-  "& .last-saved": {
-    fontSize: {
-      xs: "12px",
-      sm: "14px",
-    },
-    textAlign: {
-      xs: "center",
-      sm: "left",
-    },
-    marginTop: {
-      xs: theme.spacing(1),
-      sm: 0,
-    },
-    whiteSpace: "nowrap",
-  },
-
-  // Padding adjustments
-  paddingLeft: {
-    xs: theme.spacing(2),
-    sm: theme.spacing(3),
-    md: theme.spacing(4),
-  },
-  paddingRight: {
-    xs: theme.spacing(2),
-    sm: theme.spacing(3),
-    md: theme.spacing(4),
-  },
-}));
-
-const StyledApprovalBox = styled(Box)(({ theme }) => ({
+const StyledApprovalBox = styled(Box)(() => ({
   position: "relative",
   backgroundColor: "white",
   padding: "20px",
@@ -443,24 +261,17 @@ const StyledApprovalBox = styled(Box)(({ theme }) => ({
   boxShadow: 3,
 }));
 
-// const StyledApprovalIconButton = styled(IconButton)(({ theme }) => ({
-//   position: "absolute",
-//   // top: "-36px",
-//   right: "0px",
-//   color: "white",
-// }));
-
-const StyledStack = styled(Box)(({ theme }) => ({
+const StyledStack = styled(Box)(() => ({
   backgroundColor: "#FFFFFF",
 }));
 
-const CloseButton = styled(Button)(({ theme }) => ({
+const CloseButton = styled(Button)(() => ({
   borderColor: "#ED6A15",
   color: "#ED6A15",
   marginTop: "4%",
 }));
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const StyledBox = styled(Box)(() => ({
   zIndex: 2,
   display: "flex",
   flexDirection: "row",
@@ -468,7 +279,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
   alignItems: "center",
 }));
 
-const StyledModalBox = styled(Box)(({ theme }) => ({
+const StyledModalBox = styled(Box)(() => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-start",
@@ -479,11 +290,9 @@ const StyledModalBox = styled(Box)(({ theme }) => ({
 const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
-  const [allTimeData, setAllTimeData] = useState();
   const selectedDate = useSelector((state) => state?.home?.daterange);
   const status = useSelector((state) => state?.CreateForm?.status);
   const newRow = useSelector((state) => state?.CreateForm?.newRow);
-  const batchCallTypeGlobal = useSelector((state) => state?.CreateForm?.BatchCallType);
   const approvalCount = useSelector(
     (state) => state?.CreateForm?.approvalCount
   );
@@ -497,14 +306,8 @@ const Home = () => {
   const [saveTimeClick, setSaveTimeClick] = useState(false);
   const [isTimesheetCreated, setIsTimesheetCreated] = useState(false);
   const [isCurrentWeek, setIsCurrentWeek] = useState(true);
-  const [isTimeSheetRejected, setTimesheetRejected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [deleteMsgOpen, setDeleteMsgOpen] = useState(false);
-  const [productTime, setProductTime] = useState([]);
-  const [disableToggel, setDisableToggel] = useState(false);
-  const location = useLocation();
-  const formattedDefaultRange = location.state?.week || "Default Week Range";
-  const handleOpen = () => setOpen(true);
   const [batchCallType, setBatchCallType] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
   const [totalError, setTotalError] = useState(false);
@@ -513,7 +316,6 @@ const Home = () => {
   const handleApprovalClose = () => setOpenApproval(false);
   const navigate = useNavigate();
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
-  const [lastSavedTime, setLastSavedTime] = useState(null);
   const dispatch = useDispatch();
   const [filteredData, setFilteredData] = useState([]);
   const [showSaveBtn, setShowSaveBtn] = useState(false);
@@ -523,7 +325,6 @@ const Home = () => {
     {
       isSuccess: batchCallIsSuccess,
       isLoading: batchCallLoading,
-      error: batchCallIsError,
       data: batchSuccessData
     },
   ] = useMakeBatchCallMutation();
@@ -536,6 +337,15 @@ const Home = () => {
       data: dateWiseData,
       isSuccess: dateWiseDataSuccessful,
       isFetching: timeSheetDataFetching,
+    },
+  ] = useLazyGetDateWiseDetailsQuery();
+
+  const [
+    getPrevWeekTimesheetEntry,
+    {
+      data: prevWeekTimesheetData,
+      isSuccess: prevWeekTimesheetSuccessful,
+      isFetching: prevWeekTimesheetFetching,
     },
   ] = useLazyGetDateWiseDetailsQuery();
 
@@ -559,6 +369,24 @@ const Home = () => {
   }, [batchCallLoading]);
 
   useEffect(() => {
+    if (prevWeekTimesheetSuccessful) {
+      const responseData = prevWeekTimesheetData;
+      if (responseData?.results) {
+        let transformedData = transformCopyWeeklyRows(responseData);
+        // add older data in array and then do total      
+        if (transformedData && transformedData?.length > 0) {
+          const data = transformedData.map(x => { if (x) return x; })
+          transformedData = addTotalRow(data);
+          dispatch(setProjectData(transformedData));
+        } else {
+          setAlertMsg("No time entry was found for the previous week. Please use the + button to add a WBS.")
+          setAlertOpen(true);
+        }
+      }
+    }
+  }, [prevWeekTimesheetFetching])
+
+  useEffect(() => {
     setFilteredData(projectedData);
     const saveBtn = projectedData?.filter(x => !x.totalRow).length > 0;
     setShowSaveBtn(saveBtn);
@@ -579,34 +407,6 @@ const Home = () => {
       setFilteredData(projectedData);
     }
   };
-
-  // console.log("allTimeData", allTimeData)
-
-  const ProductArray = [];
-
-  // // Convert allTimeData to an array if it's not already
-  // const allTimeDataArray = Array.isArray(allTimeData) ? allTimeData : Array.from(allTimeData || []);
-
-  // allTimeDataArray.map((productTimeData) => {
-
-  //   console.log("productTimeData", productTimeData)
-  //   ProductArray.push({
-  //     day0: productTimeData?.TimeEntryDataFields,
-  //     day1: productTimeData?.TimeEntryDataFields,
-  //     day2: productTimeData?.TimeEntryDataFields,
-  //     day3: productTimeData?.TimeEntryDataFields,
-  //     day4: productTimeData?.TimeEntryDataFields,
-  //     day5: productTimeData?.TimeEntryDataFields,
-  //     day6: productTimeData?.TimeEntryDataFields,
-  //     isReject: true,
-  //     weekTotal: productTimeData?.TimeEntryDataFields,
-  //     project: productTimeData?.AENAM,
-  //     level: productTimeData?.AENAM,
-  //     title: productTimeData?.AENAM,
-  //     id: 1,
-  //     hierarchy: [productTimeData?.AENAM, productTimeData?.AENAM],
-  //   });
-  // });
 
   //---------------------for showing different  modals on approvals----------------------------------------------  
   const handleApproval = () => {
@@ -632,70 +432,12 @@ const Home = () => {
     setOpenApproval(true);
   };
 
-  const handlePrevWeekApproval = (approvalCount) => {
-    if (approvalCount == 0) {
-      if (!isCurrentWeek) {
-        setApprovalMsg(
-          "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
-        );
-      } else {
-        setApprovalMsg(
-          "By signing this timesheet, you are certifying that hours were incurred on the charge and day specified in accordance with company policies and procedures."
-        );
-      }
-    } else {
-      setApprovalMsg(
-        "I certify that the time recorded is correct and is entered in accordance with the company’s applicable Principles and Operating Practices for Time Collection and Labor Reporting and for Unallowable Activities. I understand and acknowledge that if I made adjustments to my timesheet for a prior pay period for which I have already been compensated, JMA will recover any overpayments from the next available paycheck/s and I hereby authorize such deductions to satisfy the overpayment."
-      );
-    }
-    setOpenApproval(true);
-    // if (approvalCount >= 0) {
-    //   dispatch(setStatus("Pending for approval"))
-    // }
-  };
 
-  const handelSaveNote = () => {
+  const handleApproveOk = () => {
     setOpenApproval(false);
-
-    let aCount = approvalCount + 1;
-    dispatch(setApprovalCount(aCount));
-    if (approvalCount >= 0) {
-      // dispatch(setStatus("Pending for approval"));
-    }
     handleSaveTime("approve");
   };
-
-  console.log(" projectedData>>>>", projectedData);
-
-  const formatDateTime = (date) => {
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    const hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const ampm = hours >= 12 ? "pm" : "am";
-    const formattedHours = hours % 12 || 12;
-
-    return `${day}-${month}-${year} at ${formattedHours}:${minutes}${ampm}`;
-  };
-
   //-------------------for checking whether the date is greater than the current date----------------------
-
   const isSelectedDateGreaterThanCurrent = () => {
     // Return false if selectedDate is null, undefined, or not a string
     if (!selectedDate || typeof selectedDate !== "string") return false;
@@ -743,14 +485,8 @@ const Home = () => {
     const endOfPreviousWeek = startOfPreviousWeek.add(6, "day");
     const newDateRange = `${startOfPreviousWeek.format("DD MMM YYYY")} - ${endOfPreviousWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
-    // dispatch(setStatus("Rejected"));
-
     if (prevWeekStart == currentWeekStart) {
       setIsCurrentWeek(true);
-      // dispatch(setStatus("New"));
-      if (approvalCount > 0) {
-        // dispatch(setStatus("Pending for approval"));
-      }
     } else {
       setIsCurrentWeek(false);
     }
@@ -786,23 +522,14 @@ const Home = () => {
       setAlertOpen(true);
       return;
     }
-
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
-    // dispatch(setStatus("Rejected"));
-    if (startOfNextWeek.isSame(currentStartDate, "day")) {
-      setDisableToggel(true);
-      setIsCurrentWeek(true);
-    } else {
-      setIsCurrentWeek(false);
-    }
     dispatch(setNewRowAdded(false));
   };
 
   useEffect(() => {
     if (selectedDate == "") {
       const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
-      const currentWeekStart = startOfCurrentWeek.format("DD");
       const endOfCurrentWeek = dayjs().endOf("week").add(1, "day");
       const formattedDateRange = `${startOfCurrentWeek.format("DD MMM YYYY")} - ${endOfCurrentWeek.format("DD MMM YYYY")}`;
       dispatch(setDateRange(formattedDateRange));
@@ -821,6 +548,7 @@ const Home = () => {
       msg: "",
       isValidEntry: true,
     };
+
     timesheetEntries.forEach(element => {
       const tempValue = hasNonZeroEntry(element);
       if (tempValue == false) {
@@ -844,13 +572,13 @@ const Home = () => {
       return;
     }
 
-    if (isNonZeroEntry?.isValidEntry == false) {      
+    if (isNonZeroEntry?.isValidEntry == false) {
       setAlertMsg("Please provide valid input. Time entry must be less than or equal to 23 hours.");
       setAlertOpen(true);
       return;
     }
 
-    if(totalError){
+    if (totalError) {
       setAlertMsg("Please provide valid input. Time entry for given day, must be less than or equal to 24 hours.");
       setAlertOpen(true);
       return;
@@ -957,44 +685,47 @@ const Home = () => {
   };
 
   const handleSaveTime = async (type) => {
-    const currentTime = new Date();
-    setLastSavedTime(currentTime);
-    // setSnackbarOpen(true);
     setBatchCallType(type);
     // make a batch call with payload
     const timesheetEntries = prepareTimesheetPayload(type);
     if (timesheetEntries && timesheetEntries.length > 0) {
       const batchPayload = PrepareBatchPayload(timesheetEntries);
       const response = await makeBatchCall({ body: batchPayload });
-      console.log("response", response);
     }
   };
 
   const handleYes = () => {
+    // timesheet copy functionality
+    let currentStartDate;
+    try {
+      if (typeof selectedDate === "string") {
+        const startDateStr = selectedDate.split(" - ")[0];
+        currentStartDate = dayjs(startDateStr, "DD MMM YYYY");
+      } else {
+        currentStartDate = dayjs().startOf("week").add(1, "day");
+      }
+    } catch (error) {
+      currentStartDate = dayjs().startOf("week").add(1, "day");
+    }
+    const startOfPreviousWeek = currentStartDate.subtract(7, "day");
+    const endOfPreviousWeek = startOfPreviousWeek.add(6, "day");
+    const startDate = startOfPreviousWeek.$d;
+    const endDate = endOfPreviousWeek.$d;
     setOpen(false);
     setSaveTimeClick(false);
-    // setIsTimesheetCreated(true);
+    const formattedStartDate = getODataFormatDate(startDate);
+    const formattedEndDate = getODataFormatDate(endDate);
+    getPrevWeekTimesheetEntry({
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      pernr: userData?.results[0].EmployeeNumber,
+    });
   };
 
-  const handleTimesheetModalClose = () => setIsTimesheetCreated(false);
 
   const handleAlignment = (event, newAlignment) => {
     setAlignment(newAlignment);
   };
-
-  const rows = [
-    {
-      id: 1,
-      day0: "0.00",
-      day1: "0.00",
-      day2: "0.00",
-      day3: "0.00",
-      day4: "0.00",
-      day5: "0.00",
-      day6: "0.00",
-      day7: "0.00",
-    },
-  ];
 
   //----------------function for handelling the change in input  ---------------------------
 
@@ -1003,7 +734,7 @@ const Home = () => {
     let rowObj = rows.find((item) => item.id === rowId);
     const rowIndex = rows.indexOf(rowObj);
     // Convert input value to a number
-    let parsedValue = parseFloat(value || 0);    
+    let parsedValue = parseFloat(value || 0);
     // do the sum of the row
     let rowSum = 0;
     for (let i = 0; i < 7; i++) {
@@ -1041,10 +772,10 @@ const Home = () => {
     dayTotal = parseFloat(dayTotal) + parseFloat(rowObj[field]);
     if (dayTotal > 24) {
       setAlertMsg("Please provide valid input. Time entry for given day, must be less than or equal to 24 hours.");
-      setAlertOpen(true);    
-      setTotalError(true);  
-    }else{
-      setTotalError(false);  
+      setAlertOpen(true);
+      setTotalError(true);
+    } else {
+      setTotalError(false);
     }
     const totalRow = rows.find((x) => x.totalRow === true);
     let totalRowObj = {
@@ -1108,18 +839,10 @@ const Home = () => {
     }
   };
 
-  const AllDaysColumns = DaysColumns({
-    rows,
-    selectedDate,
-    handleInputChange,
-    handleDelete,
-    dateWiseData,
-  });
 
   // ---------------------- for handelling the columns and its data in dashboard screen---------------------
 
   const AllRowsColumns = RowsDataColumns({
-    rows,
     selectedDate,
     handleInputChange,
     handleDelete,
@@ -1130,14 +853,6 @@ const Home = () => {
     setAlertOpen,
     setBatchCallType
   });
-
-  const handleRejected = (hasNote) => {
-    if (hasNote && hasNote?.size !== 0) {
-      setTimesheetRejected(true);
-    } else {
-      setTimesheetRejected(false);
-    }
-  };
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -1157,7 +872,6 @@ const Home = () => {
       Draft: 0,
       SubmitForApproval: 0,
     };
-    // results.forEach((dayData, dayIndex) => {
     // here i is consider as row data
     for (let i = 0; i < results?.length; i++) {
       let dayData = results[i];
@@ -1168,13 +882,8 @@ const Home = () => {
           b?.TimeEntryDataFields?.POSID
         )
       );
-      // here j is consider as day number
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
-        // const workDate = new Date(
-        //   parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[j], 10)
-        // );
-        // const dayOfWeek = workDate.getDay(); // Get day of the week (0 = Sunday, 6 = Saturday)
         const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
         const dayKey = `day${i}`;
         let weekRow;
@@ -1186,10 +895,6 @@ const Home = () => {
           weekRow = rowExist[0];
           rowIndex = weekRows.indexOf(weekRow);
         }
-        // else {
-        //   weekRow = weekRows[j];
-        //   rowIndex = j;
-        // }
         // Update the hours for the correct day of the week
         if (!weekRow) {
           weekRow = {
@@ -1281,6 +986,87 @@ const Home = () => {
     return weekRows;
   };
 
+  const transformCopyWeeklyRows = (response) => {
+    const results = response?.results; // Extract the top-level results array
+    const weekRows = []; // Array to store the transformed weekly data    
+    // here i is consider as row data
+    for (let i = 0; i < results?.length; i++) {
+      let dayData = results[i];
+      const data = dayData?.TimeEntries?.results;
+      let timeEntries = [...data];
+      timeEntries.sort((a, b) =>
+        a?.TimeEntryDataFields?.POSID?.localeCompare(
+          b?.TimeEntryDataFields?.POSID
+        )
+      );
+      for (let j = 0; j < timeEntries?.length; j++) {
+        let entry = timeEntries[j];
+        const hours = 0.00;
+        const dayKey = `day${i}`;
+        let weekRow;
+        let rowIndex = -1;
+        let rowExist = weekRows.filter(
+          (x) => x.level === entry?.TimeEntryDataFields?.POSID
+        );
+        if (rowExist && rowExist.length && rowExist.length > 0) {
+          weekRow = rowExist[0];
+          rowIndex = weekRows.indexOf(weekRow);
+        }
+        // Update the hours for the correct day of the week
+        if (!weekRow) {
+          weekRow = {
+            weekTotal: "0.00",
+            project: entry?.TimeEntryDataFields?.PSPID_DESC,
+            level: entry?.TimeEntryDataFields?.POSID,
+            title: entry?.TimeEntryDataFields?.POST1,
+            id: Math.random(),
+            hierarchy: [
+              entry?.TimeEntryDataFields?.PSPID_DESC,
+              entry?.TimeEntryDataFields?.POST1,
+            ],
+            day0: "0.00",
+            day1: "0.00",
+            day2: "0.00",
+            day3: "0.00",
+            day4: "0.00",
+            day5: "0.00",
+            day6: "0.00",
+          };
+          weekRow = {
+            ...weekRow,
+            [dayKey]: hours.toFixed(2),
+            [`${dayKey}Counter`]: "",
+            [`${dayKey}timeEntryOperation`]: "C",
+            [`${dayKey}AllowRelease`]: "",
+            [`${dayKey}STATUS`]: "10",
+            [`${dayKey}Notes`]: "",
+            [`${dayKey}WORKDATE`]: entry?.TimeEntryDataFields?.WORKDATE,
+          };
+        }
+
+        if (rowIndex < 0) {
+          weekRows.push(weekRow);
+        }
+      }
+    }
+    // Calculate total hours for each week row
+    weekRows.forEach((weekRow) => {
+      weekRow.weekTotal = (
+        parseFloat(weekRow.day0) +
+        parseFloat(weekRow.day1) +
+        parseFloat(weekRow.day2) +
+        parseFloat(weekRow.day3) +
+        parseFloat(weekRow.day4) +
+        parseFloat(weekRow.day5) +
+        parseFloat(weekRow.day6)
+      ).toFixed(2);
+    });
+
+    // overall status check
+    dispatch(setStatus("New"));
+    return weekRows;
+  };
+
   const addTotalRow = (transformedData) => {
     let totalsRow = {
       day0: 0,
@@ -1366,12 +1152,6 @@ const Home = () => {
     }));
   };
 
-  // useEffect(() => {
-  //   if (batchCallTypeGlobal == "changeEntry") {
-  //     setBatchCallType(batchCallTypeGlobal);
-  //   }
-  // }, [batchCallTypeGlobal]);
-
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
       if (!newRow) {
@@ -1393,24 +1173,12 @@ const Home = () => {
         }
         const data = transformedData.map(x => { if (x) return x; })
         transformedData = addTotalRow(data);
-        console.log("transformedData>>>>>>>", transformedData);
-        // setProductTime(transformedData);
         dispatch(setProjectData(transformedData));
       }
     }
   }, [timeSheetDataFetching]);
 
-  const ReviewData = ReviewColumns({
-    rows,
-    selectedDate,
-    handleInputChange,
-    handleDelete,
-    isParent: false,
-    handleRejected,
-    isPrevious: true,
-  });
-
-  const handleSubmit = () => {
+  const addNewRow = () => {
     navigate("/addRows");
   };
 
@@ -1468,22 +1236,16 @@ const Home = () => {
             </StyledToggleButtonGroup>
             <StyledDateTypography>
               {selectedDate}
-              {/* {Array.isArray(selectedDate) && selectedDate.length === 0
-                ? formattedDateRange
-                : selectedDate || formattedDateRange} */}
             </StyledDateTypography>
           </Stack>
-          {/* <StyledDateTypography> */}
           <Stack direction={"row"} spacing={1} marginRight={"1rem"}>
             <HeaderTypography>Status :</HeaderTypography>
-
             <HeaderSubTypography
               style={{ color: StatusColorFormatter(status) }}
             >
               {StatusCaseFormatting(status)}
             </HeaderSubTypography>
           </Stack>
-          {/* </StyledDateTypography> */}
         </StyledBox>
         <StyledStackButton
           direction={"row"}
@@ -1522,28 +1284,30 @@ const Home = () => {
             <Box sx={{ marginRight: "2%" }}>
               <Search onSearch={handleSearch} />
             </Box>
-            {/* <StyledButton2
+            <StyledButton2
               size="small"
               variant="outlined"
+              sx={{ background: status === "New" ? "#fff" : "#dee2e6" }}
+              disabled={status !== "New"}
               boxShadow="5"
-              onClick={handleOpen}
+              onClick={() => setOpen(true)}
             >
               <FileCopyIcon
                 fontSize="small"
                 backgroundColor="#FFFF"
-                sx={{ color: "#ED6A15" }}
+                color={status !== "New" ? "#97928f" : "#ED6A15"}
+                sx={{
+                  color: status !== "New" ? "#97928f" : "#ED6A15",
+                }}
               />
-            </StyledButton2> */}
+            </StyledButton2>
             <StyledButton2
               size="small"
               variant="outlined"
               sx={{ background: status === "Approved" ? "#dee2e6" : "#fff" }}
               disabled={status === "Approved"}
-              onClick={handleSubmit}
+              onClick={addNewRow}
             >
-              {/* <StyledCircularBox
-                sx={{ background: status === "Approved" ? "#dee2e6" : "#fff" }}
-              > */}
               <AddCircleIcon
                 fontSize="medium"
                 color={status === "Approved" ? "#97928f" : "#ED6A15"}
@@ -1551,7 +1315,6 @@ const Home = () => {
                   color: status === "Approved" ? "#97928f" : "#ED6A15",
                 }}
               />
-              {/* </StyledCircularBox> */}
             </StyledButton2>
           </Stack>
         </StyledStackButton>
@@ -1561,27 +1324,6 @@ const Home = () => {
             density={"standard"}
             data={filteredData}
           />
-          {/* {projectedData.map((item) => {
-            const filterProjects = projectedData.filter(
-              (x) => x.project === item.project
-            );
-            return (
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1-content"
-                  id="panel1-header"
-                >
-                  <Typography>{item.project}</Typography>
-                </AccordionSummary>
-                <TreeGrid
-                  columns={AllRowsColumns}
-                  density={"standard"}
-                  data={filterProjects}
-                />
-              </Accordion>
-            );
-          })} */}
         </Stack>
       </StyledStack>
       <Footer>
@@ -1664,7 +1406,6 @@ const Home = () => {
       <Modal
         keepMounted
         open={openApproval}
-        // onClose={handleApprovalClose}
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -1694,23 +1435,6 @@ const Home = () => {
               <AcknowledgeTypography>Acknowledgement</AcknowledgeTypography>
             </StyledModalBox>
           </Stack>
-
-          {/* <Grid2 container>
-            <Grid2 item sx={8} sm={8} md={8} lg={8} >
-              <StyledModalBox>
-                <AcknowledgeTypography>
-                  <ErrorOutlineIcon sx={{ width: "50px", height: "50px" }} />
-                </AcknowledgeTypography>
-                <AcknowledgeTypography>Acknowledgement</AcknowledgeTypography>
-              </StyledModalBox>
-            </Grid2>
-            <Grid2 item sx={4} sm={4} md={4} lg={4}>
-              <IconButton onClick={handleApprovalClose}>
-                <CloseIcon />
-              </IconButton>
-            </Grid2>
-          </Grid2> */}
-
           <DescriptionTypography>{approvalMsg}</DescriptionTypography>
           <NoteButtonStack
             direction="row"
@@ -1730,7 +1454,7 @@ const Home = () => {
               id="keep-mounted-modal-description"
               sx={{ mt: 2 }}
               size="small"
-              onClick={handelSaveNote}
+              onClick={handleApproveOk}
             >
               <SaveNoteTypography>OK</SaveNoteTypography>
             </SaveNoteButton>
@@ -1774,11 +1498,6 @@ const Home = () => {
           <TimesheetText>for approval</TimesheetText>
           <CloseButton
             variant="outlined"
-            // sx={{
-            //   borderColor: "#ED6A15",
-            //   color: "#ED6A15",
-            //   mt: 2,
-            // }}
             onClick={() => setIsTimesheetCreated(false)}
           >
             Close
@@ -1824,7 +1543,7 @@ const Home = () => {
           {alertMsg}
         </Alert>
       </Snackbar>
-      <BusyDialog open={batchCallLoading || timeSheetDataFetching} />
+      <BusyDialog open={batchCallLoading || timeSheetDataFetching || prevWeekTimesheetFetching} />
     </>
   );
 };
