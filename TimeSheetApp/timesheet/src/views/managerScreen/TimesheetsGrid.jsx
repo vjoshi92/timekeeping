@@ -2,7 +2,7 @@ import { Autocomplete, Box, Button, Typography } from '@mui/material';
 import ApprovalsDatagrid from 'views/managerScreen/ApprovalsDatagrid';
 import EmployeeSearch from 'components/EmployeeSearch';
 import TimeSheetsDatagrid from 'components/TimeSheetsDatagrid';
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from '@emotion/styled';
 
@@ -22,6 +22,10 @@ const OuterBox = styled(Box)(({ theme }) => ({
 
 const TimesheetsGrid = () => {
     const { isManager } = useParams();
+    const [searchQuery, setSearchQuery] = useState("");
+    const onSearch = (query) => {
+        setSearchQuery(query);
+    };
 
     return (
         <OuterBox >
@@ -30,10 +34,10 @@ const TimesheetsGrid = () => {
                     {isManager === "true" ? "My Team's Timesheets" : "My Timesheets"}
                 </Typography>
 
-                {isManager === "true" ? <EmployeeSearch /> : null}
+                {isManager === "true" ? <EmployeeSearch onSearch={onSearch} /> : null}
             </MainBox>
             <SubBox >
-                <TimeSheetsDatagrid />
+                <TimeSheetsDatagrid searchQuery={searchQuery} />
             </SubBox>
         </OuterBox>
     );

@@ -201,7 +201,8 @@ const ChangeEntry = ({
   };
 
   return (
-    <Modal
+    <Modal disableAutoFocus={true}
+      autoFocus={false}
       keepMounted
       open={open}
       sx={{

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import styled from '@emotion/styled';
 import { Typography } from '@mui/material';
@@ -22,7 +22,7 @@ const DisabledInput = styled(NormalInput)(({ theme }) => ({
     }
 }));
 
-const MuiInput = (props) => {
+const MuiInput = forwardRef((props, ref) => {
     const {
         key,
         label,
@@ -34,40 +34,13 @@ const MuiInput = (props) => {
         rows,
         helperText,
         multiline,
+        autoFocus,
     } = props;
 
     const [text, setText] = useState(value);
 
     const handleChange = (e) => {
         let inputValue = e.target.value;
-
-        // // Remove any non-digit characters
-        // inputValue = inputValue.replace(/[^\d.]/g, '');
-
-        // // Remove all decimal points except the first one
-        // const parts = inputValue.split('.');
-        // if (parts.length > 1) {
-        //     inputValue = parts[0] + '.' + parts.slice(1).join('');
-        // }
-
-        // // Ensure only two digits after decimal
-        // if (parts.length > 1 && parts[1].length > 2) {
-        //     inputValue = parts[0] + '.' + parts[1].substring(0, 2);
-        // }
-
-        // // Add decimal point after two digits if no decimal exists
-        // if (!inputValue.includes('.') && inputValue.length > 2) {
-        //     inputValue = inputValue.substring(0, 2) + '.' + inputValue.substring(2);
-        // }
-
-        // // Ensure maximum length
-        // if (inputValue.includes('.')) {
-        //     const [whole, decimal] = inputValue.split('.');
-        //     if (whole.length > 2) {
-        //         inputValue = whole.substring(0, 2) + '.' + (decimal || '');
-        //     }
-        // }
-
         setText(inputValue);
         if (onChange) {
             onChange(inputValue);
@@ -88,7 +61,9 @@ const MuiInput = (props) => {
                     onChange={handleChange}
                     disabled={false}
                     type="text"
-                    error={error}                    
+                    error={error}
+                    autoFocus={autoFocus}
+                    inputRef={ref}
                 />
             )}
 
@@ -104,7 +79,7 @@ const MuiInput = (props) => {
                     onChange={handleChange}
                     disabled={true}
                     type="text"
-                    error={error}                    
+                    error={error}
                 />
             )}
             {error && helperText && (
@@ -123,6 +98,6 @@ const MuiInput = (props) => {
             )}
         </>
     );
-};
+});
 
 export default MuiInput;

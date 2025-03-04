@@ -17,7 +17,7 @@ const CustomPopover = ({ children, content }) => {
   const [open, setOpen] = useState(false);
   const handleMouseEnter = (event) => {
     setAnchorEl(event.currentTarget);
-    setOpen(true);
+    setOpen(!open);
   };
   const handleMouseLeave = () => {
     setOpen(false);
@@ -30,8 +30,8 @@ const CustomPopover = ({ children, content }) => {
     <>
       <Box
         onClick={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        sx={{ display: "inline-block" }}
+        // onMouseLeave={handleMouseLeave}
+        sx={{ display: "inline-block", cursor:"pointer" }}
         ClickAwayListener={onClickAway}
       >
         {children}

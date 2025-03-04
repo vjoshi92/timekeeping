@@ -747,7 +747,7 @@ export const ReviewColumns = ({
               <TotalTypography>{params?.value}</TotalTypography>
             </IconButtonStyle>
             {/* rejection popup */}
-            <Modal
+            <Modal disableAutoFocus={true} autoFocus={false}
               keepMounted
               open={openRejection}
               // onClose={handleApprovalClose}

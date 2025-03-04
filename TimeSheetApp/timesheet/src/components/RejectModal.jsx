@@ -10,6 +10,7 @@ import {
   Modal,
   Divider,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -39,7 +40,7 @@ const ModalBox = styled(Box)(({ theme }) => ({
   position: "absolute",
   top: "50%",
   left: "50%",
-  transform: "translate(-50%, -50%)",
+  // transform: "translate(-50%, -50%)",
   width: 400,
   backgroundColor: "#fff",
   boxShadow: 24,
@@ -82,13 +83,15 @@ const RejectModal = ({
   setAlertOpen
 }) => {
   const [newNote, setNewNote] = React.useState("");
-  // Create a reference for the input element
-  // const inputRef = useRef(null);
+  // // Create a reference for the input element
+  // const inputRef = useRef();
 
-  // Focus on the input when the component mounts
+  // // // // Focus on the input when the component mounts
   // useEffect(() => {
-  //   inputRef.current.focus();
-  // }, []);
+  //   if (open) {
+  //     inputRef.current.focus();
+  //   }
+  // }, [open]);
 
   const dispatch = useDispatch();
   const { data: userData } = useGetUserDataQuery();
@@ -109,7 +112,7 @@ const RejectModal = ({
 
   const saveNote = async () => {
     // save notes in store code
-    let row = {...rowObject?.row};
+    let row = { ...rowObject?.row };
     const rowIndex = projectedData.indexOf(rowObject?.row);
     const index = rowObject?.index;
     const date = formatFullDateString(new Date());
@@ -311,16 +314,17 @@ const RejectModal = ({
 
   return (
     <>
-      <Modal
+      <Modal disableAutoFocus={true}
+        autoFocus={false}
         open={open}
         // onClose={onClose}
-        aria-labelledby="notes-modal"
+        aria-labelledby="notes-modal"        
         BackdropProps={{
           style: {
             backgroundColor: "rgba(206, 212, 218, 0.2)",
             opacity: "90%",
           },
-        }}
+        }}        
       >
         {batchCallLoading ? (
           <CircularProgress
@@ -429,21 +433,11 @@ const RejectModal = ({
                 ))}
               </List>
             </Box>
-            <Box>
-              <ModalStyledTypography>Add New Note</ModalStyledTypography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: {
-                    xs: "column",
-                    sm: "row",
-                  },
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <MuiInput
-                  // ref={inputRef}
+            <Stack>
+              <ModalStyledTypography>Add New Note</ModalStyledTypography>              
+              <Stack spacing={2} direction={'row'} justifyContent={"space-between"} alignItems={"center"}>
+                <MuiInput key="noteInput"
+                  // inputRef={inputRef}
                   multiline={true}
                   onChange={(value) => setNewNote(value)}
                   // value={newNote}
@@ -456,6 +450,7 @@ const RejectModal = ({
                     verticalAlign: "unset",
                     backgroundColor: "#FFFFFF",
                   }}
+                  autoFocus={true}
                 />
                 <Button
                   variant="contained"
@@ -472,8 +467,8 @@ const RejectModal = ({
                 >
                   Ok
                 </Button>
-              </Box>
-            </Box>
+              </Stack>
+            </Stack>
           </ModalBox>
         )}
       </Modal>

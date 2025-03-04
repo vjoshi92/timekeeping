@@ -13,7 +13,7 @@ import ApprovalIcon from "@mui/icons-material/Approval";
 import { useGetTimesheetWeeklyQuery, useLazyGetTeamTimesheetWeeklyQuery, useLazyGetTimesheetWeeklyQuery } from "api/timesheetApi";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
-export default function TimeSheetsDatagrid() {
+export default function TimeSheetsDatagrid({ searchQuery }) {
   const navigate = useNavigate();
   const [pageSize, setPageSize] = React.useState(5);
   const [page, setPage] = React.useState(0);
@@ -153,54 +153,6 @@ export default function TimeSheetsDatagrid() {
     },
   ];
 
-  const rows = [
-    {
-      id: 1,
-      employeeId: "100190",
-      employeeName: "Jon Doe",
-      timesheet: "23 - 29 Sep 2024",
-      status: "PENDING",
-      totalHours: "40",
-      dateSubmitted: "29-Sep-2024",
-    },
-    {
-      id: 2,
-      employeeId: "100191",
-      employeeName: "Alice Wok",
-      timesheet: "16 - 22 Sep 2024",
-      status: "REJECTED",
-      totalHours: "40",
-      dateSubmitted: "23-Sep-2024",
-    },
-    {
-      id: 3,
-      employeeId: "100192",
-      employeeName: "Mark Doe",
-      timesheet: "09 - 15 Sep 2024",
-      status: "APPROVED",
-      totalHours: "40",
-      dateSubmitted: "16-Sep-2024",
-    },
-    {
-      id: 4,
-      employeeId: "100193",
-      employeeName: "Sara Liz",
-      timesheet: "02 - 08 Sep 2024",
-      status: "APPROVED",
-      totalHours: "52",
-      dateSubmitted: "09-Sep-2024",
-    },
-    {
-      id: 5,
-      employeeId: "100194",
-      employeeName: "Paul Heyman",
-      timesheet: "26 Aug 2024 - 01 Sep 2024",
-      status: "LOCKED",
-      totalHours: "40",
-      dateSubmitted: "02-Sep-2024",
-    },
-  ];
-
   const columns = isManager == "true" ? ManagerColumns : MyColumns;
   const [timesheetData, setTimesheetData] = React.useState([]);
 
@@ -229,6 +181,22 @@ export default function TimeSheetsDatagrid() {
       setTimesheetData(teamTimesheetData?.results);
     }
   }, [loadingTeamTimesheetData]);
+
+  React.useEffect(() => {
+    if (isManager === "true") {
+      const teamsData = teamTimesheetData?.results;
+      if (teamsData) {
+        const timesheets = [...teamsData];
+        if (searchQuery) {
+          const filteredData = timesheets.filter(item => item.EName.toLowerCase().includes(searchQuery.toLowerCase()))
+          setTimesheetData(filteredData);
+        } else {
+          setTimesheetData(timesheets);
+        }
+      }
+
+    }
+  }, [searchQuery])
 
   return (
     <MuiDataGrid

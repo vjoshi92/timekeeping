@@ -59,7 +59,7 @@ const PendingApprovals = () => {
   const handleApprove = () => {
     console.log("selectedPendingApprovals", selectedPendingApprovals);
     selectedPendingApprovals.forEach(element => {
-      const payload = { ...element, STATUS: "30" };
+      const payload = { ...element, STATUS: "30", CatsHours: parseFloat(element?.CatsHours).toFixed(2) };
       delete payload.id;
       delete payload.__metadata;
       delete payload.LAEDA;
@@ -68,7 +68,7 @@ const PendingApprovals = () => {
   };
 
   const approveLineItem = (row) => {
-    const payload = { ...row, STATUS: "30" };
+    const payload = { ...row, STATUS: "30", "CatsHours": parseFloat(row?.CatsHours).toFixed(2) };
     delete payload.id;
     delete payload.__metadata;
     delete payload.LAEDA;
