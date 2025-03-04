@@ -209,10 +209,6 @@ export default function Header() {
   const settings = ["Logout"];
   settings.unshift(...employeeDatas);
 
-  // const handleCreateNew = () => {
-  //   dispatch(resetForm());
-  //   navigate("/CapEx_Request");
-  // };
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -242,30 +238,6 @@ export default function Header() {
     }
     handleCloseUserMenu();
   };
-  // const CustomPopper = (props) => {
-  //   return (
-  //     <Popper {...props} placement="bottom-start" sx={{ width: "30vw" }}>
-  //       {searchValue && dataTable?.length > 0 ? (
-  //         <Box sx={{ p: 2, backgroundColor: "white", width: "100vw" }}>
-  //           <Typography variant="h6">Search Results</Typography>
-  //           {dataTable
-  //             .filter((option) =>
-  //               option?.Aufex?.toLowerCase().includes(searchValue.toLowerCase())
-  //             )
-  //             .map((item, index) => (
-  //               <Box key={index}>
-  //                 <Typography variant="body1">
-  //                   {item.Aufex} / {item.Aufnr}
-  //                 </Typography>
-  //               </Box>
-  //             ))}
-  //         </Box>
-  //       ) : (
-  //         props.children
-  //       )}
-  //     </Popper>
-  //   );
-  // };
   return (
     <StyledAppBar>
       <Toolbar>
