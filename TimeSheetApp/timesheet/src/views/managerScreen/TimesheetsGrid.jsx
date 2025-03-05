@@ -34,7 +34,7 @@ const TimesheetsGrid = () => {
                     {isManager === "true" ? "My Team's Timesheets" : "My Timesheets"}
                 </Typography>
 
-                {isManager === "true" ? <EmployeeSearch onSearch={onSearch} /> : null}
+                {/* {isManager === "true" ? <EmployeeSearch onSearch={onSearch} /> : null} */}
             </MainBox>
             <SubBox >
                 <TimeSheetsDatagrid searchQuery={searchQuery} />

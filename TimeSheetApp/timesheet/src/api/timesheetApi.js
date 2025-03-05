@@ -86,7 +86,8 @@ export const TimesheetApi = createApi({
     }),
     getReporteeList: builder.query({
       query: () => {
-        const URL = `ZCATS_NOFO_TIMESHEET_SRV/ProjectTeamSet?&sap-client=100&sap-language=EN&$format=json`;
+        // const URL = `ZCATS_NOFO_TIMESHEET_SRV/ProjectTeamSet?&sap-client=100&sap-language=EN&$format=json`;
+        const URL = `HCMFAB_APR_TIMESHEET_SRV/ApprovalListSet?$format=json`;
         return {
           url: URL,
           method: "GET",

@@ -8,7 +8,7 @@ import Checkbox from "@mui/material/Checkbox";
 import MuiDataGrid from "./MuiDataGrid";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tooltip, Typography } from "@mui/material";
-import { StatusColorFormatter, StatusTextFormatting, weekTimesheetFormat } from "utils/AppUtil";
+import { formatDate, formatDDMMMYYYYDateString, StatusColorFormatter, StatusTextFormatting, weekTimesheetFormat } from "utils/AppUtil";
 import ApprovalIcon from "@mui/icons-material/Approval";
 import { useGetTimesheetWeeklyQuery, useLazyGetTeamTimesheetWeeklyQuery, useLazyGetTimesheetWeeklyQuery } from "api/timesheetApi";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -30,25 +30,24 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
 
   const MyColumns = [
     {
-      field: "Week",
+      field: "weekDate",
       headerName: "TIMESHEET",
       minWidth: 180,
       flex: 1,
-      renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
+      // renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
     },
-
     {
+      field: "Status",
       headerName: "STATUS",
-      field: "STATUS",
+      minWidth: 180,
       flex: 1,
-      minWidth: 120,
       renderCell: (params) => (
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: "600", color: StatusColorFormatter(params.value), marginTop: "2%", fontSize: "14px" }}
+          sx={{ fontWeight: 600, color: StatusColorFormatter(params?.row?.STATUS), marginTop: "3%", fontSize: "14px " }}
         >
-          {StatusTextFormatting(params.value)}
+          {params.value}
         </Typography>
       ),
     },
@@ -57,18 +56,21 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       headerName: "TOTAL HOURS",
       minWidth: 200,
       hAlign: "Right",
+      type: "string",
       flex: 1,
     },
     {
-      field: "dateSubmitted",
+      field: "submitDate",
       headerName: "DATE SUBMITTED",
       minWidth: 200,
+      type: "string",
       flex: 1,
     },
 
     {
       field: "actions",
       headerName: "ACTIONS",
+      filterable: false,
       description: "Approve or reject the entry.",
       flex: 1,
       renderCell: (params) => (
@@ -96,14 +98,14 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
     //   flex: 1,
     // },
     {
-      field: "Week",
+      field: "weekDate",
       headerName: "TIMESHEET",
       minWidth: 180,
       flex: 1,
-      renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
+      // renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
     },
     {
-      field: "STATUS",
+      field: "Status",
       headerName: "STATUS",
       minWidth: 180,
       flex: 1,
@@ -111,9 +113,9 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: 600, color: StatusColorFormatter(params.value), marginTop: "3%", fontSize: "14px " }}
+          sx={{ fontWeight: 600, color: StatusColorFormatter(params?.row?.STATUS), marginTop: "3%", fontSize: "14px " }}
         >
-          {StatusTextFormatting(params.value)}
+          {params.value}
         </Typography>
       ),
     },
@@ -125,7 +127,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       flex: 1,
     },
     {
-      field: "dateSubmitted",
+      field: "submitDate",
       headerName: "DATE SUBMITTED",
       minWidth: 190,
       flex: 1,
@@ -137,6 +139,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       description: "Approve or reject the entry.",
       minWidth: 190,
       flex: 1,
+      filterable: false,
       renderCell: (params) => (
         <Box>
           <RemoveRedEyeIcon
@@ -171,14 +174,28 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
 
   React.useEffect(() => {
     if (isMyTimesheetSuccess) {
-      setTimesheetData(myTimesheetData?.results);
+      const dataWithRandomIds = myTimesheetData?.results.map(item => ({
+        ...item, // Keep existing properties
+        weekDate: weekTimesheetFormat(item?.Week),
+        Status: StatusTextFormatting(item?.STATUS),
+        submitDate: formatDDMMMYYYYDateString(item?.LAEDA),
+        id: Math.random(), // Generate a random id for each item
+      }));
+      setTimesheetData(dataWithRandomIds);
     }
 
   }, [loadingMyTimesheetData]);
 
   React.useEffect(() => {
     if (isTeamTimesheetSuccess) {
-      setTimesheetData(teamTimesheetData?.results);
+      const dataWithRandomIds = teamTimesheetData?.results.map(item => ({
+        ...item, // Keep existing properties
+        weekDate: weekTimesheetFormat(item?.Week),
+        Status: StatusTextFormatting(item?.STATUS),
+        submitDate: formatDDMMMYYYYDateString(item?.LAEDA),
+        id: Math.random(), // Generate a random id for each item
+      }));
+      setTimesheetData(dataWithRandomIds);
     }
   }, [loadingTeamTimesheetData]);
 
@@ -200,6 +217,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
 
   return (
     <MuiDataGrid
+      datagridName={"weeklytimesheet"}
       rows={timesheetData}
       columns={columns}
       pageSize={pageSize}
