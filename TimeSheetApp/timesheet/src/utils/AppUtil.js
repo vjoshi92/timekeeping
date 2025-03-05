@@ -66,6 +66,18 @@ export const formatFullDateString = (dateValue) => {
   }
 };
 
+export const formatDDMMMYYYYDateString = (dateValue) => {
+  if (dateValue && dateValue !== "00000000") {
+    return dayjs(dateValue).format("DD MMM YYYY");
+  } else {
+    if (dateValue === "00000000") {
+      return null;
+    } else {
+      return dateValue;
+    }
+  }
+};
+
 export const formatFullTimeString = (dateValue) => {
   if (dateValue && dateValue !== "0000-00-00") {
     return dayjs(dateValue).format("HH:mm:ss");
@@ -207,40 +219,45 @@ export const odataGetDateFormat = (dateString) => {
 };
 
 export const weekTimesheetFormat = (yearWeek) => {
-  let year = parseInt(yearWeek.toString().substring(0, 4), 10);
-  let week = parseInt(yearWeek.toString().substring(4), 10);
+  if (yearWeek) {
+    let year = parseInt(yearWeek.toString().substring(0, 4), 10);
+    let week = parseInt(yearWeek.toString().substring(4), 10);
 
-  // Find the first day (Monday) of the given week
-  let firstDayOfYear = new Date(year, 0, 1);
-  let daysOffset = (week - 1) * 7;
-  let startDate = new Date(firstDayOfYear.getTime() + daysOffset * 86400000);
+    // Find the first day (Monday) of the given week
+    let firstDayOfYear = new Date(year, 0, 1);
+    let daysOffset = (week - 1) * 7;
+    let startDate = new Date(firstDayOfYear.getTime() + daysOffset * 86400000);
 
-  // Adjust to the first Monday of the week
-  let dayOfWeek = startDate.getDay();
-  if (dayOfWeek !== 1) {
-    startDate.setDate(
-      startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
-    );
+    // Adjust to the first Monday of the week
+    let dayOfWeek = startDate.getDay();
+    if (dayOfWeek !== 1) {
+      startDate.setDate(
+        startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+      );
+    }
+
+    // Calculate the last day (Sunday) of the same week
+    let endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 6);
+
+    // Helper function to format date correctly
+    function formatDate(date) {
+      let day = date.getDate().toString().padStart(2, "0"); // Ensure two-digit day
+      let month = date.toLocaleDateString("en-US", { month: "short" }); // Short month name
+      let year = date.getFullYear();
+      return `${day} ${month} ${year}`;
+    }
+
+    // Format the output
+    // if (startDate.getMonth() === endDate.getMonth()) {
+    //   return `${startDate.getDate()} - ${endDate.getDate()} ${startDate.toLocaleDateString("en-US", { month: "short" })} ${year}`;
+    // } else {
+      return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    // }
+  }else{
+    return yearWeek;
   }
 
-  // Calculate the last day (Sunday) of the same week
-  let endDate = new Date(startDate);
-  endDate.setDate(endDate.getDate() + 6);
-
-  // Helper function to format date correctly
-  function formatDate(date) {
-    let day = date.getDate().toString().padStart(2, "0"); // Ensure two-digit day
-    let month = date.toLocaleDateString("en-US", { month: "short" }); // Short month name
-    let year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  }
-
-  // Format the output
-  if (startDate.getMonth() === endDate.getMonth()) {
-    return `${startDate.getDate()} - ${endDate.getDate()} ${startDate.toLocaleDateString("en-US", { month: "short" })} ${year}`;
-  } else {
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
-  }
 };
 
 export const xmlToJson = (xml) => {
@@ -307,7 +324,7 @@ export const hasValidTimeEntry = (data) => {
       return false;
     }
   }
-  return true; 
+  return true;
 };
 
 export const checkStatusCondition = (objectsArray, status) => {

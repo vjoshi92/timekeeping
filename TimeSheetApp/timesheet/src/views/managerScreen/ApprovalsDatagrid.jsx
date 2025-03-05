@@ -79,7 +79,8 @@ export default function ApprovalsDatagrid({
       data = pendingApprovalList?.results?.map(x => {
         return {
           ...x,
-          id: Math.random()
+          id: Math.random(),
+          weekDate: weekTimesheetFormat(x?.Week),
         }
       });
       setApprovalData(data);
@@ -142,6 +143,7 @@ export default function ApprovalsDatagrid({
       field: "Check",
       headerName: "",
       sortable: false,
+      type: "string",
       width: 50,
       renderCell: (params) => (
         <Box
@@ -170,28 +172,29 @@ export default function ApprovalsDatagrid({
       field: "EName",
       headerName: "EMPLOYEE NAME",
       width: 210,
-      editable: true,
+      type: "string",
     },
     {
-      field: "Week",
+      field: "weekDate",
       headerName: "TIMESHEET",
       minWidth: 200,
+      type: "string",
       flex: 1,
-      editable: true,
-      renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
+      // renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
     },
     {
       field: "CatsHours",
       headerName: "TOTAL HOURS",
-      sortable: false,
+      type: "string",
       minWidth: 200,
       flex: 1,
     },
     {
       field: "actions",
       headerName: "ACTIONS",
-      sortable: false,
+      type: "string",
       minWidth: 200,
+      filterable: false,
       flex: 1,
       renderCell: (params) => (
         <StyledBox direction={"row"}>
@@ -212,6 +215,7 @@ export default function ApprovalsDatagrid({
   return (
     <Box sx={{ width: "100%" }}>
       <MuiDataGrid
+        datagridName={"pendingApprovalList"}
         rows={approvalData}
         columns={columns}
         pagination
