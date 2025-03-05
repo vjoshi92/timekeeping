@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "./",
-  "proxy": "https://jmwwdad1.jmawireless.com/",
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
@@ -35,7 +34,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "set \"GENERATE_SOURCEMAP=false\" &&  react-scripts build",
+    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build && npm run zip",
     "watch": "npm-watch",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

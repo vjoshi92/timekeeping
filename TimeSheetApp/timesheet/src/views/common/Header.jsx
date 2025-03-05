@@ -238,6 +238,11 @@ export default function Header() {
     }
     handleCloseUserMenu();
   };
+
+  const handleLogout = () => {
+    window.location.href = "my/logout";
+  };
+
   return (
     <StyledAppBar>
       <Toolbar>
@@ -313,9 +318,7 @@ export default function Header() {
           onClose={handleCloseUserMenu}
         >
           <MenuItem>Welcome {employeeDatas}</MenuItem>
-          <MenuItem
-          // key={index}
-          // onClick={() => handleMenuItemClick(setting)}
+          <MenuItem onClick={handleLogout}
           >
             Logout
           </MenuItem>

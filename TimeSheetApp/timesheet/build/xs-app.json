@@ -2,7 +2,9 @@
   "welcomeFile": "/index.html",
   "authenticationMethod": "route",
   "logout": {
-    "logoutEndpoint": "/do/logout"
+    "logoutEndpoint": "/my/logout",
+    "logoutMethod": "GET",
+    "logoutPage": "/logout-page.html"
   },
   "routes": [
     {
@@ -11,6 +13,11 @@
       "source": "^/JMDNEW/(.*)$",
       "destination": "JMDNEW",
       "target": "$1"
+    },
+    {
+      "source": "^/logout-page.html$",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "none"
     },
     {
       "source": "^(.*)$",

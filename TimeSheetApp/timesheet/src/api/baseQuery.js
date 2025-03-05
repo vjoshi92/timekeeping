@@ -1,9 +1,9 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-export const baseUrl = '/sap/opu/odata/sap/';
+export const baseUrl = 'JMDNEW/sap/opu/odata/sap/';
 
 // https://jmwwdad1.jmawireless.com/sap/opu/odata/sap/HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json
 
-console.log("baseUrl", baseUrl)
+// console.log("baseUrl", baseUrl)
 
 const customBaseQuery = fetchBaseQuery({
     baseUrl,
