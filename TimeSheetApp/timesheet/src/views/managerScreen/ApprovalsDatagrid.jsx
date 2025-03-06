@@ -144,6 +144,8 @@ export default function ApprovalsDatagrid({
       headerName: "",
       sortable: false,
       type: "string",
+      filterable: false,
+      sortable: false,
       width: 50,
       renderCell: (params) => (
         <Box
@@ -195,6 +197,7 @@ export default function ApprovalsDatagrid({
       type: "string",
       minWidth: 200,
       filterable: false,
+      sortable: false,
       flex: 1,
       renderCell: (params) => (
         <StyledBox direction={"row"}>
