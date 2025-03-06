@@ -45,7 +45,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: 600, color: StatusColorFormatter(params?.row?.STATUS), marginTop: "3%", fontSize: "14px " }}
+          sx={{ fontWeight: 600, color: StatusColorFormatter(params?.row?.STATUS), marginTop: "0.9rem", marginBottom: "0.7rem" , fontSize: "14px " }}
         >
           {params.value}
         </Typography>
@@ -113,7 +113,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: 600, color: StatusColorFormatter(params?.row?.STATUS), marginTop: "3%", fontSize: "14px " }}
+          sx={{ fontWeight: 600, color: StatusColorFormatter(params?.row?.STATUS), fontSize: "14px", marginTop: "0.9rem", marginBottom: "0.7rem" }}
         >
           {params.value}
         </Typography>

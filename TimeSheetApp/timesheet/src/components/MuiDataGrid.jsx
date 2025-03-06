@@ -68,7 +68,7 @@ const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, disable
         }}
         initialState={{
           pagination: { paginationModel: { pageSize: 5 } },
-          density: "compact"
+          density: "standard"
         }}
         pageSizeOptions={[5, 10, 25, 50, 100]}
         headerFilters
