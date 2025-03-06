@@ -169,7 +169,7 @@ export default function Header() {
   const dispatch = useDispatch();
   const params = useParams();
   const [isManager, setIsManager] = React.useState(false);
-  const { data: userData } = useGetUserDataQuery();
+  const { data: userData, isFetching: isLoadingUserData,  isError: isUserDataerror, error: userDataError } = useGetUserDataQuery();
   const [employeeDatas, setEmployeeDatas] = React.useState(""); // Initialize state as an empty array
 
   const {
@@ -184,12 +184,20 @@ export default function Header() {
     { data: pendingApprovalCount, isFetching: approvalCountFetching },
   ] = useLazyGetPendingApprovalCountQuery();
 
+  // React.useEffect(() => {
+    
+  // }, [userData]); // Runs when userData changes
+
   React.useEffect(() => {
     if (userData?.results) {
       const employees = userData?.results?.[0].EmployeeName?.FormattedName;
       setEmployeeDatas(employees);
     }
-  }, [userData]); // Runs when userData changes
+
+    if(isUserDataerror){
+      window.location.reload(true);
+    }
+  }, [isLoadingUserData]);
 
   React.useEffect(() => {
     if (reporteeDataIsSuccess) {

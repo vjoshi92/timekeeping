@@ -4,6 +4,7 @@ import AddRowsScreen from "./views/AddTimeSheet/AddTimesheetScreen";
 import PendingApprovals from "views/managerScreen/PendingApprovals";
 import TimesheetsGrid from "views/managerScreen/TimesheetsGrid";
 import ReviewScreen from "views/managerScreen/ReviewScreen";
+import Refresh from "components/Refresh";
 
 const Home = lazy(() => import("./views/home"));
 
@@ -39,11 +40,11 @@ const NavigationRoutes = [
     component: <ReviewScreen />,
     key: "ReviewScreen",
   },
-  // {
-  //   path: "/ViewersDashboard",
-  //   component: <ViewersDashboard />,
-  //   key: "ViewersDashboard",
-  // },
+  {
+    path: "/refresh",
+    component: <Refresh />,
+    key: "Refresh",
+  },
 ];
 
 export default NavigationRoutes;
