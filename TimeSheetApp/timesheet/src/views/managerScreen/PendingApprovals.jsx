@@ -63,6 +63,7 @@ const PendingApprovals = () => {
       delete payload.id;
       delete payload.__metadata;
       delete payload.LAEDA;
+      delete payload.weekDate;
       saveWeekApproval({ body: payload });
     });
   };
@@ -72,6 +73,7 @@ const PendingApprovals = () => {
     delete payload.id;
     delete payload.__metadata;
     delete payload.LAEDA;
+    delete payload.weekDate;
     saveWeekApproval({ body: payload });
   };
 
