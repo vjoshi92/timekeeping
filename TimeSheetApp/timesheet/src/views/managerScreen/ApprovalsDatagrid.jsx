@@ -22,7 +22,7 @@ const label = { inputProps: { "aria-label": "Checkbox demo" } };
 const StyledBox = styled(Stack)(({ theme }) => ({
   display: "flex",
   // gap: '10px',
-  // marginTop: "15px"
+  marginTop: "0.5rem"
 }));
 
 const StyledDataGrid = styled(DataGrid)(({ theme }) => ({

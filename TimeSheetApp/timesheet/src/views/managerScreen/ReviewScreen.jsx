@@ -1825,7 +1825,7 @@ const ReviewScreen = () => {
           {alertMsg}
         </Alert>
       </Snackbar>
-      <BusyDialog open={batchCallLoading || timeSheetDataFetching || submitBatchCallLoading} />
+      <BusyDialog open={batchCallLoading || timeSheetDataFetching || submitBatchCallLoading || noteCallLoading} />
     </>
   );
 };

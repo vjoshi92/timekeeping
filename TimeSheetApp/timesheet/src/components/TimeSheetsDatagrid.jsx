@@ -45,7 +45,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
         <Typography
           variant="body1"
           textTransform={"uppercase"}
-          sx={{ fontWeight: 600, color: StatusColorFormatter(params?.row?.STATUS), marginTop: "0.9rem", marginBottom: "0.7rem" , fontSize: "14px " }}
+          sx={{ fontWeight: 600, color: StatusColorFormatter(params?.row?.STATUS), marginTop: "0.9rem", marginBottom: "0.7rem", fontSize: "14px " }}
         >
           {params.value}
         </Typography>
@@ -141,7 +141,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       flex: 1,
       filterable: false,
       renderCell: (params) => (
-        <Box>
+        <Box sx={{ marginTop: "0.9rem", marginBottom: "0.7rem" }}>
           <RemoveRedEyeIcon
             sx={{ color: "#0073E6", cursor: "pointer" }}
             onClick={() => handleEyeClick(params?.row)}

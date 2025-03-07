@@ -640,8 +640,7 @@ export const ReviewColumns = ({
                     border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
                     borderRadius: "4px",
                     padding: "0.5rem",
-                    cursor: isFirstInput ? "not-allowed" : "pointer",
-                    cursor: (status === 'Approved' || status === 'Rejected') ? "none" : "pointer",
+                    cursor: (status === 'Approved' || status === 'Rejected') ? "not-allowed" : "pointer",
                     height: "1.2rem",
                     "&:hover": {
                       borderColor:
