@@ -72,7 +72,7 @@ const ModalStyledTypography = styled(Box)(({ theme }) => ({
   marginBottom: "2%",
 }));
 
-const RejectModal = ({
+const NotesModal = ({
   open,
   onClose,
   isRejected,
@@ -99,8 +99,7 @@ const RejectModal = ({
   const selectedDate = useSelector((state) => state?.home?.daterange);
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   // use notes from props
-  // const notes = useSelector((state) => state?.CreateForm?.notes);
-  console.log("rowObject", rowObject);
+  // const notes = useSelector((state) => state?.CreateForm?.notes);  
   const [
     makeBatchCall,
     {
@@ -476,4 +475,4 @@ const RejectModal = ({
   );
 };
 
-export default RejectModal;
+export default NotesModal;
