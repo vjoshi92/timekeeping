@@ -18,7 +18,7 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 // import AddIcon from "@mui/icons-material/Add";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeild";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import dayjs from "dayjs";
@@ -297,6 +297,8 @@ const Home = () => {
     (state) => state?.CreateForm?.approvalCount
   );
 
+  const { refresh } = useParams();
+
   const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
   const currentWeekStart = startOfCurrentWeek.format("DD");
 
@@ -319,6 +321,12 @@ const Home = () => {
   const dispatch = useDispatch();
   const [filteredData, setFilteredData] = useState([]);
   const [showSaveBtn, setShowSaveBtn] = useState(false);
+
+  // useEffect(() => {
+  //   if (refresh === 'true') {
+  //     navigate("/home");
+  //   }   
+  // }, [refresh])
 
   const [
     makeBatchCall,

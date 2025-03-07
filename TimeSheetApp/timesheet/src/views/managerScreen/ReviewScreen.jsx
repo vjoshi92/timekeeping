@@ -64,6 +64,7 @@ import {
   useLazyGetReviewDetailDataQuery,
   useMakeApprovalBatchCallMutation,
   useMakeBatchCallMutation,
+  useSaveLongTextMutation,
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
 import { Footer } from "components/Footer";
@@ -523,6 +524,14 @@ const ReviewScreen = () => {
   const [totalError, setTotalError] = useState(false);
   const [batchCallType, setBatchCallType] = useState("");
   const [approvalMsg, setApprovalMsg] = useState();
+  const [
+    saveLongText,
+    {
+      isSuccess: noteCallIsSuccess,
+      isLoading: noteCallLoading,
+      error: noteCallIsError,
+    },
+  ] = useSaveLongTextMutation();
 
   // API methods
   const [
@@ -927,12 +936,88 @@ const ReviewScreen = () => {
   };
 
   const handleRejected = (isRejected) => {
-    if (isRejected == true) {
-      setSnackBarMsg("Timesheet Rejected.");
-      setNewStatus("Rejected");
-      setSnackbarOpen(true);
-    }
+    // code commented to reject all at once
+    // if (isRejected == true) {
+    //   setSnackBarMsg("Timesheet Rejected.");
+    //   setNewStatus("Rejected");
+    //   setSnackbarOpen(true);
+    // }
   };
+
+  const prepareNotesSavePayload = (note) => {
+    let payloadNotes = [];
+    projectedData.forEach((element, index) => {
+      const row = element;
+      for (let i = 0; i <= 6; i++) {
+        if (row[`day${i}STATUS`] === "40") {
+          const temp = {
+            "Pernr": row[`day${i}PERNR`],
+            "Counter": row[`day${i}Counter`],
+            "LONGTEXT_DATA": row[`day${i}Notes`],
+            "Msgtype": "",
+            "Message1": ""
+          };
+          payloadNotes.push(temp);
+        }
+      }
+    });
+    return payloadNotes;
+  };
+
+  const saveNotes = () => {
+    const aNotes = prepareNotesSavePayload();
+    aNotes.forEach(note => {
+      const response = saveLongText({ body: note });
+    });
+  };
+
+  const prepareRejectPayload = () => {
+    let payloadEntries = [];
+    projectedData.forEach((element, index) => {
+      const row = element;
+      for (let i = 0; i <= 6; i++) {
+        if (row[`day${i}STATUS`] === "40") {
+          const createDate = row[`day${i}DateCreate`];
+          let dateCreate = createDate ? odataGetDateFormat(createDate) : "";
+          const time = row[`day${i}TimeCreate`];
+          let datewithTime = dateCreate;
+          if (time) {
+            const hour = time.substr(0, 2);
+            const min = time.substr(2, 2);
+            const sec = time.substr(4, 2);
+            let aDateCreate = dateCreate.split("T");
+            datewithTime = `${aDateCreate[0]}T${hour}:${min}:${sec}`;
+          }
+
+          const temp = {
+            EmployeeID: row[`day${i}PERNR`],
+            Counter: row[`day${i}Counter`],
+            Status: "40",
+            Reason: row[`day${i}Reason`] || "",
+            DateCreate: datewithTime,
+            TimeCreate: row[`day${i}TimeCreate`],
+            __metadata: {
+              type: "HCMFAB_APR_TIMESHEET_SRV.ApprovalDetails",
+            },
+          };
+          payloadEntries.push(temp);
+        }
+      }
+    });
+
+    return payloadEntries;
+  };
+
+  const onRejectPress = async () => {
+    const oPayload = prepareRejectPayload();
+    const obatchPayload = PrepareApprovalBatchPayload(oPayload);
+    const response = await makeBatchCall({ body: obatchPayload });
+    saveNotes();
+    setSnackBarMsg("Timesheet Rejected.");
+    setNewStatus("Rejected");
+    setSnackbarOpen(true);
+  };
+
 
   useEffect(() => {
     if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
@@ -980,6 +1065,16 @@ const ReviewScreen = () => {
   }, [start, stop]);
 
   useEffect(() => {
+    if (projectedData && projectedData.length > 0) {
+      const isRejectedItem = checkStatusCondition(projectedData, "40");
+      setTimesheetRejected(isRejectedItem);
+    } else {
+      setTimesheetRejected(false);
+    }
+
+  }, [projectedData]);
+
+  useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
       if (!newRow) {
         const responseData = dateWiseData;
@@ -1015,6 +1110,15 @@ const ReviewScreen = () => {
       }
     }
   }, [batchCallLoading]);
+
+  const AllDataColumns = ReviewColumns({
+    rows,
+    selectedDate,
+    handleInputChange,
+    handleDelete,
+    isParent: false,
+    handleRejected,
+  });
 
   // useEffect(() => {
   //   if (selectedDate == "") {
@@ -1450,14 +1554,7 @@ const ReviewScreen = () => {
           }}
         >
           <TreeGrid
-            columns={ReviewColumns({
-              rows,
-              selectedDate,
-              handleInputChange,
-              handleDelete,
-              isParent: false,
-              handleRejected,
-            })}
+            columns={AllDataColumns}
             density={"standard"}
             data={projectedData}
             sx={{
@@ -1497,7 +1594,16 @@ const ReviewScreen = () => {
           )}
           {isReviewer === 'true' && type == "team" &&
             <ButtonStack>
-              <ApproveButton
+              {isTimeSheetRejected && <RejectButton
+                disabled={status === "Approved" || status === "Rejected"}
+                variant="contained"
+                color="error"
+                sx={{ width: { xs: "100%", sm: "200px" } }}
+                onClick={() => onRejectPress()}
+              >
+                Reject
+              </RejectButton>}
+              {!isTimeSheetRejected && <ApproveButton
                 disabled={status === "Approved" || status === "Rejected"}
 
                 variant="contained"
@@ -1506,7 +1612,7 @@ const ReviewScreen = () => {
                 onClick={() => handleApproval("approve")}
               >
                 Approve
-              </ApproveButton>
+              </ApproveButton>}
             </ButtonStack>}
         </>
       </StyledStack>
@@ -1719,7 +1825,7 @@ const ReviewScreen = () => {
           {alertMsg}
         </Alert>
       </Snackbar>
-      <BusyDialog open={batchCallLoading || timeSheetDataFetching || submitBatchCallLoading} />
+      <BusyDialog open={batchCallLoading || timeSheetDataFetching || submitBatchCallLoading || noteCallLoading} />
     </>
   );
 };
