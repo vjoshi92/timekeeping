@@ -21,7 +21,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
   const handleEyeClick = (params) => {
     const allData = params;
     const type = isManager === "true" ? "team" : "my";
-    if (allData?.STATUS == '20' && isManager === "true") {
+    if (isManager === "true") {
       navigate(`/Review/true/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}/${type}`, { state: { data: allData } });
     } else {
       navigate(`/Review/false/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}/${type}`, { state: { data: allData } });

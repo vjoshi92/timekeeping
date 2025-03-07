@@ -7,6 +7,7 @@ import {
   Snackbar,
   Stack,
   ToggleButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +21,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeild";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import WarningIcon from '@mui/icons-material/Warning';
 import CloseIcon from "@mui/icons-material/Close";
 import dayjs from "dayjs";
 import { DaysColumns } from "components/CurrentWeekColumns";
@@ -321,6 +323,8 @@ const Home = () => {
   const dispatch = useDispatch();
   const [filteredData, setFilteredData] = useState([]);
   const [showSaveBtn, setShowSaveBtn] = useState(false);
+  const [showNavConfirmation, setShowNavConfirmation] = useState(false);
+  const [navConfType, setNavConfType] = useState('');
 
   // useEffect(() => {
   //   if (refresh === 'true') {
@@ -368,7 +372,7 @@ const Home = () => {
         setIsTimesheetCreated(true);
       } else if (batchCallType == "save") {
         setSnackbarOpen(true);
-      } else {
+      } else if (batchCallType == "delete") {
         setDeleteMsgOpen(true);
       }
       dispatch(setNewRowAdded(false));
@@ -471,7 +475,19 @@ const Home = () => {
   };
 
   //----------------function for handelling the previous week toggle buttons here ---------------------------
-  const handlePreviousWeek = () => {
+  const handlePreviousWeek = (skipPopup) => {
+    const isEmptyEntry = isNotEmptyEntries();
+    if (skipPopup == false) {
+      if ((status === "New" && isEmptyEntry) || status === "Draft" || newRow) {
+        if (status !== "Approved" && status !== "Rejected") {
+          checkForUnsavedChanges("prev");
+          return;
+        }
+      }
+    }
+
+
+    // if ((skipPopup || (status !== "New" && status !== "Draft") || notEmptyEntry) || !newRow) {
     let currentStartDate;
     if (!selectedDate || selectedDate.length === 0) {
       currentStartDate = dayjs().startOf("week").add(1, "day");
@@ -499,11 +515,25 @@ const Home = () => {
       setIsCurrentWeek(false);
     }
     dispatch(setNewRowAdded(false));
+    // } else {
+
+    // }
   };
 
   //----------------function for handelling the next week toggle buttons here ---------------------------
 
-  const handleNextWeek = () => {
+  const handleNextWeek = (skipPopup) => {
+    const isEmptyEntry = isNotEmptyEntries();
+    if (skipPopup == false) {
+      if ((status === "New" && isEmptyEntry) || status === "Draft" || newRow) {
+        if (status !== "Approved" && status !== "Rejected") {
+          checkForUnsavedChanges("next");
+          return;
+        }
+      }
+    }
+
+    // if (skipPopup || (status !== "New" && status !== "Draft" && !newRow) || notEmptyEntry) {
     let currentStartDate;
     if (!selectedDate || selectedDate.length === 0) {
       currentStartDate = dayjs().startOf("week").add(1, "day");
@@ -533,7 +563,25 @@ const Home = () => {
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
     dispatch(setNewRowAdded(false));
+    // } else {
+    //   checkForUnsavedChanges("next");
+    // }
   };
+
+  const checkForUnsavedChanges = (type) => {
+    setNavConfType(type);
+    setShowNavConfirmation(true);
+  };
+
+  const navAfterConfirmation = () => {
+    if (navConfType === "prev") {
+      handlePreviousWeek(true);
+    } else if (navConfType === "next") {
+      handleNextWeek(true);
+    }
+    setShowNavConfirmation(false);
+    setNavConfType("");
+  }
 
   useEffect(() => {
     if (selectedDate == "") {
@@ -694,13 +742,23 @@ const Home = () => {
 
   const handleSaveTime = async (type) => {
     setBatchCallType(type);
-    // make a batch call with payload
-    const timesheetEntries = prepareTimesheetPayload(type);
-    if (timesheetEntries && timesheetEntries.length > 0) {
-      const batchPayload = PrepareBatchPayload(timesheetEntries);
-      const response = await makeBatchCall({ body: batchPayload });
+    if (isNotEmptyEntries()) {
+      // make a batch call with payload
+      const timesheetEntries = prepareTimesheetPayload(type);
+      if (timesheetEntries && timesheetEntries.length > 0) {
+        const batchPayload = PrepareBatchPayload(timesheetEntries);
+        const response = await makeBatchCall({ body: batchPayload });
+        navAfterConfirmation();
+      }
     }
   };
+
+  const isNotEmptyEntries = () => {
+    const entries = projectedData.filter(
+      (item) => item?.totalRow !== true
+    );
+    return entries && entries?.length > 0;
+  }
 
   const handleYes = () => {
     // timesheet copy functionality
@@ -1229,7 +1287,7 @@ const Home = () => {
               <ToggleButton
                 value="left"
                 aria-label="left aligned"
-                onClick={() => handlePreviousWeek()}
+                onClick={() => handlePreviousWeek(false)}
               >
                 <ArrowBackIcon />
               </ToggleButton>
@@ -1237,7 +1295,7 @@ const Home = () => {
                 value="justify"
                 aria-label="justified"
                 // disabled={disableToggel}
-                onClick={() => handleNextWeek()}
+                onClick={() => handleNextWeek(false)}
               >
                 <ArrowForwardIcon />
               </ToggleButton>
@@ -1247,7 +1305,7 @@ const Home = () => {
             </StyledDateTypography>
           </Stack>
           <Stack direction={"row"} spacing={1} marginRight={"1rem"}>
-            <HeaderTypography>Status :</HeaderTypography>
+            <HeaderTypography>Status:</HeaderTypography>
             <HeaderSubTypography
               style={{ color: StatusColorFormatter(status) }}
             >
@@ -1292,38 +1350,42 @@ const Home = () => {
             <Box sx={{ marginRight: "2%" }}>
               <Search onSearch={handleSearch} />
             </Box>
-            <StyledButton2
-              size="small"
-              variant="outlined"
-              sx={{ background: status === "New" ? "#fff" : "#dee2e6" }}
-              disabled={status !== "New"}
-              boxShadow="5"
-              onClick={() => setOpen(true)}
-            >
-              <FileCopyIcon
-                fontSize="small"
-                backgroundColor="#FFFF"
-                color={status !== "New" ? "#97928f" : "#ED6A15"}
-                sx={{
-                  color: status !== "New" ? "#97928f" : "#ED6A15",
-                }}
-              />
-            </StyledButton2>
-            <StyledButton2
-              size="small"
-              variant="outlined"
-              sx={{ background: status === "Approved" ? "#dee2e6" : "#fff" }}
-              disabled={status === "Approved"}
-              onClick={addNewRow}
-            >
-              <AddCircleIcon
-                fontSize="medium"
-                color={status === "Approved" ? "#97928f" : "#ED6A15"}
-                sx={{
-                  color: status === "Approved" ? "#97928f" : "#ED6A15",
-                }}
-              />
-            </StyledButton2>
+            <Tooltip title="Copy from previous week.">
+              <StyledButton2
+                size="small"
+                variant="outlined"
+                sx={{ background: status === "New" ? "#fff" : "#dee2e6" }}
+                disabled={status !== "New"}
+                boxShadow="5"
+                onClick={() => setOpen(true)}
+              >
+                <FileCopyIcon
+                  fontSize="small"
+                  backgroundColor="#FFFF"
+                  color={status !== "New" ? "#97928f" : "#ED6A15"}
+                  sx={{
+                    color: status !== "New" ? "#97928f" : "#ED6A15",
+                  }}
+                />
+              </StyledButton2>
+            </Tooltip>
+            <Tooltip title="Add new timesheet entry.">
+              <StyledButton2
+                size="small"
+                variant="outlined"
+                sx={{ background: status === "Approved" ? "#dee2e6" : "#fff" }}
+                disabled={status === "Approved"}
+                onClick={addNewRow}
+              >
+                <AddCircleIcon
+                  fontSize="medium"
+                  color={status === "Approved" ? "#97928f" : "#ED6A15"}
+                  sx={{
+                    color: status === "Approved" ? "#97928f" : "#ED6A15",
+                  }}
+                />
+              </StyledButton2>
+            </Tooltip>
           </Stack>
         </StyledStackButton>
         <Stack mt={2} mb={10}>
@@ -1336,42 +1398,46 @@ const Home = () => {
       </StyledStack>
       <Footer>
         {status !== "Approved" && (
-          <Button
-            disabled={!showSaveBtn}
-            sx={{
-              backgroundColor: showSaveBtn ? "#FFF" : "#BDBDBD",
-              color: showSaveBtn ? '#ED6A15' : '#fff',
-              border: `1px solid ${showSaveBtn ? '#ED6A15' : '#fff'}`,
-              marginBottom: "0.5rem",
-            }}
-            size="medium" onClick={() => handleSaveTime("save")}>
-            <Typography fontWeight={"700"} fontSize={"14px"}
-              color={showSaveBtn ? '#ED6A15' : '#fff'}>Save My Time</Typography>
-          </Button>
+          <Tooltip title="Save timesheet entry.">
+            <Button
+              disabled={!showSaveBtn}
+              sx={{
+                backgroundColor: showSaveBtn ? "#FFF" : "#BDBDBD",
+                color: showSaveBtn ? '#ED6A15' : '#fff',
+                border: `1px solid ${showSaveBtn ? '#ED6A15' : '#fff'}`,
+                marginBottom: "0.5rem",
+              }}
+              size="medium" onClick={() => handleSaveTime("save")}>
+              <Typography fontWeight={"700"} fontSize={"14px"}
+                color={showSaveBtn ? '#ED6A15' : '#fff'}>Save My Time</Typography>
+            </Button>
+          </Tooltip>
         )}
 
         {status !== "Approved" && (
-          <Button
-            onClick={handleApproval}
-            sx={{
-              backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-              padding: "0.4rem",
-              marginBottom: "0.5rem",
-            }}
-            disabled={
-              !(
-                projectedData &&
-                Object?.keys(projectedData)?.length > 0 &&
-                saveTimeClick
-              )
-            }
-          >
-            <StyledFooterText>
-              {checkStatusCondition(projectedData, "20")
-                ? "Resubmit Week for Approval"
-                : "Submit Week for Approval"}
-            </StyledFooterText>
-          </Button>
+          <Tooltip title="Please enter weekly 40 hours or more to enable the button.">
+            <Button
+              onClick={handleApproval}
+              sx={{
+                backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+                padding: "0.4rem",
+                marginBottom: "0.5rem",
+              }}
+              disabled={
+                !(
+                  projectedData &&
+                  Object?.keys(projectedData)?.length > 0 &&
+                  saveTimeClick
+                )
+              }
+            >
+              <StyledFooterText>
+                {checkStatusCondition(projectedData, "20")
+                  ? "Resubmit Week for Approval"
+                  : "Submit Week for Approval"}
+              </StyledFooterText>
+            </Button>
+          </Tooltip>
         )}
       </Footer>
       <Modal
@@ -1551,6 +1617,67 @@ const Home = () => {
           {alertMsg}
         </Alert>
       </Snackbar>
+      <Modal
+        open={showNavConfirmation}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        BackdropProps={{
+          style: {
+            backgroundColor: "rgba(18, 18, 18, 0.6)",
+          },
+        }}
+      >
+        <StyledApprovalBox
+        >
+          <Stack direction={"row"}>
+            <IconButton onClick={() => setShowNavConfirmation(false)}>
+              <CloseIcon sx={{ color: "#fff" }} />
+            </IconButton>
+          </Stack>
+          <WarningIcon
+            color="#ED6A15"
+            sx={{ color: "#ED6A15", width: "50px", height: "50px" }}
+          />
+
+          <Typography color="#ED6A15" fontWeight={700}>Your unsaved changes will be lost. Do you want to continue?</Typography>
+          <NoteButtonStack
+            direction="row"
+            justifyContent={"space-between"}
+            spacing={3}
+          >
+            <Button sx={{ border: "1px solid #ED6A15", }}
+
+              variant="h6"
+              component="h2"
+              size="small"
+              onClick={() => { setShowNavConfirmation(false); setNavConfType(""); }}
+            >
+              <Typography color="#ED6A15" fontWeight={700}>Cancel</Typography>
+            </Button>
+            <Button sx={{ border: "1px solid #ED6A15", }}
+
+              variant="h6"
+              component="h2"
+              size="small"
+              onClick={() => navAfterConfirmation()}
+            >
+              <Typography color="#ED6A15" fontWeight={700}>Ignore Changes</Typography>
+            </Button>
+            <Button
+
+              sx={{ backgroundColor: "#ED6A15", }}
+              component="h2"
+              size="small"
+              onClick={() => { setShowNavConfirmation(false); handleSaveTime("save") }}
+            >
+              <Typography color="#FFF" fontWeight={700}>Save Changes</Typography>
+            </Button>
+          </NoteButtonStack>
+        </StyledApprovalBox>
+      </Modal>
       <BusyDialog open={batchCallLoading || timeSheetDataFetching || prevWeekTimesheetFetching} />
     </>
   );
