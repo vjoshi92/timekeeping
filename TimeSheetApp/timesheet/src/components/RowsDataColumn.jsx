@@ -14,6 +14,7 @@ import {
   Stepper,
   styled,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -430,32 +431,34 @@ export const RowsDataColumns = ({
                   }}
                 />
               )}
-              <IconButton
-                size="small"
-                disabled={!params?.value || params?.value === '0.00'}
-                onClick={() => openNotesPopup(inputId, row, i)}
-              >
-                <TextSnippetOutlined
-                  sx={{
-                    fontWeight: "400",
-                    color:
-                      row[`day${i}Notes`] !== "" &&
-                        row[`day${i}Notes`] !== undefined
-                        ? "#ed6a15"
-                        : "grey",
-                  }}
-                />
-                {/* {row[`day${i}STATUS`] === "40" ? (
+              <Tooltip title="View notes.">
+                <IconButton
+                  size="small"
+                  disabled={!params?.value || params?.value === '0.00'}
+                  onClick={() => openNotesPopup(inputId, row, i)}
+                >
+                  <TextSnippetOutlined
+                    sx={{
+                      fontWeight: "400",
+                      color:
+                        row[`day${i}Notes`] !== "" &&
+                          row[`day${i}Notes`] !== undefined
+                          ? "#ed6a15"
+                          : "grey",
+                    }}
+                  />
+                  {/* {row[`day${i}STATUS`] === "40" ? (
                   <TextSnippetIcon sx={{ fontWeight: "400" }} />
                 ) : (
                   <TextSnippetOutlined sx={{ fontWeight: "400" }} />
                 )} */}
-                {/* sx={{
+                  {/* sx={{
                     color: row[`day${i}STATUS`] === "40" ? "red" : "grey",
                     fontWeight: "400",
                   }}
                 /> */}
-              </IconButton>
+                </IconButton>
+              </Tooltip>
               <NotesModal
                 open={modalOpen}
                 onClose={handleCloseModal}
@@ -525,14 +528,16 @@ export const RowsDataColumns = ({
             <TotalTypography>{params.value}</TotalTypography>
 
             {!params.row.totalRow && (
-              <IconButton
-                disabled={status === "Approved"}
-                size="small"
-                color="secondary"
-                onClick={() => handleDelete(params.row.id)}
-              >
-                <DeleteIcon />
-              </IconButton>
+              <Tooltip title="Delete time entry.">
+                <IconButton
+                  disabled={status === "Approved"}
+                  size="small"
+                  color="secondary"
+                  onClick={() => handleDelete(params.row.id)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
             )}
           </IconButtonStyle>
         );
