@@ -1632,9 +1632,9 @@ const Home = () => {
       >
         <StyledApprovalBox
         >
-          <Stack direction={"row"}>
+          <Stack direction={"row"} justifyContent={"right"}>
             <IconButton onClick={() => setShowNavConfirmation(false)}>
-              <CloseIcon sx={{ color: "#fff" }} />
+              <CloseIcon sx={{ color: "#ED6A15" }} />
             </IconButton>
           </Stack>
           <WarningIcon
@@ -1642,13 +1642,13 @@ const Home = () => {
             sx={{ color: "#ED6A15", width: "50px", height: "50px" }}
           />
 
-          <Typography color="#ED6A15" fontWeight={700}>Your unsaved changes will be lost. Do you want to continue?</Typography>
+          <Typography fontWeight={700}>Your unsaved changes will be lost. Do you want to continue?</Typography>
           <NoteButtonStack
             direction="row"
             justifyContent={"space-between"}
             spacing={3}
           >
-            <Button sx={{ border: "1px solid #ED6A15", }}
+            {/* <Button sx={{ border: "1px solid #ED6A15", }}
 
               variant="h6"
               component="h2"
@@ -1656,7 +1656,7 @@ const Home = () => {
               onClick={() => { setShowNavConfirmation(false); setNavConfType(""); }}
             >
               <Typography color="#ED6A15" fontWeight={700}>Cancel</Typography>
-            </Button>
+            </Button> */}
             <Button sx={{ border: "1px solid #ED6A15", }}
 
               variant="h6"
