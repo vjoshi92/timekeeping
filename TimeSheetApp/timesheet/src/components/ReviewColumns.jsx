@@ -820,6 +820,7 @@ export const ReviewColumns = ({
                       }))}
                       onChange={handleReasonChange}
                       value={selectedReason?.label || "--"}
+                      autoFocus={true}
                     />
                   </Stack>
                 </RejectionMainBox>

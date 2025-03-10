@@ -290,6 +290,7 @@ const ChangeEntry = ({
                   placeholder="Please specify the reason"
                   sx={{ width: "100%", marginTop: "20px" }}
                   value={changeReason}
+                  autoFocus={true}
                 />
               </Box>
             </Stack>
