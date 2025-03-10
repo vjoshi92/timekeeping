@@ -31,6 +31,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import IconButton from "@mui/material/IconButton";
 import { setDateRange } from "store/slice/HomeSlice";
 import { Footer } from "components/Footer";
+import InfoIcon from '@mui/icons-material/Info';
 import {
   deleteProjectDataById,
   setApprovalCount,
@@ -883,7 +884,17 @@ const Home = () => {
       totalRowObj?.weekTotal &&
       parseFloat(totalRowObj?.weekTotal) >= 40
     ) {
-      setSaveTimeClick(true);
+      let isDayTotalCorrect = true;
+      for (let i = 0; i <= 4; i++) {
+        if (parseFloat(totalRowObj[`day${i}`]) < 8) {
+          isDayTotalCorrect = false;
+        }
+      }
+      if (isDayTotalCorrect) {
+        setSaveTimeClick(true);
+      } else {
+        setSaveTimeClick(false);
+      }
     } else {
       setSaveTimeClick(false);
     }
@@ -1415,29 +1426,36 @@ const Home = () => {
         )}
 
         {status !== "Approved" && (
-          <Tooltip title="Please enter weekly 40 hours or more to enable the button.">
-            <Button
-              onClick={handleApproval}
-              sx={{
-                backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-                padding: "0.4rem",
-                marginBottom: "0.5rem",
-              }}
-              disabled={
-                !(
-                  projectedData &&
-                  Object?.keys(projectedData)?.length > 0 &&
-                  saveTimeClick
-                )
-              }
-            >
-              <StyledFooterText>
-                {checkStatusCondition(projectedData, "20")
-                  ? "Resubmit Week for Approval"
-                  : "Submit Week for Approval"}
-              </StyledFooterText>
-            </Button>
-          </Tooltip>
+          <Stack direction={"row"} spacing={1} alignItems={"center"}>
+            <Tooltip title="Please enter weekly 40 hours or more and for week days 8 hours or more to enable submit for approval button.">
+              <IconButton>
+                <InfoIcon sx={{ color: "#ED6A15" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Please enter weekly 40 hours or more to submit for approval.">
+              <Button
+                onClick={handleApproval}
+                sx={{
+                  backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+                  padding: "0.4rem",
+                  marginBottom: "0.5rem",
+                }}
+                disabled={
+                  !(
+                    projectedData &&
+                    Object?.keys(projectedData)?.length > 0 &&
+                    saveTimeClick
+                  )
+                }
+              >
+                <StyledFooterText>
+                  {checkStatusCondition(projectedData, "20")
+                    ? "Resubmit Week for Approval"
+                    : "Submit Week for Approval"}
+                </StyledFooterText>
+              </Button>
+            </Tooltip>
+          </Stack>
         )}
       </Footer>
       <Modal

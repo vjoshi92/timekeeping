@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
+import { roundToNearestQuarter } from "utils/AppUtil";
 
 const NormalInput = styled(TextField)(({ theme, error }) => ({
   "& .MuiOutlinedInput-input": {
@@ -59,8 +60,9 @@ const DecimalInput = (props) => {
   };
 
   const handleBlur = () => {
-    if (text && !text.includes(".")) {
-      const formattedValue = parseFloat(text).toFixed(2);
+    if (text) {
+      const convertedValue = roundToNearestQuarter(text);
+      const formattedValue = parseFloat(convertedValue).toFixed(2);
       setText(formattedValue);
       if (onChange) {
         onChange(formattedValue);
