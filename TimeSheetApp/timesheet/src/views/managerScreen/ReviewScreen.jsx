@@ -11,6 +11,7 @@ import {
   Snackbar,
   Stack,
   ToggleButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +19,7 @@ import styled from "@emotion/styled";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import InfoIcon from '@mui/icons-material/Info';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
@@ -1196,7 +1198,17 @@ const ReviewScreen = () => {
       totalRowObj?.weekTotal &&
       parseFloat(totalRowObj?.weekTotal) >= 40
     ) {
-      setSaveTimeClick(true);
+      let isDayTotalCorrect = true;
+      for (let i = 0; i <= 4; i++) {
+        if (parseFloat(totalRowObj[`day${i}`]) < 8) {
+          isDayTotalCorrect = false;
+        }
+      }
+      if (isDayTotalCorrect) {
+        setSaveTimeClick(true);
+      } else {
+        setSaveTimeClick(false);
+      }
     } else {
       setSaveTimeClick(false);
     }
@@ -1568,27 +1580,36 @@ const ReviewScreen = () => {
               <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
                 <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
               </SaveTimeButton>
-              <Button
-                onClick={handleSubmitForApproval}
-                sx={{
-                  backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-                  padding: "0.4rem",
-                  marginBottom: "0.5rem",
-                }}
-                disabled={
-                  !(
-                    projectedData &&
-                    Object?.keys(projectedData)?.length > 0 &&
-                    saveTimeClick
-                  )
-                }
-              >
-                <StyledFooterText>
-                  {checkStatusCondition(projectedData, "20")
-                    ? "Resubmit Week for Approval"
-                    : "Submit Week for Approval"}
-                </StyledFooterText>
-              </Button>
+              <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                <Tooltip title="Please enter weekly 40 hours or more and for week days 8 hours or more to enable submit for approval button.">
+                  <IconButton>
+                    <InfoIcon sx={{ color: "#ED6A15" }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Please enter weekly 40 hours or more to submit for approval.">
+                  <Button
+                    onClick={handleSubmitForApproval}
+                    sx={{
+                      backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+                      padding: "0.4rem",
+                      marginBottom: "0.5rem",
+                    }}
+                    disabled={
+                      !(
+                        projectedData &&
+                        Object?.keys(projectedData)?.length > 0 &&
+                        saveTimeClick
+                      )
+                    }
+                  >
+                    <StyledFooterText>
+                      {checkStatusCondition(projectedData, "20")
+                        ? "Resubmit Week for Approval"
+                        : "Submit Week for Approval"}
+                    </StyledFooterText>
+                  </Button>
+                </Tooltip>
+              </Stack>
 
             </Stack>
           )}

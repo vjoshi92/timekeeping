@@ -340,3 +340,7 @@ export const checkStatusCondition = (objectsArray, status) => {
   }
   return false; // Return false if no object meets the condition
 };
+
+export const roundToNearestQuarter = (value) => {
+  return Math.round(value * 4) / 4;
+};
