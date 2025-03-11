@@ -14,7 +14,7 @@ import {
   useGetPendingApprovalListQuery,
   useLazyGetPendingApprovalListQuery,
 } from "api/timesheetApi";
-import { weekTimesheetFormat } from "utils/AppUtil";
+import { sortDatewiseArray, weekTimesheetFormat } from "utils/AppUtil";
 import { setSelectedPendingApprovals } from "store/slice/TimesheetSlice";
 import { useDispatch, useSelector } from "react-redux";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -83,7 +83,8 @@ export default function ApprovalsDatagrid({
           weekDate: weekTimesheetFormat(x?.Week),
         }
       });
-      setApprovalData(data);
+      const aData = sortDatewiseArray(data);
+      setApprovalData(aData);
     }
 
   }, [fetchingPendingApproval])
