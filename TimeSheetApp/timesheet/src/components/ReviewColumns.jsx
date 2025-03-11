@@ -246,7 +246,7 @@ export const ReviewColumns = ({
   const [openChangeEntry, setOpenChangeEntry] = useState(false);
   const status = useSelector((state) => state?.CreateForm?.status);
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
-
+  const [openMsgPopup, setOpenMsgPopup] = useState(false);
   const [
     makeBatchCall,
     {
@@ -386,15 +386,16 @@ export const ReviewColumns = ({
   };
 
   const localRejection = () => {
-    const row = {...rowObject?.row};
+    const row = { ...rowObject?.row };
     const index = rowObject?.index;
     const rowIndex = projectedData.indexOf(rowObject?.row);
+    // if (row[`day${index}Counter`]) {
     const date = formatFullDateString(new Date());
     const time = formatFullTimeString(new Date());
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
     const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
-    let noteString = `Rejected Reason: ${reason},${date},${time},${userName}\n`;    
+    let noteString = `Rejected Reason: ${reason},${date},${time},${userName}\n`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -404,8 +405,12 @@ export const ReviewColumns = ({
     dispatch(updateRow({
       rowIndex: rowIndex,
       rowObj: row
-    }));   
+    }));
     setOpenRejection(false);
+    // } else {
+    //   setOpenMsgPopup(true);
+    // }
+
   };
 
   const openRejectionModal = (inputId, row, i) => {
@@ -640,7 +645,7 @@ export const ReviewColumns = ({
                     border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
                     borderRadius: "4px",
                     padding: "0.5rem",
-                    cursor: (status === 'Approved' || status === 'Rejected') ? "not-allowed" : "pointer",
+                    cursor: (status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) ? "not-allowed" : "pointer",
                     height: "1.2rem",
                     "&:hover": {
                       borderColor:
@@ -648,7 +653,7 @@ export const ReviewColumns = ({
                     },
                   }}
                   onClick={() => {
-                    if (status !== 'Approved' && status !== 'Rejected') {
+                    if (status !== 'Approved' && status !== 'Rejected' && row[`day${i}Counter`]) {
                       setActiveInputId(inputId);
                       openRejectionModal(inputId, row, i);
                     }
@@ -851,8 +856,44 @@ export const ReviewColumns = ({
                     size="small"
                     onClick={() => handleApprovalClose("submit")}
                   >
-                    <SaveNoteTypography>Submit</SaveNoteTypography>
+                    <SaveNoteTypography>Save</SaveNoteTypography>
                   </SaveNoteButton>
+                </RejectButtonStack>
+              </RejectionBox>
+            </Modal>
+            <Modal disableAutoFocus={true} autoFocus={false}
+              keepMounted
+              open={openMsgPopup}
+              // onClose={handleApprovalClose}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              aria-labelledby="keep-mounted-modal-title"
+              aria-describedby="keep-mounted-modal-description"
+              BackdropProps={{
+                style: {
+                  backgroundColor: "#121212 !important",
+                  opacity: "20%",
+                },
+              }}
+            >
+              <RejectionBox>
+                <Stack>
+                  <ModalTypography>Rejection</ModalTypography>
+                  <Typography>You can not reject this entry. Block with zero entry can not be rejected.!!</Typography>
+                </Stack>
+                <RejectButtonStack direction="row" spacing={3}>
+                  <CancelNoteButton
+                    id="keep-mounted-modal-title"
+                    variant="h6"
+                    component="h2"
+                    size="small"
+                    onClick={() => setOpenMsgPopup(false)}
+                  >
+                    <CancelNoteTypography>Close</CancelNoteTypography>
+                  </CancelNoteButton>
                 </RejectButtonStack>
               </RejectionBox>
             </Modal>
