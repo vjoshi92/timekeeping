@@ -151,7 +151,7 @@ const RejectionMainBox = styled(Box)(({ theme }) => ({
 
 const SaveTimeButton = styled(Button)(({ theme }) => ({
   border: "1px solid #ED6A15",
-  marginBottom: "0.5rem",
+  marginLeft: "4rem"
 }));
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -221,12 +221,12 @@ const ApproveButton = styled(Button)(({ theme }) => ({
 
 const ButtonStack = styled(Box)(({ theme }) => ({
   display: "flex",
-  flexDirection: { xs: "column", sm: "row" },
+  // flexDirection: { xs: "column", sm: "row" },
   justifyContent: "flex-end",
   alignItems: "flex-end",
-  gap: { xs: "10px", sm: "20px" },
+  // gap: { xs: "10px", sm: "20px" },
   width: "100%",
-  marginBottom: "2%",
+  // marginBottom: "2%",
 }));
 
 const SaveNoteTypography = styled(Typography)(({ theme }) => ({
@@ -1559,7 +1559,7 @@ const ReviewScreen = () => {
         </StyledBox>
         <Stack
           mt={2}
-          mb={4}
+          mb={10}
           sx={{
             width: "100%",
             overflowX: { xs: "auto", sm: "visible" },
@@ -1574,69 +1574,67 @@ const ReviewScreen = () => {
             }}
           />
         </Stack>
-        <>
-          {isReviewer === 'false' && status !== 'Approved' && type === "my" && (
-            <Stack justifyContent={"space-between"} direction={"row"}>
-              <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
-                <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
-              </SaveTimeButton>
-              <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                <Tooltip title="Please enter weekly 40 hours or more and for week days 8 hours or more to enable submit for approval button.">
-                  <IconButton>
-                    <InfoIcon sx={{ color: "#ED6A15" }} />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Please enter weekly 40 hours or more to submit for approval.">
-                  <Button
-                    onClick={handleSubmitForApproval}
-                    sx={{
-                      backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-                      padding: "0.4rem",
-                      marginBottom: "0.5rem",
-                    }}
-                    disabled={
-                      !(
-                        projectedData &&
-                        Object?.keys(projectedData)?.length > 0 &&
-                        saveTimeClick
-                      )
-                    }
-                  >
-                    <StyledFooterText>
-                      {checkStatusCondition(projectedData, "20")
-                        ? "Resubmit Week for Approval"
-                        : "Submit Week for Approval"}
-                    </StyledFooterText>
-                  </Button>
-                </Tooltip>
-              </Stack>
-
-            </Stack>
-          )}
-          {isReviewer === 'true' && type == "team" &&
-            <ButtonStack>
-              {isTimeSheetRejected && <RejectButton
-                disabled={status === "Approved" || status === "Rejected"}
-                variant="contained"
-                color="error"
-                sx={{ width: { xs: "100%", sm: "200px" } }}
-                onClick={() => onRejectPress()}
-              >
-                Reject
-              </RejectButton>}
-              {!isTimeSheetRejected && <ApproveButton
-                disabled={status === "Approved" || status === "Rejected"}
-
-                variant="contained"
-                color="success"
-                sx={{ width: { xs: "100%", sm: "200px" } }}
-                onClick={() => handleApproval("approve")}
-              >
-                Approve
-              </ApproveButton>}
-            </ButtonStack>}
-        </>
       </StyledStack>
+      {/* <Footer> */}
+      {isReviewer === 'false' && status !== 'Approved' && type === "my" && (
+        <Footer>
+          <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
+            <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
+          </SaveTimeButton>
+          <Stack direction={"row"} spacing={1} alignItems={"center"} sx={{ marginRight: "4rem" }}>
+            <Tooltip title="Please enter weekly 40 hours or more and for week days 8 hours or more to enable submit for approval button.">
+              <IconButton>
+                <InfoIcon sx={{ color: "#ED6A15" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Please enter weekly 40 hours or more to submit for approval.">
+              <Button
+                onClick={handleSubmitForApproval}
+                sx={{
+                  backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
+                }}
+                disabled={
+                  !(
+                    projectedData &&
+                    Object?.keys(projectedData)?.length > 0 &&
+                    saveTimeClick
+                  )
+                }
+              >
+                <StyledFooterText>
+                  {checkStatusCondition(projectedData, "20")
+                    ? "Resubmit Week for Approval"
+                    : "Submit Week for Approval"}
+                </StyledFooterText>
+              </Button>
+            </Tooltip>
+          </Stack>
+
+        </Footer>
+      )}
+      {isReviewer === 'true' && type == "team" &&
+        <Footer>
+          <ButtonStack>
+            {isTimeSheetRejected && <RejectButton
+              disabled={status === "Approved" || status === "Rejected"}
+              variant="contained"
+              color="error"
+              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "4rem" }}
+              onClick={() => onRejectPress()}
+            >
+              Reject
+            </RejectButton>}
+            {!isTimeSheetRejected && <ApproveButton
+              disabled={status === "Approved" || status === "Rejected"}
+              variant="contained"
+              color="success"
+              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "4rem" }}
+              onClick={() => handleApproval("approve")}
+            >
+              Approve
+            </ApproveButton>}
+          </ButtonStack>
+        </Footer>}
       <Modal
         keepMounted
         open={openRejection}

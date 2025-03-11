@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSaveWeekApprovalMutation } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
 import { setSelectedPendingApprovals } from "store/slice/TimesheetSlice";
+import { Footer } from "components/Footer";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(5),
@@ -85,16 +86,21 @@ const PendingApprovals = () => {
   }, [saveWeekLoading])
 
   return (
-    <StyledBox>
-      <StyledTypography>Pending Approvals</StyledTypography>
-      <Box sx={{ marginTop: "20px", marginBottom: "40px" }}>
-        <ApprovalsDatagrid
-          setCheckboxChecked={setCheckboxChecked}
-          setShowApproveAll={setShowApproveAll}
-          handleApprove={approveLineItem}
-        />
-      </Box>
-      <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
+    <>
+      <StyledBox>
+        <StyledTypography>Pending Approvals</StyledTypography>
+        <Box sx={{ marginTop: "20px", marginBottom: "40px" }}>
+          <ApprovalsDatagrid
+            setCheckboxChecked={setCheckboxChecked}
+            setShowApproveAll={setShowApproveAll}
+            handleApprove={approveLineItem}
+          />
+        </Box>
+        {/* <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
+
+      </StyledMainBox> */}
+      </StyledBox>
+      <Footer>
         <StyledButton
           onClick={() => handleApprove()}
           variant="contained"
@@ -103,6 +109,7 @@ const PendingApprovals = () => {
             width: { xs: "100%", sm: "200px" },
             fontWeight: 700,
             backgroundColor: "#41af6e",
+            marginLeft: "1.5rem"
           }}
         >
           {checkboxChecked
@@ -111,8 +118,7 @@ const PendingApprovals = () => {
               ? "Approve All"
               : "Approve"}
         </StyledButton>
-      </StyledMainBox>
-
+      </Footer>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -128,7 +134,7 @@ const PendingApprovals = () => {
         </Alert>
       </Snackbar>
       <BusyDialog open={saveWeekLoading} />
-    </StyledBox>
+    </>
   );
 };
 

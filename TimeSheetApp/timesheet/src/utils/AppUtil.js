@@ -252,9 +252,9 @@ export const weekTimesheetFormat = (yearWeek) => {
     // if (startDate.getMonth() === endDate.getMonth()) {
     //   return `${startDate.getDate()} - ${endDate.getDate()} ${startDate.toLocaleDateString("en-US", { month: "short" })} ${year}`;
     // } else {
-      return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
     // }
-  }else{
+  } else {
     return yearWeek;
   }
 
@@ -344,3 +344,12 @@ export const checkStatusCondition = (objectsArray, status) => {
 export const roundToNearestQuarter = (value) => {
   return Math.round(value * 4) / 4;
 };
+
+export const sortDatewiseArray = (aItems) => {
+  return aItems.sort((a, b) => {
+    const dateA = new Date(a?.LAEDA.slice(0, 4), a?.LAEDA.slice(4, 6) - 1, a?.LAEDA.slice(6, 8));
+    const dateB = new Date(b?.LAEDA.slice(0, 4), b?.LAEDA.slice(4, 6) - 1, b?.LAEDA.slice(6, 8));
+
+    return dateB - dateA; // Compare dates
+  });
+}

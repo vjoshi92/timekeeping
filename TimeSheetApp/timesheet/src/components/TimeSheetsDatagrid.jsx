@@ -8,7 +8,7 @@ import Checkbox from "@mui/material/Checkbox";
 import MuiDataGrid from "./MuiDataGrid";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tooltip, Typography } from "@mui/material";
-import { formatDate, formatDDMMMYYYYDateString, StatusColorFormatter, StatusTextFormatting, weekTimesheetFormat } from "utils/AppUtil";
+import { formatDate, formatDDMMMYYYYDateString, sortDatewiseArray, StatusColorFormatter, StatusTextFormatting, weekTimesheetFormat } from "utils/AppUtil";
 import ApprovalIcon from "@mui/icons-material/Approval";
 import { useGetTimesheetWeeklyQuery, useLazyGetTeamTimesheetWeeklyQuery, useLazyGetTimesheetWeeklyQuery } from "api/timesheetApi";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -181,7 +181,8 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
         submitDate: formatDDMMMYYYYDateString(item?.LAEDA),
         id: Math.random(), // Generate a random id for each item
       }));
-      setTimesheetData(dataWithRandomIds);
+      const aData = sortDatewiseArray(dataWithRandomIds);
+      setTimesheetData(aData);
     }
 
   }, [loadingMyTimesheetData]);
@@ -195,7 +196,9 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
         submitDate: formatDDMMMYYYYDateString(item?.LAEDA),
         id: Math.random(), // Generate a random id for each item
       }));
-      setTimesheetData(dataWithRandomIds);
+      const aData = sortDatewiseArray(dataWithRandomIds);
+      setTimesheetData(aData);
+
     }
   }, [loadingTeamTimesheetData]);
 
@@ -205,8 +208,10 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       if (teamsData) {
         const timesheets = [...teamsData];
         if (searchQuery) {
-          const filteredData = timesheets.filter(item => item.EName.toLowerCase().includes(searchQuery.toLowerCase()))
-          setTimesheetData(filteredData);
+          const filteredData = timesheets.filter(item => item.EName.toLowerCase().includes(searchQuery.toLowerCase()));
+          const aData = sortDatewiseArray(filteredData);
+
+          setTimesheetData(aData);
         } else {
           setTimesheetData(timesheets);
         }
