@@ -918,6 +918,56 @@ const Home = () => {
 
 
   // ---------------------- for handelling the columns and its data in dashboard screen---------------------
+  const calculateRowsTotal = (tProjectData) => {
+    let projectData = [];
+    if (tProjectData) {
+      projectData = tProjectData;
+    } else {
+      projectData = projectedData;
+    }
+
+    let transformedData = projectedData.filter(x => !x.totalRow);
+    let total = projectedData.find(x => x.totalRow);
+
+    let totalsRow = {
+      day0: 0,
+      day1: 0,
+      day2: 0,
+      day3: 0,
+      day4: 0,
+      day5: 0,
+      day6: 0,
+      weekTotal: 0,
+      project: "",
+      level: "Total",
+      title: "",
+      id: Math.random(),
+      totalRow: true,
+      hierarchy: ["Total"],
+    };
+    const totalIndex = projectData.indexOf(total);
+    let data = [...transformedData];
+    data.forEach((item) => {
+      for (let i = 0; i <= 6; i++) {
+        totalsRow[`day${i}`] = parseFloat(totalsRow[`day${i}`] || "0") + parseFloat(item[`day${i}`] || "0");
+      }
+      totalsRow.weekTotal += parseFloat(item.weekTotal || "0");
+    });
+
+    // Convert totals to string format with 2 decimal places
+    for (let i = 0; i <= 6; i++) {
+      totalsRow[`day${i}`] = totalsRow[`day${i}`].toFixed(2);
+    }
+    totalsRow.weekTotal = totalsRow.weekTotal.toFixed(2);
+
+    // check for enable the button
+    checkForTotalHours(totalsRow);
+    // Add total row to the data array
+    dispatch(updateRow({
+      rowObj: totalsRow,
+      rowIndex: totalIndex
+    }));
+  };
 
   const AllRowsColumns = RowsDataColumns({
     selectedDate,
@@ -928,7 +978,8 @@ const Home = () => {
     status,
     setAlertMsg,
     setAlertOpen,
-    setBatchCallType
+    setBatchCallType,
+    updateTotalRow
   });
 
   const handleSnackbarClose = (event, reason) => {
@@ -1186,48 +1237,7 @@ const Home = () => {
     return data;
   };
 
-  const calculateRowsTotal = (projectData) => {
-    const transformedData = projectData.filter(x => !x.totalRow);
-    const total = projectData.find(x => x.totalRow);
-    let totalsRow = {
-      day0: 0,
-      day1: 0,
-      day2: 0,
-      day3: 0,
-      day4: 0,
-      day5: 0,
-      day6: 0,
-      weekTotal: 0,
-      project: "",
-      level: "Total",
-      title: "",
-      id: Math.random(),
-      totalRow: true,
-      hierarchy: ["Total"],
-    };
-    const totalIndex = projectData.indexOf(total);
-    let data = [...transformedData];
-    data.forEach((item) => {
-      for (let i = 0; i <= 6; i++) {
-        totalsRow[`day${i}`] = parseFloat(totalsRow[`day${i}`] || "0") + parseFloat(item[`day${i}`] || "0");
-      }
-      totalsRow.weekTotal += parseFloat(item.weekTotal || "0");
-    });
 
-    // Convert totals to string format with 2 decimal places
-    for (let i = 0; i <= 6; i++) {
-      totalsRow[`day${i}`] = totalsRow[`day${i}`].toFixed(2);
-    }
-    totalsRow.weekTotal = totalsRow.weekTotal.toFixed(2);
-
-    // check for enable the button
-    checkForTotalHours(totalsRow);
-    // Add total row to the data array
-    dispatch(updateRow({
-      rowObj: totalsRow,
-      rowIndex: totalIndex
-    }));
-  };
 
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {

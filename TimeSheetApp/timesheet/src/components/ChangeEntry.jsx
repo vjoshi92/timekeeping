@@ -7,6 +7,7 @@ import {
   Modal,
   LinearProgress,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import {
   formatFullDateString,
@@ -14,6 +15,7 @@ import {
   getODataFormatDate,
   getWeekStartDate,
   PrepareBatchPayload,
+  roundToNearestQuarter,
 } from "utils/AppUtil";
 import MuiInput from "./MuiInput";
 import styled from "@emotion/styled";
@@ -24,7 +26,7 @@ import {
 } from "api/timesheetApi";
 import DecimalInput from "./DecimalInput";
 import BusyDialog from "./BusyLoader";
-import { setNewRowAdded } from "store/slice/TimesheetSlice";
+import { setNewRowAdded, updateRow } from "store/slice/TimesheetSlice";
 import dayjs from "dayjs";
 
 // rejection component
@@ -102,23 +104,44 @@ const ModalTypography = styled(Typography)(({ theme }) => ({
   marginBottom: "3%",
 }));
 
+const InputField = styled(TextField)(({ theme }) => ({
+  "& .MuiOutlinedInput-input": {
+    height: "22.5px",
+    padding: "10px",
+    fontSize: "16px",
+    color: "#333",
+    fontWeight: "500"
+  },
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "4px",
+  },
+}));
+
 const ChangeEntry = ({
   open,
   inputHours,
   handleClose,
   activeInputId,
   rowObject,
-  setBatchCallType
+  setBatchCallType,
+  updateTotalRow
 }) => {
   const dispatch = useDispatch();
   const { data: userData } = useGetUserDataQuery();
   const selectedDate = useSelector((state) => state?.home?.daterange);
-  const [hours, setHours] = useState();
+  const projectedData = useSelector((state) => state?.CreateForm?.projectData);
+  const [hours, setHours] = useState("");
   const [changeReason, setChangeReason] = useState("");
 
+
   useEffect(() => {
-    setHours();
-  }, [activeInputId]);
+    setHours("");
+    setChangeReason("");
+  }, [open]);
+
+  // useEffect(() => {
+  //   setHours();
+  // }, [activeInputId]);
   // use notes from props
   // const notes = useSelector((state) => state?.CreateForm?.notes);  
   const [
@@ -137,14 +160,51 @@ const ChangeEntry = ({
   // }, [batchCallLoading]);
 
   const saveHours = async () => {
-    if (setBatchCallType) {
-      setBatchCallType("changeEntry");
+    // new code to save the change entry in store
+    let row = { ...rowObject?.row };
+    const rowIndex = projectedData.indexOf(rowObject?.row);
+    const index = rowObject?.index;
+    const date = formatFullDateString(new Date());
+    const time = formatFullTimeString(new Date());
+    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+    // const noteString = `${note},${date},${time},${userName};`;
+    const prevNote = row[`day${index}Notes`];
+    let noteString = `${changeReason},${date},${time},${userName}\n`;
+    if (prevNote) {
+      noteString = prevNote + "\n" + noteString;
     }
-    const oPayload = prepareNoteSavePayload(changeReason);
-    const obatchPayload = PrepareBatchPayload([oPayload]);
-    const response = await makeBatchCall({ body: obatchPayload });
-    dispatch(setNewRowAdded(false));
+    row[`day${index}Notes`] = noteString;
+    row[`day${index}`] = hours;
+    
+    let rowSum = 0;
+    for (let i = 0; i < 7; i++) {
+      if (`day${i}` !== `day${index}`) {
+        rowSum = parseFloat(rowSum) + parseFloat(row[`day${i}`] || 0);
+      } else {
+        rowSum = parseFloat(rowSum) + parseFloat(hours);
+        row = { ...row, [`day${index}`]: hours };
+      }
+    }
+
+    row = { ...row, weekTotal: parseFloat(rowSum).toFixed(2) };
+
+    dispatch(updateRow({
+      rowIndex: rowIndex,
+      rowObj: row
+    }));
     handleClose();
+    updateTotalRow(`day${index}`, rowIndex, row);
+
+
+    // old code to save the entry directly in backend
+    // if (setBatchCallType) {
+    //   setBatchCallType("changeEntry");
+    // }
+    // const oPayload = prepareNoteSavePayload(changeReason);
+    // const obatchPayload = PrepareBatchPayload([oPayload]);
+    // const response = await makeBatchCall({ body: obatchPayload });
+    // dispatch(setNewRowAdded(false));
+    // handleClose();
   };
 
   const prepareNoteSavePayload = (note) => {
@@ -200,6 +260,21 @@ const ChangeEntry = ({
     return temp;
   };
 
+  const handleChange = (text, action) => {
+    if (text) {
+      if (action === 'blur') {
+        const convertedValue = roundToNearestQuarter(text);
+        const formattedValue = parseFloat(convertedValue).toFixed(2);
+        setHours(formattedValue);
+      } else {
+        const inputValue = text.replace(/[^\d.]/g, "");
+        setHours(inputValue);
+      }
+    } else {
+      setHours(text);
+    }
+  };
+
   return (
     <Modal disableAutoFocus={true}
       autoFocus={false}
@@ -210,8 +285,6 @@ const ChangeEntry = ({
         justifyContent: "center",
         alignItems: "center",
       }}
-      aria-labelledby="keep-mounted-modal-title"
-      aria-describedby="keep-mounted-modal-description"
       BackdropProps={{
         style: {
           backgroundColor: "#121212 !important",
@@ -266,8 +339,11 @@ const ChangeEntry = ({
                 <Typography sx={{ fontWeight: "600", marginTop: "20px" }}>
                   New Hours <span style={{ color: "red" }}>*</span>
                 </Typography>
-                <DecimalInput
-                  disabled={false}
+                <InputField size="small" fullWidth onChange={(e) => handleChange(e.target.value, 'change')}
+                  onBlur={(e) => handleChange(e.target.value, 'blur')}
+                  value={hours} />
+                {/* <DecimalInput
+                  readOnly={false}
                   onChange={(value) => setHours(value)}
                   sx={{
                     width: "100%",
@@ -276,19 +352,18 @@ const ChangeEntry = ({
                     padding: "5px",
                     lineHeight: "1",
                   }}
-                  value={hours}
-                />
+                  value={hours || ''}
+                /> */}
               </Box>
               <Box sx={{ width: "100%" }}>
                 <Typography sx={{ fontWeight: "600", marginTop: "20px" }}>
                   Reason <span style={{ color: "red" }}>*</span>
                 </Typography>
-                <MuiInput
+                <InputField fullWidth
                   rows={2}
                   multiline={true}
-                  onChange={(value) => setChangeReason(value)}
+                  onChange={(e) => setChangeReason(e.target.value)}
                   placeholder="Please specify the reason"
-                  sx={{ width: "100%", marginTop: "20px" }}
                   value={changeReason}
                 />
               </Box>
@@ -297,7 +372,6 @@ const ChangeEntry = ({
 
           <RejectButtonStack direction="row" spacing={3}>
             <CancelNoteButton
-              id="keep-mounted-modal-title"
               variant="h6"
               component="h2"
               size="small"
@@ -312,7 +386,6 @@ const ChangeEntry = ({
             ) : (
               <>
                 <SaveNoteButton
-                  id="keep-mounted-modal-description"
                   sx={{ mt: 2 }}
                   size="small"
                   onClick={saveHours}
