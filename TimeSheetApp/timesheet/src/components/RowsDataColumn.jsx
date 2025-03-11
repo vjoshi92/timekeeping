@@ -167,7 +167,8 @@ export const RowsDataColumns = ({
   status,
   setAlertMsg,
   setAlertOpen,
-  setBatchCallType
+  setBatchCallType,
+  updateTotalRow
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [openChangeEntry, setOpenChangeEntry] = useState(false);
@@ -473,7 +474,8 @@ export const RowsDataColumns = ({
                 handleClose={handleCloseEntryModal}
                 activeInputId={activeInputId}
                 rowObject={rowObject}
-                setBatchCallType={setBatchCallType}
+                setBatchCallType={setBatchCallType}     
+                updateTotalRow={updateTotalRow}           
               />
             </InputStyleBox>
           );
