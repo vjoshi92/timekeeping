@@ -479,8 +479,8 @@ const Home = () => {
   const handlePreviousWeek = (skipPopup) => {
     const isEmptyEntry = isNotEmptyEntries();
     if (skipPopup == false) {
-      if ((status === "New" && isEmptyEntry) || status === "Draft" || newRow) {
-        if (status !== "Approved" && status !== "Rejected") {
+      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+        if (status !== "Approved") {
           checkForUnsavedChanges("prev");
           return;
         }
@@ -526,8 +526,8 @@ const Home = () => {
   const handleNextWeek = (skipPopup) => {
     const isEmptyEntry = isNotEmptyEntries();
     if (skipPopup == false) {
-      if ((status === "New" && isEmptyEntry) || status === "Draft" || newRow) {
-        if (status !== "Approved" && status !== "Rejected") {
+      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+        if (status !== "Approved") {
           checkForUnsavedChanges("next");
           return;
         }
@@ -1437,12 +1437,12 @@ const Home = () => {
 
         {status !== "Approved" && (
           <Stack direction={"row"} spacing={1} alignItems={"center"}>
-            <Tooltip title="Please enter weekly 40 hours or more and for week days 8 hours or more to enable submit for approval button.">
+            <Tooltip title="Please ensure you log at least 40 hours per week and 8 hours per weekday to enable submission.">
               <IconButton>
                 <InfoIcon sx={{ color: "#ED6A15" }} />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Please enter weekly 40 hours or more to submit for approval.">
+            <Tooltip title="Please ensure you log at least 40 hours per week and 8 hours per weekday to enable submission.">
               <Button
                 onClick={handleApproval}
                 sx={{
@@ -1692,7 +1692,7 @@ const Home = () => {
               size="small"
               onClick={() => navAfterConfirmation()}
             >
-              <Typography color="#ED6A15" fontWeight={700}>Ignore Changes</Typography>
+              <Typography color="#ED6A15" fontWeight={700}>Skip Saving</Typography>
             </Button>
             <Button
 
