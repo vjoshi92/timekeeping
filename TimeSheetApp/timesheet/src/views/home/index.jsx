@@ -55,6 +55,7 @@ import {
   useGetHierarchyDataQuery,
   useGetUserDataQuery,
   useLazyGetDateWiseDetailsQuery,
+  useLazyGetPrevWeekDetailsQuery,
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
@@ -360,7 +361,7 @@ const Home = () => {
       isSuccess: prevWeekTimesheetSuccessful,
       isFetching: prevWeekTimesheetFetching,
     },
-  ] = useLazyGetDateWiseDetailsQuery();
+  ] = useLazyGetPrevWeekDetailsQuery();
 
   // get heirachy data
   const { data: heirachyData } = useGetHierarchyDataQuery();
@@ -1633,12 +1634,24 @@ const Home = () => {
         </Alert>
       </Snackbar>
       <Snackbar
+        resumeHideDuration={10000}
+        autoHideDuration={10000}
         open={alertOpen}
-        onClose={() => setAlertOpen(false)}
+        onClose={(event, reason) => {
+          if (reason === "clickaway") {
+            return;
+          }
+          setAlertOpen(false);
+        }}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
-          onClose={() => setAlertOpen(false)}
+          onClose={(event, reason) => {
+            if (reason === "clickaway") {
+              return;
+            }
+            setAlertOpen(false);
+          }}
           severity={"warning"}
           sx={{ width: "100%" }}
         >
