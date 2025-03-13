@@ -968,9 +968,11 @@ const ReviewScreen = () => {
 
   const saveNotes = () => {
     const aNotes = prepareNotesSavePayload();
-    aNotes.forEach(note => {
-      const response = saveLongText({ body: note });
-    });
+    const consolidatedPayload = {
+      "Pernr": pernr,
+      "RejectionBatch": aNotes
+    }
+    saveLongText({ body: consolidatedPayload });
   };
 
   const prepareRejectPayload = () => {
