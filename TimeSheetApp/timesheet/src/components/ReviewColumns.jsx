@@ -385,6 +385,34 @@ export const ReviewColumns = ({
     handleRejected(true);
   };
 
+  const isCellRejected = (row, index) => {
+    return row[`day${index}STATUS`] === "40";
+  };
+
+  const handleRemoveRejectionLocal = () => {
+    const row = { ...rowObject?.row };
+    const index = rowObject?.index;
+    const rowIndex = projectedData.indexOf(rowObject?.row);
+    // if (row[`day${index}Counter`]) {
+    const date = formatFullDateString(new Date());
+    const time = formatFullTimeString(new Date());
+    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+    const prevNote = row[`day${index}Notes`];
+    let noteString = `Rejection removed,${date},${time},${userName}\n`;
+    if (prevNote) {
+      noteString = prevNote + "\n" + noteString;
+    }
+    row[`day${index}Notes`] = noteString;
+    row[`day${index}STATUS`] = '20';
+    row[`day${index}Reason`] = "";
+    row[`day${index}ReasonDesc`] = "";
+    dispatch(updateRow({
+      rowIndex: rowIndex,
+      rowObj: row
+    }));
+    setOpenRejection(false);
+  };
+
   const localRejection = () => {
     const row = { ...rowObject?.row };
     const index = rowObject?.index;
@@ -402,6 +430,8 @@ export const ReviewColumns = ({
     row[`day${index}Notes`] = noteString;
     row[`day${index}STATUS`] = '40';
     row[`day${index}Reason`] = selectedReason?.value.toString();
+    row[`day${index}ReasonDesc`] = selectedReason?.label.toString();
+    row[`day${index}OtherReason`] = otherReason;
     dispatch(updateRow({
       rowIndex: rowIndex,
       rowObj: row
@@ -416,6 +446,14 @@ export const ReviewColumns = ({
   const openRejectionModal = (inputId, row, i) => {
     setOpenRejection(true);
     setActiveInputId(inputId);
+    const cellRejected = isCellRejected(row, i);
+    if (cellRejected) {
+      setSelectedReason({
+        value: row[`day${i}Reason`],
+        label: row[`day${i}ReasonDesc`]
+      });
+      setOtherReason(row[`day${i}OtherReason`]);
+    }
     if (row[`day${i}Notes`]) {
       const notes = [];
       const noteStrings = row[`day${i}Notes`].split("\n");
@@ -435,12 +473,14 @@ export const ReviewColumns = ({
         row: row,
         index: i,
         notes: notes,
+        cellRejected: cellRejected
       });
     } else {
       setRowObject({
         row: row,
         index: i,
         notes: [],
+        cellRejected: cellRejected
       });
     }
   };
@@ -813,9 +853,10 @@ export const ReviewColumns = ({
                 <RejectionMainBox>
                   <ModalTypography>Rejection Reason</ModalTypography>
                   <Stack
-                    direction={"column"}
+                    direction={"row"}
                     justifyContent={"space-between"}
                     sx={{ width: "100%" }}
+                    spacing={2}
                   >
                     <StyledDropdown
                       name="project"
@@ -824,8 +865,12 @@ export const ReviewColumns = ({
                         value: option?.Reason,
                       }))}
                       onChange={handleReasonChange}
+
                       value={selectedReason?.label || "--"}
                     />
+                    {rowObject?.cellRejected && <IconButton onClick={handleRemoveRejectionLocal}>
+                      <RemoveCircleIcon color="error" />
+                    </IconButton>}
                   </Stack>
                 </RejectionMainBox>
                 {selectedReason?.label === "Other" && (
