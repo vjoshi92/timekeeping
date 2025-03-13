@@ -192,7 +192,7 @@ export const TimesheetApi = createApi({
     }),
     saveLongText: builder.mutation({
       query: ({ body }) => {
-        const URL = `ZCATS_NOFO_TIMESHEET_SRV/RejectionNotesSet`;
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/RejectionSet`;
         return {
           url: URL,
           method: "POST",

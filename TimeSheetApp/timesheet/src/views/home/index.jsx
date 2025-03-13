@@ -389,7 +389,14 @@ const Home = () => {
         let transformedData = transformCopyWeeklyRows(responseData);
         // add older data in array and then do total      
         if (transformedData && transformedData?.length > 0) {
-          const data = transformedData.map(x => { if (x) return x; })
+          const data = transformedData.map(x => { if (x) return x; });
+          data.sort((a, b) =>
+            a?.project?.localeCompare(
+              b?.project
+            ) || a?.title?.localeCompare(
+              b?.title
+            )
+          );
           transformedData = addTotalRow(data);
           dispatch(setProjectData(transformedData));
         } else {
@@ -1260,8 +1267,20 @@ const Home = () => {
           dispatch(setBatchCallTypeGlobal(""));
         }
         const data = transformedData.map(x => { if (x) return x; })
+        data.sort((a, b) =>
+          a?.project?.localeCompare(
+            b?.project
+          ) || a?.title?.localeCompare(
+            b?.title
+          )
+        );
         transformedData = addTotalRow(data);
         dispatch(setProjectData(transformedData));
+      } else {
+        if (projectedData && projectedData.length > 1) {
+          const totalRow = projectedData.filter(x => x.totalRow === true);
+          checkForTotalHours(totalRow[0]);
+        }
       }
     }
   }, [timeSheetDataFetching]);

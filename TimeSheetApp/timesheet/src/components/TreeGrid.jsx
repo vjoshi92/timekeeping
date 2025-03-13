@@ -89,7 +89,11 @@ const groupingColDef = (hierarchyData) => {
               </Typography>
             </Tooltip>
           </CustomPopover>
-          <Typography fontWeight={700}>{params.row.title}</Typography>
+          <CustomPopover content={customStepper(sortedSteps)}>
+            <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
+              <Typography fontWeight={700}>{params.row.title}</Typography>
+            </Tooltip>
+          </CustomPopover>
         </Stack>
 
       ) : (

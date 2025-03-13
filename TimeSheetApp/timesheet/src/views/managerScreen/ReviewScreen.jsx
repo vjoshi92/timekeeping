@@ -33,6 +33,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import dayjs from "dayjs";
 import { DaysColumns } from "components/CurrentWeekColumns";
 import { RowsDataColumns } from "components/RowsDataColumn";
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 import TreeGrid from "components/TreeGrid";
 import MuiInput from "components/MuiInput";
@@ -968,9 +969,11 @@ const ReviewScreen = () => {
 
   const saveNotes = () => {
     const aNotes = prepareNotesSavePayload();
-    aNotes.forEach(note => {
-      const response = saveLongText({ body: note });
-    });
+    const consolidatedPayload = {
+      "Pernr": pernr,
+      "RejectionBatch": aNotes
+    }
+    saveLongText({ body: consolidatedPayload });
   };
 
   const prepareRejectPayload = () => {
@@ -1086,6 +1089,13 @@ const ReviewScreen = () => {
         // projectArray.forEach(project => {
         //   const
         // });
+        transformedData.sort((a, b) =>
+          a?.project?.localeCompare(
+            b?.project
+          ) || a?.title?.localeCompare(
+            b?.title
+          )
+        );
         transformedData = addTotalRow(transformedData);
         console.log("transformedData>>>>>>>", transformedData);
         // setProductTime(transformedData);
@@ -1656,15 +1666,20 @@ const ReviewScreen = () => {
         <RejectionBox>
           <RejectionMainBox>
             <ModalTypography>Rejection Reasons</ModalTypography>
-            <StyledDropdown
-              name="project"
-              options={rejectionReasons?.results.map((option) => ({
-                label: option?.Text,
-                value: option?.Reason,
-              }))}
-              onChange={handleReasonChange}
-              value={selectedReason?.desc || "--"}
-            />
+            <Stack direction={"row"} spacing={2}>
+              <StyledDropdown
+                name="project"
+                options={rejectionReasons?.results.map((option) => ({
+                  label: option?.Text,
+                  value: option?.Reason,
+                }))}
+                onChange={handleReasonChange}
+                value={selectedReason?.desc || "--"}
+              />
+              <Button>
+                <RemoveCircleIcon color="error" />
+              </Button>
+            </Stack>
           </RejectionMainBox>
 
           {selectedReason === "Other" && (
