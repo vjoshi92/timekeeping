@@ -85,7 +85,7 @@ const groupingColDef = (hierarchyData) => {
           <CustomPopover content={customStepper(sortedSteps)}>
             <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
               <Typography mt={"0.2rem"} fontSize={"0.9rem"} sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", }}>
-                {params.row.level}
+                {params.row.smartId}
               </Typography>
             </Tooltip>
           </CustomPopover>

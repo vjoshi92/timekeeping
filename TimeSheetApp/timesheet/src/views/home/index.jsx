@@ -1040,6 +1040,7 @@ const Home = () => {
             project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
+            smartId: entry?.TimeEntryDataFields?.USR00,
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
@@ -1157,6 +1158,7 @@ const Home = () => {
             project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
+            smartId: entry?.TimeEntryDataFields?.USR00,
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,

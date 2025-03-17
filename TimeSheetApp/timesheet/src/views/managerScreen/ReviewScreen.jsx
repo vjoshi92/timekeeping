@@ -1277,6 +1277,7 @@ const ReviewScreen = () => {
             project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
+            smartId: entry?.TimeEntryDataFields?.USR00,
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
@@ -1589,7 +1590,7 @@ const ReviewScreen = () => {
           <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
             <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
           </SaveTimeButton>
-          <Stack direction={"row"} spacing={1} alignItems={"center"} sx={{ marginRight: "0.4rem"  }}>
+          <Stack direction={"row"} spacing={0.2} alignItems={"center"} sx={{ marginRight: "0.4rem"  }}>
             <Tooltip title="Please enter weekly 40 hours or more and for week days 8 hours or more to enable submit for approval button.">
               <IconButton>
                 <InfoIcon sx={{ color: "#ED6A15" }} />
