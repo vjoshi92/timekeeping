@@ -172,12 +172,6 @@ export default function ApprovalsDatagrid({
       ),
     },
     {
-      field: "EName",
-      headerName: "EMPLOYEE NAME",
-      width: 210,
-      type: "string",
-    },
-    {
       field: "weekDate",
       headerName: "TIMESHEET",
       minWidth: 200,
@@ -185,6 +179,12 @@ export default function ApprovalsDatagrid({
       flex: 1,
       // renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
     },
+    {
+      field: "EName",
+      headerName: "EMPLOYEE NAME",
+      width: 210,
+      type: "string",
+    },    
     {
       field: "CatsHours",
       headerName: "TOTAL HOURS",

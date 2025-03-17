@@ -295,6 +295,7 @@ const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
   const selectedDate = useSelector((state) => state?.home?.daterange);
+  const [savedDateRange, setSavedDateRange] = useState();
   const status = useSelector((state) => state?.CreateForm?.status);
   const newRow = useSelector((state) => state?.CreateForm?.newRow);
   const approvalCount = useSelector(
@@ -756,6 +757,7 @@ const Home = () => {
       const timesheetEntries = prepareTimesheetPayload(type);
       if (timesheetEntries && timesheetEntries.length > 0) {
         const batchPayload = PrepareBatchPayload(timesheetEntries);
+        setSavedDateRange(selectedDate);
         const response = await makeBatchCall({ body: batchPayload });
         navAfterConfirmation();
       }
@@ -1456,7 +1458,7 @@ const Home = () => {
         )}
 
         {status !== "Approved" && (
-          <Stack direction={"row"} spacing={1} alignItems={"center"}>
+          <Stack direction={"row"} spacing={0.1} alignItems={"center"}>
             <Tooltip title="Please ensure you log at least 40 hours per week and 8 hours per weekday to enable submission.">
               <IconButton>
                 <InfoIcon sx={{ color: "#ED6A15" }} />
@@ -1636,7 +1638,7 @@ const Home = () => {
           severity={"success"}
           sx={{ width: "100%" }}
         >
-          Timesheet saved successfully.
+          Timesheet saved successfully for {savedDateRange}
         </Alert>
       </Snackbar>
       <Snackbar

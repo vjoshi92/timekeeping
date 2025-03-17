@@ -137,7 +137,7 @@ const customStyles = {
   "& .total-row": {
     backgroundColor: "#F0F0F0",
     fontWeight: "bold",
-  },
+  }
 };
 
 const getRowClassName = (params) => {
@@ -169,8 +169,7 @@ export default function TreeGrid({ columns, density, data }) {
         getRowClassName={getRowClassName}
         pinnedColumns={{ left: ["__tree_data__"] }}
         disableColumnMenu
-        defaultGroupingExpansionDepth={-1}
-        filterMode="server"
+        defaultGroupingExpansionDepth={-1}        
       />
     </Box>
   );

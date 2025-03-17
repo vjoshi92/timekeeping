@@ -17,7 +17,7 @@ const SubBox = styled(Box)(({ theme }) => ({
 }));
 
 const OuterBox = styled(Box)(({ theme }) => ({
-    padding: "40px"
+   margin: "1.3rem"
 }));
 
 const TimesheetsGrid = () => {

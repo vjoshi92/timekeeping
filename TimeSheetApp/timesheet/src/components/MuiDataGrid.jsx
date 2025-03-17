@@ -46,13 +46,13 @@ const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, disable
   });
 
   return (
-    <StyledBox>
+    <Box sx={{ height: "65vh", width: "100%", border: "none" }}>
       <StyledDataGridPremium
         pagination={pagination}
         hideFooter={!pagination}
+        disableRowSelectionOnClick={true}
         rows={rows}
-        columns={columns}
-        autoHeight
+        columns={columns}        
         density={density}
         getRowId={(row) => (datagridName === 'DaysColumns'
           || datagridName === "weeklytimesheet" || datagridName === "pendingApprovalList") ? row.id : Math.random()}
@@ -75,7 +75,7 @@ const MuiDataGrid = ({ columns, rows, pagination, density, datagridName, disable
         filterModel={filterModel}
         onFilterModelChange={(newFilterModel) => setFilterModel(newFilterModel)} // Ensure this is updating properly
       />
-    </StyledBox>
+    </Box>
   );
 };
 

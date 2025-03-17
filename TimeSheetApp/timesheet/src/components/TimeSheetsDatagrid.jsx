@@ -86,23 +86,16 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
 
   const ManagerColumns = [
     {
-      field: "EName",
-      headerName: "EMPLOYEE NAME",
-      minWidth: 190,
-      flex: 1,
-    },
-    // {
-    //   field: "employeeId",
-    //   headerName: "EMPLOYEE ID",
-    //   minWidth: 170,
-    //   flex: 1,
-    // },
-    {
       field: "weekDate",
       headerName: "TIMESHEET",
       minWidth: 180,
       flex: 1,
-      // renderCell: (params) => <Typography>{weekTimesheetFormat(params?.value)}</Typography>,
+    },
+    {
+      field: "EName",
+      headerName: "EMPLOYEE NAME",
+      minWidth: 190,
+      flex: 1,
     },
     {
       field: "Status",
@@ -141,16 +134,11 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       flex: 1,
       filterable: false,
       renderCell: (params) => (
-        <Box sx={{ marginTop: "0.9rem", marginBottom: "0.7rem" }}>
+        <Box sx={{ marginTop: "0.4rem"}}>
           <RemoveRedEyeIcon
             sx={{ color: "#0073E6", cursor: "pointer" }}
             onClick={() => handleEyeClick(params?.row)}
-          />
-          {params?.row?.status == "APPROVED" && (
-            <Tooltip title="Release timesheet">
-              <ApprovalIcon sx={{ color: "#005AA6", marginLeft: "1rem" }} />
-            </Tooltip>
-          )}
+          />         
         </Box>
       ),
     },
