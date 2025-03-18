@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import MenuIcon from "@mui/icons-material/Menu";
-import CapexLogo from "../../img/jma-logo.svg";
+
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -23,6 +23,8 @@ import {
   Tooltip,
 } from "@mui/material";
 import logo from "../../img/jma-logo.svg";
+import logo_dev from "../../img/JMA-logo-REV-DEV.svg";
+import logo_QA from "../../img/JMA-logo-REV-QAS.svg";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,6 +39,7 @@ import {
   useGetUserDataQuery,
   useLazyGetPendingApprovalCountQuery,
 } from "api/timesheetApi";
+import { getCurrentEnvirnment } from "utils/AppUtil";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -171,6 +174,19 @@ export default function Header() {
   const [isManager, setIsManager] = React.useState(false);
   const { data: userData, isFetching: isLoadingUserData,  isError: isUserDataerror, error: userDataError } = useGetUserDataQuery();
   const [employeeDatas, setEmployeeDatas] = React.useState(""); // Initialize state as an empty array
+  const [logoFile, setLogoFile] = React.useState(logo);
+  const [envName, setEnv] = React.useState("PROD");
+  React.useEffect(() => {
+    const env = getCurrentEnvirnment();
+    setEnv(env);
+    if (env === "DEV") {
+      setLogoFile(logo_dev);
+    } else if (env === "QA") {
+      setLogoFile(logo_QA);
+    } else {
+      setLogoFile(logo);
+    }
+  }, [])
 
   const {
     data: reporteeData,
@@ -255,7 +271,7 @@ export default function Header() {
     <StyledAppBar>
       <Toolbar>
         <img
-          src={CapexLogo}
+          src={logoFile}
           alt="Logo"
           loading="lazy"
           onClick={() => navigate("/home")}
@@ -263,7 +279,7 @@ export default function Header() {
             cursor: "pointer",
             marginRight: "10px",
             marginBottom: "10px",
-            width: "4rem",
+            width: envName !== "PROD" ? "7rem" : "4rem",
           }}
         />
 

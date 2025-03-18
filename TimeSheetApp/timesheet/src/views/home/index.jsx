@@ -71,7 +71,7 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   height: 150,
-  bgcolor: "#FBE1D0",
+  bgcolor: "#FFF",
   boxShadow: 24,
   p: 4,
   display: "flex",
@@ -295,6 +295,7 @@ const Home = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
   const selectedDate = useSelector((state) => state?.home?.daterange);
+  const [savedDateRange, setSavedDateRange] = useState();
   const status = useSelector((state) => state?.CreateForm?.status);
   const newRow = useSelector((state) => state?.CreateForm?.newRow);
   const approvalCount = useSelector(
@@ -327,6 +328,8 @@ const Home = () => {
   const [showSaveBtn, setShowSaveBtn] = useState(false);
   const [showNavConfirmation, setShowNavConfirmation] = useState(false);
   const [navConfType, setNavConfType] = useState('');
+  const [isTimesheetChanged, setTimesheetChanged] = useState(false);
+  const [calendarDate, setCalendarDate] = useState('');
 
   // useEffect(() => {
   //   if (refresh === 'true') {
@@ -485,15 +488,18 @@ const Home = () => {
 
   //----------------function for handelling the previous week toggle buttons here ---------------------------
   const handlePreviousWeek = (skipPopup) => {
-    const isEmptyEntry = isNotEmptyEntries();
-    if (skipPopup == false) {
-      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
-        if (status !== "Approved") {
-          checkForUnsavedChanges("prev");
-          return;
+    if (isTimesheetChanged || newRow) {
+      const isEmptyEntry = isNotEmptyEntries();
+      if (skipPopup == false) {
+        if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+          if (status !== "Approved") {
+            checkForUnsavedChanges("prev");
+            return;
+          }
         }
       }
     }
+
 
 
     // if ((skipPopup || (status !== "New" && status !== "Draft") || notEmptyEntry) || !newRow) {
@@ -532,12 +538,14 @@ const Home = () => {
   //----------------function for handelling the next week toggle buttons here ---------------------------
 
   const handleNextWeek = (skipPopup) => {
-    const isEmptyEntry = isNotEmptyEntries();
-    if (skipPopup == false) {
-      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
-        if (status !== "Approved") {
-          checkForUnsavedChanges("next");
-          return;
+    if (isTimesheetChanged || newRow) {
+      const isEmptyEntry = isNotEmptyEntries();
+      if (skipPopup == false) {
+        if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+          if (status !== "Approved") {
+            checkForUnsavedChanges("next");
+            return;
+          }
         }
       }
     }
@@ -587,9 +595,14 @@ const Home = () => {
       handlePreviousWeek(true);
     } else if (navConfType === "next") {
       handleNextWeek(true);
+    } else if (navConfType === "datePicker") {      
+      dispatch(setDateRange(calendarDate));
+      dispatch(setNewRowAdded(false));
+      setCalendarDate('');
     }
     setShowNavConfirmation(false);
     setNavConfType("");
+    setTimesheetChanged(false);
   }
 
   useEffect(() => {
@@ -752,10 +765,12 @@ const Home = () => {
   const handleSaveTime = async (type) => {
     setBatchCallType(type);
     if (isNotEmptyEntries()) {
+      setTimesheetChanged(false);
       // make a batch call with payload
       const timesheetEntries = prepareTimesheetPayload(type);
       if (timesheetEntries && timesheetEntries.length > 0) {
         const batchPayload = PrepareBatchPayload(timesheetEntries);
+        setSavedDateRange(selectedDate);
         const response = await makeBatchCall({ body: batchPayload });
         navAfterConfirmation();
       }
@@ -830,6 +845,8 @@ const Home = () => {
       })
     );
     updateTotalRow(field, rowIndex, rowObj);
+    // set input change flag true
+    setTimesheetChanged(true);
   };
 
   //----------------function for handelling the updation of total rows  ---------------------------
@@ -1038,6 +1055,7 @@ const Home = () => {
             project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
+            smartId: entry?.TimeEntryDataFields?.USR00 || "--",
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
@@ -1155,6 +1173,7 @@ const Home = () => {
             project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
+            smartId: entry?.TimeEntryDataFields?.USR00 || "--",
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
@@ -1304,6 +1323,22 @@ const Home = () => {
     }
   };
 
+  const onCalendarDateChange = (newDate) => {
+    if (isTimesheetChanged || newRow) {
+      const isEmptyEntry = isNotEmptyEntries();
+      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+        if (status !== "Approved") {
+          checkForUnsavedChanges("datePicker");
+          setCalendarDate(newDate);
+          return;
+        }
+      }
+    } else {
+      setCalendarDate('');
+      dispatch(setDateRange(newDate));
+    }
+  };
+
   useEffect(() => {
     if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
       getTimesheetDataWeekWise();
@@ -1360,15 +1395,7 @@ const Home = () => {
           mt={2}
         >
           <DateRangePickerWithButtonField
-            label={
-              value[0] === null && value[1] === null
-                ? null
-                : value
-                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                  .join(" - ")
-            }
-            value={value}
-            onChange={(newValue) => setValue(newValue)}
+            onChange={onCalendarDateChange}
           />
 
           {isSelectedDateGreaterThanCurrent() && (
@@ -1456,7 +1483,7 @@ const Home = () => {
         )}
 
         {status !== "Approved" && (
-          <Stack direction={"row"} spacing={1} alignItems={"center"}>
+          <Stack direction={"row"} spacing={0.1} alignItems={"center"}>
             <Tooltip title="Please ensure you log at least 40 hours per week and 8 hours per weekday to enable submission.">
               <IconButton>
                 <InfoIcon sx={{ color: "#ED6A15" }} />
@@ -1636,7 +1663,7 @@ const Home = () => {
           severity={"success"}
           sx={{ width: "100%" }}
         >
-          Timesheet saved successfully.
+          Timesheet saved successfully for {savedDateRange}
         </Alert>
       </Snackbar>
       <Snackbar

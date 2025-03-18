@@ -15,7 +15,7 @@ import { setSelectedPendingApprovals } from "store/slice/TimesheetSlice";
 import { Footer } from "components/Footer";
 
 const StyledBox = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(5),
+  margin: "1.3rem"
 }));
 const StyledMainBox = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -109,7 +109,7 @@ const PendingApprovals = () => {
             width: { xs: "100%", sm: "200px" },
             fontWeight: 700,
             backgroundColor: "#41af6e",
-            marginLeft: "1.5rem"
+            marginLeft: "0.3rem"
           }}
         >
           {checkboxChecked

@@ -347,9 +347,24 @@ export const roundToNearestQuarter = (value) => {
 
 export const sortDatewiseArray = (aItems) => {
   return aItems.sort((a, b) => {
-    const dateA = new Date(a?.LAEDA.slice(0, 4), a?.LAEDA.slice(4, 6) - 1, a?.LAEDA.slice(6, 8));
-    const dateB = new Date(b?.LAEDA.slice(0, 4), b?.LAEDA.slice(4, 6) - 1, b?.LAEDA.slice(6, 8));
+    const dateA = new Date(a?.BEGDA.slice(0, 4), a?.BEGDA.slice(4, 6) - 1, a?.BEGDA.slice(6, 8));
+    const dateB = new Date(b?.BEGDA.slice(0, 4), b?.BEGDA.slice(4, 6) - 1, b?.BEGDA.slice(6, 8));
 
-    return dateB - dateA; // Compare dates
+    return (dateB - dateA) || (a?.EName?.localeCompare(
+      b?.EName
+    )); // Compare dates
   });
+};
+
+export const getCurrentEnvirnment = () => {
+  const origin = window.location.origin;
+  if (origin.includes("localhost") || origin.includes("ks6l-ft-2sbp6d06.launchpad.cfapps.us10.hana.ondemand.com")
+    || origin.includes("jmweccd1.jmawireless.com:8000")) {
+    return "DEV";
+  } else if (origin.includes("jma-fiori-44n6rxen.launchpad.cfapps.us10.hana.ondemand.com")
+    || origin.includes("jmweccq1.jmawireless.com")) {
+    return "QA"
+  } else {
+    return "PROD";
+  }
 }

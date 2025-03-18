@@ -152,7 +152,7 @@ const RejectionMainBox = styled(Box)(({ theme }) => ({
 
 const SaveTimeButton = styled(Button)(({ theme }) => ({
   border: "1px solid #ED6A15",
-  marginLeft: "4rem"
+  marginLeft: "0.3rem"
 }));
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -335,6 +335,7 @@ const StyledCircularBox = styled(Box)(({ theme }) => ({
 
 const StyledStack = styled(Box)(({ theme }) => ({
   backgroundColor: "#FFFFFF",
+  margin: "1.3rem"
 }));
 const HeaderStack = styled(Box)(({ theme }) => ({
   backgroundColor: "#FFFFFF",
@@ -1276,6 +1277,7 @@ const ReviewScreen = () => {
             project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
+            smartId: entry?.TimeEntryDataFields?.USR00 || "--",
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
@@ -1416,10 +1418,7 @@ const ReviewScreen = () => {
 
   return (
     <>
-      <StyledStack
-        padding={{ xs: 1, sm: 1 }}
-        // height={{ xs: "auto", sm: "90vh", md: "90vh", lg: "90vh" }}
-        paddingX={{ xs: 2, sm: 10 }}
+      <StyledStack 
       >
         <HeaderBox
           sx={{
@@ -1591,7 +1590,7 @@ const ReviewScreen = () => {
           <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
             <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
           </SaveTimeButton>
-          <Stack direction={"row"} spacing={1} alignItems={"center"} sx={{ marginRight: "4rem" }}>
+          <Stack direction={"row"} spacing={0.2} alignItems={"center"} sx={{ marginRight: "0.4rem"  }}>
             <Tooltip title="Please enter weekly 40 hours or more and for week days 8 hours or more to enable submit for approval button.">
               <IconButton>
                 <InfoIcon sx={{ color: "#ED6A15" }} />
@@ -1629,7 +1628,7 @@ const ReviewScreen = () => {
               disabled={status === "Approved" || status === "Rejected"}
               variant="contained"
               color="error"
-              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "4rem" }}
+              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}
               onClick={() => onRejectPress()}
             >
               Reject
@@ -1638,7 +1637,7 @@ const ReviewScreen = () => {
               disabled={status === "Approved" || status === "Rejected"}
               variant="contained"
               color="success"
-              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "4rem" }}
+              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem"  }}
               onClick={() => handleApproval("approve")}
             >
               Approve

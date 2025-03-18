@@ -142,7 +142,8 @@ const AddRowsScreen = () => {
     project: '',    
     levelOne: '',
     levelOneTitle: '',
-    projectDesc: ''
+    projectDesc: '',
+    smartId: ''
   });
   const [levels, setLevels] = useState([]);
   const navigate = useNavigate();
@@ -156,7 +157,7 @@ const AddRowsScreen = () => {
   const handleProjectData = () => {
     const levels = ["levelOne"];
     let lastSelectedLevel = null;
-    let lastSelectedTitle = null;
+    let lastSelectedTitle = null;    
     for (const level of levels) {
       if (selectedLevels[level]) {
         lastSelectedLevel = selectedLevels[level];
@@ -175,6 +176,7 @@ const AddRowsScreen = () => {
       project: selectedLevels.project || "",
       level: lastSelectedLevel,
       title: lastSelectedTitle,
+      smartId: selectedLevels.smartId || "--",
       weekTotal: "0.00",
       id: Math.random(),
       hierarchy: [
@@ -204,6 +206,7 @@ const AddRowsScreen = () => {
           project: "",
           level: "Total",
           title: "",
+          smartId: '',
           id: Math.random(),
           hierarchy: ["Total"],
           totalRow: true,
@@ -257,10 +260,12 @@ const AddRowsScreen = () => {
         levelOneTitle: '',
       }));
     } else {
+      const levelObj = levels.find(x => x.POSID_DESC === value?.label);
       setSelectedLevels((prevLevels) => ({
         ...prevLevels,
-        [level]: value?.value,
+        [level]: levelObj?.POSID,
         [`${level}Title`]: value?.label,
+        smartId: levelObj?.USR00 || '--'
       }));
     }
   };
@@ -302,14 +307,14 @@ const AddRowsScreen = () => {
           onChange={(event, value) => handleChange("project", value)}
           value={selectedLevels.project || "--"}
         /> */}
-        <TitleDropdown
+        <Dropdown
           name="project"
           options={projectAllData?.results?.map((option) => ({
             label: option?.PSPID_DESC,
             value: option?.PSPID,
           }))}
           onChange={(event, value) => handleChange("project", value)}
-          value={`${selectedLevels.project} - ${selectedLevels.projectDesc}`}
+          value={selectedLevels.project}
         />
       </StyledFormControl>
 
@@ -320,12 +325,12 @@ const AddRowsScreen = () => {
             name="levelOne"
             options={levels?.map((option) => ({
               label: option?.POSID_DESC,
-              value: option?.POSID,
+              value: option?.USR00,
             }))}
             onChange={(event, value) => handleChange("levelOne", value)}
             value={
               selectedLevels.levelOne
-                ? `${selectedLevels.levelOne} - ${selectedLevels.levelOneTitle}`
+                ? `${selectedLevels.smartId} - ${selectedLevels.levelOneTitle}`
                 : null
             }
           />

@@ -83,21 +83,21 @@ const groupingColDef = (hierarchyData) => {
       return params.row.title ? (
         <Stack ml={"1rem"}>
           <CustomPopover content={customStepper(sortedSteps)}>
-            <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
-              <Typography mt={"0.2rem"} fontSize={"0.9rem"} sx={{ maxWidth: "150px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", }}>
-                {params.row.level}
+            <Tooltip title={params.row.smartId}>
+              <Typography mt={"0.2rem"} fontSize={"0.9rem"} >
+                {params.row.smartId}
               </Typography>
             </Tooltip>
           </CustomPopover>
           <CustomPopover content={customStepper(sortedSteps)}>
-            <Tooltip title={params.row.level} disableHoverListener={params.row.level.length <= 16}>
-              <Typography fontWeight={700}>{params.row.title}</Typography>
+            <Tooltip title={params.row.title}>
+              <Typography fontWeight={700} sx={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis"}}>{params.row.title}</Typography>
             </Tooltip>
           </CustomPopover>
         </Stack>
 
       ) : (
-        <Typography mt={"1rem"} fontWeight={700}>
+        <Typography mt={"1rem"} fontWeight={700} sx={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis"}}>
           {params.value}
         </Typography>
       );
@@ -137,7 +137,7 @@ const customStyles = {
   "& .total-row": {
     backgroundColor: "#F0F0F0",
     fontWeight: "bold",
-  },
+  }
 };
 
 const getRowClassName = (params) => {
@@ -169,8 +169,7 @@ export default function TreeGrid({ columns, density, data }) {
         getRowClassName={getRowClassName}
         pinnedColumns={{ left: ["__tree_data__"] }}
         disableColumnMenu
-        defaultGroupingExpansionDepth={-1}
-        filterMode="server"
+        defaultGroupingExpansionDepth={-1}        
       />
     </Box>
   );
