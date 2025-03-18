@@ -354,4 +354,17 @@ export const sortDatewiseArray = (aItems) => {
       b?.EName
     )); // Compare dates
   });
+};
+
+export const getCurrentEnvirnment = () => {
+  const origin = window.location.origin;
+  if (origin.includes("localhost") || origin.includes("ks6l-ft-2sbp6d06.launchpad.cfapps.us10.hana.ondemand.com")
+    || origin.includes("jmweccd1.jmawireless.com:8000")) {
+    return "DEV";
+  } else if (origin.includes("jma-fiori-44n6rxen.launchpad.cfapps.us10.hana.ondemand.com")
+    || origin.includes("jmweccq1.jmawireless.com")) {
+    return "QA"
+  } else {
+    return "PROD";
+  }
 }

@@ -328,6 +328,7 @@ const Home = () => {
   const [showSaveBtn, setShowSaveBtn] = useState(false);
   const [showNavConfirmation, setShowNavConfirmation] = useState(false);
   const [navConfType, setNavConfType] = useState('');
+  const [isTimesheetChanged, setTimesheetChanged] = useState(false);
 
   // useEffect(() => {
   //   if (refresh === 'true') {
@@ -486,15 +487,18 @@ const Home = () => {
 
   //----------------function for handelling the previous week toggle buttons here ---------------------------
   const handlePreviousWeek = (skipPopup) => {
-    const isEmptyEntry = isNotEmptyEntries();
-    if (skipPopup == false) {
-      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
-        if (status !== "Approved") {
-          checkForUnsavedChanges("prev");
-          return;
+    if (isTimesheetChanged || newRow) {
+      const isEmptyEntry = isNotEmptyEntries();
+      if (skipPopup == false) {
+        if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+          if (status !== "Approved") {
+            checkForUnsavedChanges("prev");
+            return;
+          }
         }
       }
     }
+
 
 
     // if ((skipPopup || (status !== "New" && status !== "Draft") || notEmptyEntry) || !newRow) {
@@ -533,12 +537,14 @@ const Home = () => {
   //----------------function for handelling the next week toggle buttons here ---------------------------
 
   const handleNextWeek = (skipPopup) => {
-    const isEmptyEntry = isNotEmptyEntries();
-    if (skipPopup == false) {
-      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
-        if (status !== "Approved") {
-          checkForUnsavedChanges("next");
-          return;
+    if (isTimesheetChanged || newRow) {
+      const isEmptyEntry = isNotEmptyEntries();
+      if (skipPopup == false) {
+        if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+          if (status !== "Approved") {
+            checkForUnsavedChanges("next");
+            return;
+          }
         }
       }
     }
@@ -591,6 +597,7 @@ const Home = () => {
     }
     setShowNavConfirmation(false);
     setNavConfType("");
+    setTimesheetChanged(false);
   }
 
   useEffect(() => {
@@ -753,6 +760,7 @@ const Home = () => {
   const handleSaveTime = async (type) => {
     setBatchCallType(type);
     if (isNotEmptyEntries()) {
+      setTimesheetChanged(false);
       // make a batch call with payload
       const timesheetEntries = prepareTimesheetPayload(type);
       if (timesheetEntries && timesheetEntries.length > 0) {
@@ -832,6 +840,8 @@ const Home = () => {
       })
     );
     updateTotalRow(field, rowIndex, rowObj);
+    // set input change flag true
+    setTimesheetChanged(true);
   };
 
   //----------------function for handelling the updation of total rows  ---------------------------
@@ -1372,7 +1382,7 @@ const Home = () => {
                   .join(" - ")
             }
             value={value}
-            onChange={(newValue) => setValue(newValue)}
+            onChange={(newValue) => {setValue(newValue); console.log("date changed")}}
           />
 
           {isSelectedDateGreaterThanCurrent() && (
