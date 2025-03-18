@@ -307,14 +307,14 @@ const AddRowsScreen = () => {
           onChange={(event, value) => handleChange("project", value)}
           value={selectedLevels.project || "--"}
         /> */}
-        <TitleDropdown
+        <Dropdown
           name="project"
           options={projectAllData?.results?.map((option) => ({
             label: option?.PSPID_DESC,
             value: option?.PSPID,
           }))}
           onChange={(event, value) => handleChange("project", value)}
-          value={`${selectedLevels.project} - ${selectedLevels.projectDesc}`}
+          value={selectedLevels.project}
         />
       </StyledFormControl>
 

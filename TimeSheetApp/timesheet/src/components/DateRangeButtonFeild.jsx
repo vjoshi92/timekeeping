@@ -5,7 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'; // Use DatePicker instead
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setDateRange } from '../store/slice/HomeSlice';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import dayjs from 'dayjs';
@@ -119,9 +119,10 @@ const ButtonDatePicker = React.forwardRef((props, ref) => {
 
 
 // MuiButtonBase-root MuiPickersDay-root Mui-selected MuiPickersDay-dayWithMargin css-11z9gu-MuiButtonBase-root-MuiPickersDay-root
-export default function DatePickerWithButtonField() {
+export default function DatePickerWithButtonField({ onChange }) {
     const [value, setValue] = React.useState(null);
     const dispatch = useDispatch();
+    const selectedDate = useSelector((state) => state?.home?.daterange);
 
     const handleDateChange = (newValue) => {
         setValue(newValue);
@@ -132,7 +133,11 @@ export default function DatePickerWithButtonField() {
             const formattedDateRange = `${startOfWeek.format('DD MMM YYYY')} - ${endOfWeek.format('DD MMM YYYY')}`;
 
             // console.log("formattedDateRange", formattedDateRange)
-            dispatch(setDateRange(formattedDateRange));
+            // below code commented for date picker changes for showing change popup 
+            // dispatch(setDateRange(formattedDateRange));
+            if(selectedDate !== formattedDateRange){
+                onChange(formattedDateRange);
+            }
         } else {
             console.log('Invalid date selected');
         }

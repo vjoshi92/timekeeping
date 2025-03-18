@@ -71,7 +71,7 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   height: 150,
-  bgcolor: "#FBE1D0",
+  bgcolor: "#FFF",
   boxShadow: 24,
   p: 4,
   display: "flex",
@@ -329,6 +329,7 @@ const Home = () => {
   const [showNavConfirmation, setShowNavConfirmation] = useState(false);
   const [navConfType, setNavConfType] = useState('');
   const [isTimesheetChanged, setTimesheetChanged] = useState(false);
+  const [calendarDate, setCalendarDate] = useState('');
 
   // useEffect(() => {
   //   if (refresh === 'true') {
@@ -594,6 +595,10 @@ const Home = () => {
       handlePreviousWeek(true);
     } else if (navConfType === "next") {
       handleNextWeek(true);
+    } else if (navConfType === "datePicker") {      
+      dispatch(setDateRange(calendarDate));
+      dispatch(setNewRowAdded(false));
+      setCalendarDate('');
     }
     setShowNavConfirmation(false);
     setNavConfType("");
@@ -1050,7 +1055,7 @@ const Home = () => {
             project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
-            smartId: entry?.TimeEntryDataFields?.USR00,
+            smartId: entry?.TimeEntryDataFields?.USR00 || "--",
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
@@ -1168,7 +1173,7 @@ const Home = () => {
             project: entry?.TimeEntryDataFields?.PSPID_DESC,
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
-            smartId: entry?.TimeEntryDataFields?.USR00,
+            smartId: entry?.TimeEntryDataFields?.USR00 || "--",
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
@@ -1318,6 +1323,22 @@ const Home = () => {
     }
   };
 
+  const onCalendarDateChange = (newDate) => {
+    if (isTimesheetChanged || newRow) {
+      const isEmptyEntry = isNotEmptyEntries();
+      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+        if (status !== "Approved") {
+          checkForUnsavedChanges("datePicker");
+          setCalendarDate(newDate);
+          return;
+        }
+      }
+    } else {
+      setCalendarDate('');
+      dispatch(setDateRange(newDate));
+    }
+  };
+
   useEffect(() => {
     if (selectedDate && selectedDate?.length && selectedDate?.length > 0) {
       getTimesheetDataWeekWise();
@@ -1374,15 +1395,7 @@ const Home = () => {
           mt={2}
         >
           <DateRangePickerWithButtonField
-            label={
-              value[0] === null && value[1] === null
-                ? null
-                : value
-                  .map((date) => (date ? date.format("MM/DD/YYYY") : "null"))
-                  .join(" - ")
-            }
-            value={value}
-            onChange={(newValue) => {setValue(newValue); console.log("date changed")}}
+            onChange={onCalendarDateChange}
           />
 
           {isSelectedDateGreaterThanCurrent() && (
