@@ -825,6 +825,13 @@ const Home = () => {
     const rowIndex = rows.indexOf(rowObj);
     // Convert input value to a number
     let parsedValue = parseFloat(value || 0);
+    if (parsedValue > 23) {
+      setAlertMsg("Please provide valid input. Time entry must be less than or equal to 23 hours.");
+      setAlertOpen(true);
+      setTotalError(true);
+    } else {
+      setTotalError(false);
+    }
     // do the sum of the row
     let rowSum = 0;
     for (let i = 0; i < 7; i++) {
@@ -1360,14 +1367,14 @@ const Home = () => {
               onChange={handleAlignment}
               aria-label="text alignment"
             >
-              <ToggleButton
+              <ToggleButton sx={{color: "#000"}}
                 value="left"
                 aria-label="left aligned"
                 onClick={() => handlePreviousWeek(false)}
               >
                 <ArrowBackIcon />
               </ToggleButton>
-              <ToggleButton
+              <ToggleButton sx={{color: "#000"}}
                 value="justify"
                 aria-label="justified"
                 // disabled={disableToggel}
@@ -1643,8 +1650,7 @@ const Home = () => {
             sx={{ color: "#41AF6E", width: "50px", height: "50px" }}
           />
 
-          <TimesheetText>Your timesheet has been submitted</TimesheetText>
-          <TimesheetText>for approval</TimesheetText>
+          <TimesheetText>Your timesheet for {selectedDate} has been submitted for approval</TimesheetText>          
           <CloseButton
             variant="outlined"
             onClick={() => setIsTimesheetCreated(false)}

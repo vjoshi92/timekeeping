@@ -12,6 +12,7 @@ import {
   Snackbar,
   Stack,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -336,7 +337,7 @@ export const ReviewColumns = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
     const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
-    let noteString = `Rejected Reason: ${reason},${date},${notetime},${userName}\n`;
+    let noteString = `Rejected Reason: ${reason},${date},${notetime},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -398,7 +399,7 @@ export const ReviewColumns = ({
     const time = formatFullTimeString(new Date());
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
-    let noteString = `Rejection removed,${date},${time},${userName}\n`;
+    let noteString = `Rejection removed,${date},${time},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -423,7 +424,12 @@ export const ReviewColumns = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
     const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
-    let noteString = `Rejected Reason: ${reason},${date},${time},${userName}\n`;
+    // remove \n with |n inside the actual text
+    let noteValue = reason;
+    if (noteValue.includes("\n")) {
+      noteValue = noteValue.replaceAll("\n", "|n",);
+    }
+    let noteString = `Rejected Reason: ${noteValue},${date},${time},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -453,6 +459,9 @@ export const ReviewColumns = ({
         label: row[`day${i}ReasonDesc`]
       });
       setOtherReason(row[`day${i}OtherReason`]);
+    } else {
+      setOtherReason('');
+      setSelectedReason('')
     }
     if (row[`day${i}Notes`]) {
       const notes = [];
@@ -498,9 +507,13 @@ export const ReviewColumns = ({
           if (noteIntenalArray[0].startsWith("Rejected Reason")) {
             isRejected = true;
           }
+          let noteValue = noteIntenalArray[0];
+          if (noteValue.includes("|n")) {
+            noteValue = noteValue.replaceAll("|n", "\n");
+          }
           const tempNote = {
             id: Math.random(),
-            content: noteIntenalArray[0],
+            content: noteValue,
             date: noteIntenalArray[1],
             time: noteIntenalArray[2],
             username: noteIntenalArray[3],
@@ -659,7 +672,7 @@ export const ReviewColumns = ({
 
           if (params?.row?.totalRow) {
             return (
-              <Typography fontWeight={700} mt={"1rem"} ml={"0.5rem"}>
+              <Typography color={params?.value > 24 ? "#f44336" : "textPrimary"} fontWeight={700} mt={"1rem"} ml={"0.5rem"}>
                 {params?.value}
               </Typography>
             );
@@ -675,34 +688,37 @@ export const ReviewColumns = ({
           return (
             <InputStyleBox>
               {isReviewer === 'true' ? (
-                <Box
-                  component="div"
-                  sx={{
-                    width: "87% !important",
-                    verticalAlign: "unset",
-                    backgroundColor:
-                      row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#fff",
-                    border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
-                    borderRadius: "4px",
-                    padding: "0.5rem",
-                    cursor: (status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) ? "not-allowed" : "pointer",
-                    height: "1.2rem",
-                    "&:hover": {
-                      borderColor:
-                        row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d",
-                    },
-                  }}
-                  onClick={() => {
-                    if (status !== 'Approved' && status !== 'Rejected' && row[`day${i}Counter`]) {
-                      setActiveInputId(inputId);
-                      openRejectionModal(inputId, row, i);
-                    }
-                  }}
-                >
-                  <Typography color="#797b79 !important">
-                    {params?.value}
-                  </Typography>
-                </Box>
+                <Tooltip title="Entry with 0.00 is not allowed for rejection."
+                  disableHoverListener={(status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) === false} >
+                  <Box
+                    component="div"
+                    sx={{
+                      width: "87% !important",
+                      verticalAlign: "unset",
+                      backgroundColor:
+                        row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#fff",
+                      border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
+                      borderRadius: "4px",
+                      padding: "0.5rem",
+                      cursor: (status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) ? "not-allowed" : "pointer",
+                      height: "1.2rem",
+                      "&:hover": {
+                        borderColor:
+                          row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d",
+                      },
+                    }}
+                    onClick={() => {
+                      if (status !== 'Approved' && status !== 'Rejected' && row[`day${i}Counter`]) {
+                        setActiveInputId(inputId);
+                        openRejectionModal(inputId, row, i);
+                      }
+                    }}
+                  >
+                    <Typography color="#797b79 !important">
+                      {params?.value}
+                    </Typography>
+                  </Box>
+                </Tooltip>
               ) : (
                 (status !== "Draft" || row[`day${i}STATUS`] === "20" || row[`day${i}STATUS`] === "40") ?
                   <Box
@@ -737,20 +753,7 @@ export const ReviewColumns = ({
                       handleInputChange(`day${i}`, value, params?.row?.id)
                     }
                     value={params?.value}
-                    sx={{
-                      width: "80% !important",
-                      verticalAlign: "unset",
-                      borderColor: row[`day${i}STATUS`] === "40" ? "red" : "grey",
-                      backgroundColor: "#FFFFFF",
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          border: isActive ? "1px solid #ED6A15" : "inherit",
-                        },
-                        "&  .MuiOutlinedInput-input": {
-                          border: isActive ? "1px solid #ED6A15" : "inherit",
-                        },
-                      },
-                    }}
+                    inValidValue={params?.value > 23}
                   />
 
               )}

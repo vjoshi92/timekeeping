@@ -303,22 +303,24 @@ const HeaderSubTypography = styled(Typography)(({ theme }) => ({
   color: "#121212DE",
 }));
 
-const ButtonGroupStack = styled(ToggleButtonGroup)(({ theme }) => ({
+const StyledToggleButtonGroup = styled(ToggleButtonGroup)(() => ({
   mr: 1,
-  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
   transition: "box-shadow 0.3s ease-in-out",
+
   "&:hover": {
-    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
+    boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
   },
   "& .MuiToggleButton-root.Mui-selected": {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "white",
     "&:hover": {
-      backgroundColor: "#FFFFFF",
+      // backgroundColor: "#FFFFFF",
+      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     },
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    // boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     transition: "box-shadow 0.3s ease-in-out",
     "&:hover": {
-      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.15)",
+      boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.1)",
     },
   },
 }));
@@ -743,10 +745,10 @@ const ReviewScreen = () => {
       // setShowRelease(true);
       // setNewStatus("Approved");
     } else if (actionMsg.indexOf("reject") >= 0) {
-      setSnackBarMsg("Timesheet Rejected.");
-      setNewStatus("Rejected");
-      setShowRelease(true);
-      setSnackbarOpen(true);
+      // setSnackBarMsg(`Timesheet Rejected for ${selectedDate}.`);
+      // setNewStatus("Rejected");
+      // setShowRelease(true);
+      // setSnackbarOpen(true);
     } else {
 
     }
@@ -767,10 +769,10 @@ const ReviewScreen = () => {
   useEffect(() => {
     if (submitBatchCallIsSuccess) {
       if (batchCallType === "approve") {
-        setSnackBarMsg("Timesheet submitted for approval !!");
+        setSnackBarMsg(`Your timesheet for ${selectedDate} has been submitted for approval`);
         setSnackbarOpen(true);
       } else {
-        setSnackBarMsg("Timesheet saved successfully.");
+        setSnackBarMsg(`Timesheet saved successfully for ${selectedDate}`);
         setSnackbarOpen(true);
       }
 
@@ -1019,9 +1021,6 @@ const ReviewScreen = () => {
     const obatchPayload = PrepareApprovalBatchPayload(oPayload);
     const response = await makeBatchCall({ body: obatchPayload });
     saveNotes();
-    setSnackBarMsg("Timesheet Rejected.");
-    setNewStatus("Rejected");
-    setSnackbarOpen(true);
   };
 
 
@@ -1116,13 +1115,22 @@ const ReviewScreen = () => {
   useEffect(() => {
     if (batchCallIsSuccess) {
       if (actionMsg.indexOf("approve") >= 0) {
-        setSnackBarMsg("Timesheet Approved !!");
+        setSnackBarMsg(`Timesheet Approved for ${selectedDate}.`);
         setShowRelease(true);
         // setNewStatus("Approved");
         setSnackbarOpen(true);
       }
     }
   }, [batchCallLoading]);
+
+  useEffect(() => {
+    if (noteCallIsSuccess) {
+      setSnackBarMsg(`Timesheet Rejected for ${selectedDate}.`);      
+      setSnackbarOpen(true);
+    }
+  }, [noteCallLoading]);
+
+
 
   const AllDataColumns = ReviewColumns({
     rows,
@@ -1418,7 +1426,7 @@ const ReviewScreen = () => {
 
   return (
     <>
-      <StyledStack 
+      <StyledStack
       >
         <HeaderBox
           sx={{
@@ -1517,13 +1525,14 @@ const ReviewScreen = () => {
                 gap: { xs: "10px", sm: "0" },
               }}
             >
-              <ToggleButtonGroup
+              <StyledToggleButtonGroup
                 value={alignment}
                 exclusive
                 onChange={handleAlignment}
                 aria-label="text alignment"
               >
                 <ToggleButton
+                  sx={{ color: "#000" }}
                   value="left"
                   aria-label="left aligned"
                   onClick={() => handlePreviousWeek()}
@@ -1531,27 +1540,18 @@ const ReviewScreen = () => {
                   <ArrowBackIcon />
                 </ToggleButton>
                 <ToggleButton
+                  sx={{ color: "#000" }}
                   value="justify"
                   aria-label="justified"
                   onClick={() => handleNextWeek()}
                 >
                   <ArrowForwardIcon />
                 </ToggleButton>
-              </ToggleButtonGroup>
+              </StyledToggleButtonGroup>
 
               <StyledDateTypography>{selectedDate}</StyledDateTypography>
               <DateRangePickerWithButtonField
-                label={
-                  value[0] === null && value[1] === null
-                    ? null
-                    : value
-                      .map((date) =>
-                        date ? date.format("MM/DD/YYYY") : "null"
-                      )
-                      .join(" - ")
-                }
-                value={value}
-                onChange={(newValue) => setValue(newValue)}
+                onChange={(newValue) => dispatch(setDateRange(newValue))}
               />
             </SubBox>
             {/* <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
@@ -1590,7 +1590,7 @@ const ReviewScreen = () => {
           <SaveTimeButton size="medium" onClick={() => handleSaveTime("save")}>
             <StyledSavedTimeText>Save My Time</StyledSavedTimeText>
           </SaveTimeButton>
-          <Stack direction={"row"} spacing={0.2} alignItems={"center"} sx={{ marginRight: "0.4rem"  }}>
+          <Stack direction={"row"} spacing={0.2} alignItems={"center"} sx={{ marginRight: "0.4rem" }}>
             <Tooltip title="Please enter weekly 40 hours or more and for week days 8 hours or more to enable submit for approval button.">
               <IconButton>
                 <InfoIcon sx={{ color: "#ED6A15" }} />
@@ -1637,7 +1637,7 @@ const ReviewScreen = () => {
               disabled={status === "Approved" || status === "Rejected"}
               variant="contained"
               color="success"
-              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem"  }}
+              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}
               onClick={() => handleApproval("approve")}
             >
               Approve
