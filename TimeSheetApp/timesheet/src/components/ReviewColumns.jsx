@@ -336,7 +336,7 @@ export const ReviewColumns = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
     const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
-    let noteString = `Rejected Reason: ${reason},${date},${notetime},${userName}\n`;
+    let noteString = `Rejected Reason: ${reason},${date},${notetime},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -398,7 +398,7 @@ export const ReviewColumns = ({
     const time = formatFullTimeString(new Date());
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
-    let noteString = `Rejection removed,${date},${time},${userName}\n`;
+    let noteString = `Rejection removed,${date},${time},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -423,7 +423,7 @@ export const ReviewColumns = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
     const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
-    let noteString = `Rejected Reason: ${reason},${date},${time},${userName}\n`;
+    let noteString = `Rejected Reason: ${reason},${date},${time},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }

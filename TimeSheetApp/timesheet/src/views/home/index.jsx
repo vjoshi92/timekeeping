@@ -1360,14 +1360,14 @@ const Home = () => {
               onChange={handleAlignment}
               aria-label="text alignment"
             >
-              <ToggleButton
+              <ToggleButton sx={{color: "#000"}}
                 value="left"
                 aria-label="left aligned"
                 onClick={() => handlePreviousWeek(false)}
               >
                 <ArrowBackIcon />
               </ToggleButton>
-              <ToggleButton
+              <ToggleButton sx={{color: "#000"}}
                 value="justify"
                 aria-label="justified"
                 // disabled={disableToggel}

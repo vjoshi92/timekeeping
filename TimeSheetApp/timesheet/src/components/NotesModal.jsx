@@ -111,22 +111,24 @@ const NotesModal = ({
 
   const saveNote = async () => {
     // save notes in store code
-    let row = { ...rowObject?.row };
-    const rowIndex = projectedData.indexOf(rowObject?.row);
-    const index = rowObject?.index;
-    const date = formatFullDateString(new Date());
-    const time = formatFullTimeString(new Date());
-    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
-    const prevNote = row[`day${index}Notes`];
-    let noteString = `${newNote},${date},${time},${userName}\n`;
-    if (prevNote) {
-      noteString = prevNote + "\n" + noteString;
+    if (newNote) {
+      let row = { ...rowObject?.row };
+      const rowIndex = projectedData.indexOf(rowObject?.row);
+      const index = rowObject?.index;
+      const date = formatFullDateString(new Date());
+      const time = formatFullTimeString(new Date());
+      const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+      const prevNote = row[`day${index}Notes`];
+      let noteString = `${newNote},${date},${time},${userName}`;
+      if (prevNote) {
+        noteString = prevNote + "\n" + noteString;
+      }
+      row[`day${index}Notes`] = noteString;
+      dispatch(updateRow({
+        rowIndex: rowIndex,
+        rowObj: row
+      }));
     }
-    row[`day${index}Notes`] = noteString;
-    dispatch(updateRow({
-      rowIndex: rowIndex,
-      rowObj: row
-    }));
     onClose();
 
     // older working code on save note
@@ -146,7 +148,7 @@ const NotesModal = ({
     const time = formatFullTimeString(new Date());
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
-    let noteString = `${note},${date},${time},${userName}\n`;
+    let noteString = `${note},${date},${time},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -317,13 +319,13 @@ const NotesModal = ({
         autoFocus={false}
         open={open}
         // onClose={onClose}
-        aria-labelledby="notes-modal"        
+        aria-labelledby="notes-modal"
         BackdropProps={{
           style: {
             backgroundColor: "rgba(206, 212, 218, 0.2)",
             opacity: "90%",
           },
-        }}        
+        }}
       >
         {batchCallLoading ? (
           <CircularProgress
@@ -433,7 +435,7 @@ const NotesModal = ({
               </List>
             </Box>
             <Stack>
-              <ModalStyledTypography>Add New Note</ModalStyledTypography>              
+              <ModalStyledTypography>Add New Note</ModalStyledTypography>
               <Stack spacing={2} direction={'row'} justifyContent={"space-between"} alignItems={"center"}>
                 <MuiInput key="noteInput"
                   // inputRef={inputRef}

@@ -169,7 +169,7 @@ const ChangeEntry = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     // const noteString = `${note},${date},${time},${userName};`;
     const prevNote = row[`day${index}Notes`];
-    let noteString = `${changeReason},${date},${time},${userName}\n`;
+    let noteString = `${changeReason},${date},${time},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -216,7 +216,7 @@ const ChangeEntry = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     // const noteString = `${note},${date},${time},${userName};`;
     const prevNote = row[`day${index}Notes`];
-    let noteString = `${note},${date},${time},${userName}\n`;
+    let noteString = `${note},${date},${time},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
