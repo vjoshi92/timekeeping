@@ -12,6 +12,7 @@ import {
   Snackbar,
   Stack,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -453,6 +454,9 @@ export const ReviewColumns = ({
         label: row[`day${i}ReasonDesc`]
       });
       setOtherReason(row[`day${i}OtherReason`]);
+    } else {
+      setOtherReason('');
+      setSelectedReason('')
     }
     if (row[`day${i}Notes`]) {
       const notes = [];
@@ -675,34 +679,37 @@ export const ReviewColumns = ({
           return (
             <InputStyleBox>
               {isReviewer === 'true' ? (
-                <Box
-                  component="div"
-                  sx={{
-                    width: "87% !important",
-                    verticalAlign: "unset",
-                    backgroundColor:
-                      row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#fff",
-                    border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
-                    borderRadius: "4px",
-                    padding: "0.5rem",
-                    cursor: (status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) ? "not-allowed" : "pointer",
-                    height: "1.2rem",
-                    "&:hover": {
-                      borderColor:
-                        row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d",
-                    },
-                  }}
-                  onClick={() => {
-                    if (status !== 'Approved' && status !== 'Rejected' && row[`day${i}Counter`]) {
-                      setActiveInputId(inputId);
-                      openRejectionModal(inputId, row, i);
-                    }
-                  }}
-                >
-                  <Typography color="#797b79 !important">
-                    {params?.value}
-                  </Typography>
-                </Box>
+                <Tooltip title="Entry with 0.00 is not allowed for rejection." 
+                disableHoverListener={(status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) === false} >
+                  <Box
+                    component="div"
+                    sx={{
+                      width: "87% !important",
+                      verticalAlign: "unset",
+                      backgroundColor:
+                        row[`day${i}STATUS`] === "40" ? "#ef0c0c30" : "#fff",
+                      border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
+                      borderRadius: "4px",
+                      padding: "0.5rem",
+                      cursor: (status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) ? "not-allowed" : "pointer",
+                      height: "1.2rem",
+                      "&:hover": {
+                        borderColor:
+                          row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d",
+                      },
+                    }}
+                    onClick={() => {
+                      if (status !== 'Approved' && status !== 'Rejected' && row[`day${i}Counter`]) {
+                        setActiveInputId(inputId);
+                        openRejectionModal(inputId, row, i);
+                      }
+                    }}
+                  >
+                    <Typography color="#797b79 !important">
+                      {params?.value}
+                    </Typography>
+                  </Box>
+                </Tooltip>
               ) : (
                 (status !== "Draft" || row[`day${i}STATUS`] === "20" || row[`day${i}STATUS`] === "40") ?
                   <Box

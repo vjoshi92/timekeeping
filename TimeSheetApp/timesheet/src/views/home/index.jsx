@@ -1643,8 +1643,7 @@ const Home = () => {
             sx={{ color: "#41AF6E", width: "50px", height: "50px" }}
           />
 
-          <TimesheetText>Your timesheet has been submitted</TimesheetText>
-          <TimesheetText>for approval</TimesheetText>
+          <TimesheetText>Your timesheet for {selectedDate} has been submitted for approval</TimesheetText>          
           <CloseButton
             variant="outlined"
             onClick={() => setIsTimesheetCreated(false)}

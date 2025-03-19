@@ -769,10 +769,10 @@ const ReviewScreen = () => {
   useEffect(() => {
     if (submitBatchCallIsSuccess) {
       if (batchCallType === "approve") {
-        setSnackBarMsg("Timesheet submitted for approval !!");
+        setSnackBarMsg(`Your timesheet for ${selectedDate} has been submitted for approval`);
         setSnackbarOpen(true);
       } else {
-        setSnackBarMsg("Timesheet saved successfully.");
+        setSnackBarMsg(`Timesheet saved successfully for ${selectedDate}`);
         setSnackbarOpen(true);
       }
 
