@@ -424,7 +424,12 @@ export const ReviewColumns = ({
     const userName = userData?.results[0]?.EmployeeName?.FormattedName;
     const prevNote = row[`day${index}Notes`];
     const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
-    let noteString = `Rejected Reason: ${reason},${date},${time},${userName}`;
+    // remove \n with |n inside the actual text
+    let noteValue = reason;
+    if (noteValue.includes("\n")) {
+      noteValue = noteValue.replaceAll("\n", "|n",);
+    }
+    let noteString = `Rejected Reason: ${noteValue},${date},${time},${userName}`;
     if (prevNote) {
       noteString = prevNote + "\n" + noteString;
     }
@@ -502,9 +507,13 @@ export const ReviewColumns = ({
           if (noteIntenalArray[0].startsWith("Rejected Reason")) {
             isRejected = true;
           }
+          let noteValue = noteIntenalArray[0];
+          if (noteValue.includes("|n")) {
+            noteValue = noteValue.replaceAll("|n", "\n");
+          }
           const tempNote = {
             id: Math.random(),
-            content: noteIntenalArray[0],
+            content: noteValue,
             date: noteIntenalArray[1],
             time: noteIntenalArray[2],
             username: noteIntenalArray[3],
@@ -663,7 +672,7 @@ export const ReviewColumns = ({
 
           if (params?.row?.totalRow) {
             return (
-              <Typography fontWeight={700} mt={"1rem"} ml={"0.5rem"}>
+              <Typography color={params?.value > 24 ? "#f44336" : "textPrimary"} fontWeight={700} mt={"1rem"} ml={"0.5rem"}>
                 {params?.value}
               </Typography>
             );
@@ -679,8 +688,8 @@ export const ReviewColumns = ({
           return (
             <InputStyleBox>
               {isReviewer === 'true' ? (
-                <Tooltip title="Entry with 0.00 is not allowed for rejection." 
-                disableHoverListener={(status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) === false} >
+                <Tooltip title="Entry with 0.00 is not allowed for rejection."
+                  disableHoverListener={(status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) === false} >
                   <Box
                     component="div"
                     sx={{
@@ -744,20 +753,7 @@ export const ReviewColumns = ({
                       handleInputChange(`day${i}`, value, params?.row?.id)
                     }
                     value={params?.value}
-                    sx={{
-                      width: "80% !important",
-                      verticalAlign: "unset",
-                      borderColor: row[`day${i}STATUS`] === "40" ? "red" : "grey",
-                      backgroundColor: "#FFFFFF",
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          border: isActive ? "1px solid #ED6A15" : "inherit",
-                        },
-                        "&  .MuiOutlinedInput-input": {
-                          border: isActive ? "1px solid #ED6A15" : "inherit",
-                        },
-                      },
-                    }}
+                    inValidValue={params?.value > 23}
                   />
 
               )}

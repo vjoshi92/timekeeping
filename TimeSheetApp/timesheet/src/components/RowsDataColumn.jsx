@@ -208,9 +208,13 @@ export const RowsDataColumns = ({
           if (noteIntenalArray[0].startsWith("Rejected Reason")) {
             isRejected = true;
           }
+          let noteValue = noteIntenalArray[0];
+          if(noteValue.includes("|n")){
+            noteValue = noteValue.replaceAll("|n","\n");
+          }
           const tempNote = {
             id: Math.random(),
-            content: noteIntenalArray[0],
+            content: noteValue,
             date: noteIntenalArray[1],
             time: noteIntenalArray[2],
             username: noteIntenalArray[3],
@@ -329,7 +333,7 @@ export const RowsDataColumns = ({
 
           if (params?.row?.totalRow) {
             return (
-              <Typography fontWeight={700} mt={"1rem"}>
+              <Typography color={params?.value > 24 ? "#f44336 !important" : "textPrimary !important"} fontWeight={700} mt={"1rem"}>
                 {params.value}
               </Typography>
             );
@@ -415,21 +419,8 @@ export const RowsDataColumns = ({
                     handleInputChange(`day${i}`, value, params?.row?.id)
                   }
                   value={params?.value}
-                  readOnly={isFutureDay}
-                  sx={{
-                    width: "80% !important",
-                    verticalAlign: "unset",
-                    borderColor: row[`day${i}STATUS`] === "40" ? "red" : "grey",
-                    backgroundColor: "#FFFFFF",
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        border: isActive ? "1px solid #ED6A15" : "inherit",
-                      },
-                      "&  .MuiOutlinedInput-input": {
-                        border: isActive ? "1px solid #ED6A15" : "inherit",
-                      },
-                    },
-                  }}
+                  readOnly={isFutureDay}     
+                  inValidValue={params?.value > 23}
                 />
               )}
               <Tooltip title="View notes.">
@@ -474,8 +465,8 @@ export const RowsDataColumns = ({
                 handleClose={handleCloseEntryModal}
                 activeInputId={activeInputId}
                 rowObject={rowObject}
-                setBatchCallType={setBatchCallType}     
-                updateTotalRow={updateTotalRow}           
+                setBatchCallType={setBatchCallType}
+                updateTotalRow={updateTotalRow}
               />
             </InputStyleBox>
           );

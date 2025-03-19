@@ -825,6 +825,13 @@ const Home = () => {
     const rowIndex = rows.indexOf(rowObj);
     // Convert input value to a number
     let parsedValue = parseFloat(value || 0);
+    if (parsedValue > 23) {
+      setAlertMsg("Please provide valid input. Time entry must be less than or equal to 23 hours.");
+      setAlertOpen(true);
+      setTotalError(true);
+    } else {
+      setTotalError(false);
+    }
     // do the sum of the row
     let rowSum = 0;
     for (let i = 0; i < 7; i++) {

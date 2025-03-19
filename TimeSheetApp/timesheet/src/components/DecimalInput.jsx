@@ -36,7 +36,8 @@ const DecimalInput = (props) => {
     error,
     rows,
     helperText,
-    multiline,    
+    multiline,
+    inValidValue
   } = props;
 
   const [text, setText] = useState(value);
@@ -88,6 +89,11 @@ const DecimalInput = (props) => {
           disabled={false}
           type="text"
           error={error}
+          sx={{
+            "& .MuiOutlinedInput-input": {
+              color: inValidValue ? "#f44336 !important" : "#333 !important",
+            },
+          }}
           inputProps={{
             inputMode: "decimal",
             pattern: "[0-9]*[.][0-9]*",

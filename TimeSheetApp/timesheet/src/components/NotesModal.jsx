@@ -119,7 +119,11 @@ const NotesModal = ({
       const time = formatFullTimeString(new Date());
       const userName = userData?.results[0]?.EmployeeName?.FormattedName;
       const prevNote = row[`day${index}Notes`];
-      let noteString = `${newNote},${date},${time},${userName}`;
+      let noteInput = newNote;
+      if (newNote.includes("\n")) {
+        noteInput = noteInput.replaceAll("\n", "|n",);
+      }
+      let noteString = `${noteInput},${date},${time},${userName}`;
       if (prevNote) {
         noteString = prevNote + "\n" + noteString;
       }
@@ -317,6 +321,7 @@ const NotesModal = ({
     <>
       <Modal disableAutoFocus={true}
         autoFocus={false}
+        disableEnforceFocus={true}
         open={open}
         // onClose={onClose}
         aria-labelledby="notes-modal"
@@ -424,7 +429,7 @@ const NotesModal = ({
                         </Typography>
                       </Stack>
                     )}
-                    <Typography sx={{ fontSize: "1rem", fontWeight: "600" }}>
+                    <Typography sx={{ fontSize: "1rem", fontWeight: "600", whiteSpace: "pre-wrap" }}>
                       {note?.content}
                     </Typography>
                     <Typography sx={{ fontSize: "0.875rem", color: "gray" }}>
@@ -437,21 +442,24 @@ const NotesModal = ({
             <Stack>
               <ModalStyledTypography>Add New Note</ModalStyledTypography>
               <Stack spacing={2} direction={'row'} justifyContent={"space-between"} alignItems={"center"}>
-                <MuiInput key="noteInput"
+                <TextField fullWidth
                   // inputRef={inputRef}
                   multiline={true}
-                  onChange={(value) => setNewNote(value)}
+                  onChange={(e) => setNewNote(e.target.value)}
                   // value={newNote}
                   rows={2}
                   sx={{
-                    width: {
-                      xs: "100% !important",
-                      sm: "80% !important",
+                    "& .MuiOutlinedInput-input": {
+                      fontSize: "16px",
+                      color: "#333",
+                      fontWeight: "500"
                     },
-                    verticalAlign: "unset",
-                    backgroundColor: "#FFFFFF",
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "4px",
+                    },
                   }}
                   autoFocus={true}
+                  focused={true}
                 />
                 <Button
                   variant="contained"
