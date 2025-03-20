@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import MenuIcon from "@mui/icons-material/Menu";
-
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -15,6 +15,8 @@ import {
   Avatar,
   Chip,
   Divider,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Popper,
@@ -25,6 +27,7 @@ import {
 import logo from "../../img/jma-logo.svg";
 import logo_dev from "../../img/JMA-logo-REV-DEV.svg";
 import logo_QA from "../../img/JMA-logo-REV-QAS.svg";
+import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -328,13 +331,18 @@ export default function Header() {
           open={Boolean(anchorElUser)}
           onClose={handleCloseUserMenu}
         >
-          <MenuItem>Welcome {employeeDatas}</MenuItem>
-          <MenuItem onClick={() => window.open("#/pageInprogress", "_blank")}>Help</MenuItem>
-          <MenuItem
-          // key={index}
-          // onClick={() => handleMenuItemClick(setting)}
-          >
-            Logout
+          <MenuItem><Typography fontWeight={700}>Welcome, {employeeDatas}</Typography></MenuItem>
+          <MenuItem onClick={() => window.open("#/pageInprogress", "_blank")}>
+            <ListItemIcon>
+              <HelpOutlineIcon color="#333" fontSize="small" />
+            </ListItemIcon>
+            <ListItemText color="#333">Help</ListItemText>
+          </MenuItem>
+          <MenuItem>
+            <ListItemIcon>
+              <LogoutIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Logout</ListItemText>
           </MenuItem>
         </Menu>
 

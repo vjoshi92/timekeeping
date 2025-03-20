@@ -322,7 +322,7 @@ export const RowsDataColumns = ({
               <EmptyBox
                 sx={{
                   backgroundColor: isWeekend
-                    ? "#dee2e6"
+                    ? "#e5f5fc"
                     : isToday
                       ? "#FBE1D0"
                       : "transparent",
@@ -346,13 +346,13 @@ export const RowsDataColumns = ({
             <InputStyleBox
               sx={{
                 backgroundColor: isWeekend
-                  ? "#dee2e6"
+                  ? "#e5f5fc"
                   : isToday
                     ? "#FBE1D0"
                     : "transparent",
                 "& .MuiDataGrid-root": {
                   backgroundColor: isWeekend
-                    ? "#dee2e6"
+                    ? "#e5f5fc"
                     : isToday
                       ? "#FBE1D0"
                       : "transparent",
