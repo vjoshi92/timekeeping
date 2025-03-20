@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import MenuIcon from "@mui/icons-material/Menu";
-
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -15,6 +15,8 @@ import {
   Avatar,
   Chip,
   Divider,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Popper,
@@ -25,6 +27,7 @@ import {
 import logo from "../../img/jma-logo.svg";
 import logo_dev from "../../img/JMA-logo-REV-DEV.svg";
 import logo_QA from "../../img/JMA-logo-REV-QAS.svg";
+import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -172,7 +175,7 @@ export default function Header() {
   const dispatch = useDispatch();
   const params = useParams();
   const [isManager, setIsManager] = React.useState(false);
-  const { data: userData, isFetching: isLoadingUserData,  isError: isUserDataerror, error: userDataError } = useGetUserDataQuery();
+  const { data: userData, isFetching: isLoadingUserData, isError: isUserDataerror, error: userDataError } = useGetUserDataQuery();
   const [employeeDatas, setEmployeeDatas] = React.useState(""); // Initialize state as an empty array
   const [logoFile, setLogoFile] = React.useState(logo);
   const [envName, setEnv] = React.useState("PROD");
@@ -201,7 +204,7 @@ export default function Header() {
   ] = useLazyGetPendingApprovalCountQuery();
 
   // React.useEffect(() => {
-    
+
   // }, [userData]); // Runs when userData changes
 
   React.useEffect(() => {
@@ -210,7 +213,7 @@ export default function Header() {
       setEmployeeDatas(employees);
     }
 
-    if(isUserDataerror){
+    if (isUserDataerror) {
       window.location.reload(true);
     }
   }, [isLoadingUserData]);
@@ -341,9 +344,19 @@ export default function Header() {
           open={Boolean(anchorElUser)}
           onClose={handleCloseUserMenu}
         >
-          <MenuItem>Welcome {employeeDatas}</MenuItem>
-          <MenuItem onClick={() => window.open("#/pageInprogress", "_blank")}>Help</MenuItem>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>               
+          <MenuItem><Typography fontWeight={700}>Welcome, {employeeDatas}</Typography></MenuItem>
+          <MenuItem onClick={() => window.open("#/pageInprogress", "_blank")}>
+            <ListItemIcon>
+              <HelpOutlineIcon color="#333" fontSize="small" />
+            </ListItemIcon>
+            <ListItemText color="#333">Help</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={handleLogout}>
+            <ListItemIcon>
+              <LogoutIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Logout</ListItemText>
+          </MenuItem>
         </Menu>
 
         <MuiDrawer
