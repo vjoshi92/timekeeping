@@ -744,7 +744,7 @@ export const ReviewColumns = ({
                       }
                     }}
                   >
-                    <Typography color="#797b79 !important">
+                    <Typography color={params?.value > 23 ? "#f44336 !important" : "#797b79 !important"}>
                       {params?.value}
                     </Typography>
                   </Box> :
@@ -760,6 +760,7 @@ export const ReviewColumns = ({
 
               <IconButton
                 size="small"
+                disabled={!params?.value || params?.value === '0.00'}
                 onClick={() => openNotes(inputId, row, i)}
               // disabled={isFirstInput}
               >

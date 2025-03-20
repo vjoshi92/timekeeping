@@ -5,6 +5,7 @@ import PendingApprovals from "views/managerScreen/PendingApprovals";
 import TimesheetsGrid from "views/managerScreen/TimesheetsGrid";
 import ReviewScreen from "views/managerScreen/ReviewScreen";
 import Refresh from "components/Refresh";
+import PageInProgress from "components/PageInprogress";
 
 const Home = lazy(() => import("./views/home"));
 
@@ -44,6 +45,11 @@ const NavigationRoutes = [
     path: "/refresh",
     component: <Refresh />,
     key: "Refresh",
+  },
+  {
+    path: "/pageInprogress",
+    component: <PageInProgress />,
+    key: "pageInprogress",
   },
 ];
 

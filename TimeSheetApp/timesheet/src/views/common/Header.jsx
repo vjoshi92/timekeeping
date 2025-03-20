@@ -342,10 +342,8 @@ export default function Header() {
           onClose={handleCloseUserMenu}
         >
           <MenuItem>Welcome {employeeDatas}</MenuItem>
-          <MenuItem onClick={handleLogout}
-          >
-            Logout
-          </MenuItem>
+          <MenuItem onClick={() => window.open("#/pageInprogress", "_blank")}>Help</MenuItem>
+          <MenuItem onClick={handleLogout}>Logout</MenuItem>               
         </Menu>
 
         <MuiDrawer
