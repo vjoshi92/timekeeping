@@ -251,6 +251,12 @@ const AddRowsScreen = () => {
         (x) => x?.PSPID === value?.value
       );
 
+      filteredLevels.sort((a, b) =>
+        a?.TimeEntryDataFields?.POSID_DESC?.localeCompare(
+          b?.TimeEntryDataFields?.POSID_DESC
+        )
+      );
+
       setLevels(filteredLevels);
       setSelectedLevels((prevLevels) => ({
         ...prevLevels,

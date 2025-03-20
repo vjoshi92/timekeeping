@@ -329,6 +329,7 @@ export default function Header() {
           onClose={handleCloseUserMenu}
         >
           <MenuItem>Welcome {employeeDatas}</MenuItem>
+          <MenuItem onClick={() => window.open("#/pageInprogress", "_blank")}>Help</MenuItem>
           <MenuItem
           // key={index}
           // onClick={() => handleMenuItemClick(setting)}

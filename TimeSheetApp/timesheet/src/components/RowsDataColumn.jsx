@@ -209,8 +209,8 @@ export const RowsDataColumns = ({
             isRejected = true;
           }
           let noteValue = noteIntenalArray[0];
-          if(noteValue.includes("|n")){
-            noteValue = noteValue.replaceAll("|n","\n");
+          if (noteValue.includes("|n")) {
+            noteValue = noteValue.replaceAll("|n", "\n");
           }
           const tempNote = {
             id: Math.random(),
@@ -409,7 +409,7 @@ export const RowsDataColumns = ({
                     openChangePopup(inputId, row, i, params?.value);
                   }}
                 >
-                  <Typography color="#797b79 !important">
+                  <Typography color={params?.value > 23 ? "#f44336 !important" : "#797b79 !important"}>
                     {params?.value}
                   </Typography>
                 </Box>
@@ -419,7 +419,7 @@ export const RowsDataColumns = ({
                     handleInputChange(`day${i}`, value, params?.row?.id)
                   }
                   value={params?.value}
-                  readOnly={isFutureDay}     
+                  readOnly={isFutureDay}
                   inValidValue={params?.value > 23}
                 />
               )}
