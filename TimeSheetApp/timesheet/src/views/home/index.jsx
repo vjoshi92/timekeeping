@@ -1193,6 +1193,7 @@ const Home = () => {
             day4: "0.00",
             day5: "0.00",
             day6: "0.00",
+            newRow: true
           };
           weekRow = {
             ...weekRow,
