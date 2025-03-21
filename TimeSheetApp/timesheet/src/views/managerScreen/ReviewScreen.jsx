@@ -1125,7 +1125,7 @@ const ReviewScreen = () => {
 
   useEffect(() => {
     if (noteCallIsSuccess) {
-      setSnackBarMsg(`Timesheet Rejected for ${selectedDate}.`);      
+      setSnackBarMsg(`Timesheet Rejected for ${selectedDate}.`);
       setSnackbarOpen(true);
     }
   }, [noteCallLoading]);
@@ -1407,7 +1407,7 @@ const ReviewScreen = () => {
 
         if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
           const temp = {
-            EmployeeID: userData?.results[0].EmployeeNumber,
+            EmployeeID: entry[`day${i}PERNR`],
             Counter: entry[`day${i}Counter`] || "",
             Status: "30",
             Reason: "",
