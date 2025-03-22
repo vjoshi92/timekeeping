@@ -345,7 +345,7 @@ export default function Header() {
           onClose={handleCloseUserMenu}
         >
           <MenuItem><Typography fontWeight={700}>Welcome, {employeeDatas}</Typography></MenuItem>
-          <MenuItem onClick={() => window.open("#/pageInprogress", "_blank")}>
+          <MenuItem onClick={() => window.open("https://www.jmaemployees.com/Interact/Pages/Content/Document.aspx?id=4787", "_blank")}>
             <ListItemIcon>
               <HelpOutlineIcon color="#333" fontSize="small" />
             </ListItemIcon>
