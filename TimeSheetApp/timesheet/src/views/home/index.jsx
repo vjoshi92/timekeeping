@@ -1063,10 +1063,10 @@ const Home = () => {
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
             smartId: entry?.TimeEntryDataFields?.USR00 || "--",
-            id: Math.random(),
+            id: Math.random(),          
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
-              entry?.TimeEntryDataFields?.POST1,
+              `${entry?.TimeEntryDataFields?.POST1}-${entry?.TimeEntryDataFields?.POSID}`,
             ],
             day0: "0.00",
             day1: "0.00",
@@ -1184,7 +1184,7 @@ const Home = () => {
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
-              entry?.TimeEntryDataFields?.POST1,
+              `${entry?.TimeEntryDataFields?.POST1}-${entry?.TimeEntryDataFields?.POSID}`,
             ],
             day0: "0.00",
             day1: "0.00",

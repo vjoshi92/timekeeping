@@ -1289,7 +1289,7 @@ const ReviewScreen = () => {
             id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
-              entry?.TimeEntryDataFields?.POST1,
+              `${entry?.TimeEntryDataFields?.POST1}-${entry?.TimeEntryDataFields?.POSID}`,
             ],
             day0: "0.00",
             day1: "0.00",
