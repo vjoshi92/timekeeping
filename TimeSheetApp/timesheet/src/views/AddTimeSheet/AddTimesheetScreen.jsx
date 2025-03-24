@@ -266,12 +266,12 @@ const AddRowsScreen = () => {
         levelOneTitle: '',
       }));
     } else {
-      const levelObj = levels.find(x => x.POSID_DESC === value?.label);
+      // const levelObj = levels.find(x => x.POSID_DESC === value?.label);
       setSelectedLevels((prevLevels) => ({
         ...prevLevels,
-        [level]: levelObj?.POSID,
+        [level]: value?.posId,
         [`${level}Title`]: value?.label,
-        smartId: levelObj?.USR00 || '--'
+        smartId: value?.value || '--'
       }));
     }
   };
@@ -332,6 +332,7 @@ const AddRowsScreen = () => {
             options={levels?.map((option) => ({
               label: option?.POSID_DESC,
               value: option?.USR00,
+              posId: option?.POSID
             }))}
             onChange={(event, value) => handleChange("levelOne", value)}
             value={

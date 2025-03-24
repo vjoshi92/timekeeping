@@ -7,5 +7,5 @@
   "abap_bsp": "ZTIMEKEEPING",
   "abap_bsp_text": "Timekeeping Application",
   "conn_client": "210",
-  "abap_transport": "JMDK926192"
+  "abap_transport": "JMDK926200"
 }
