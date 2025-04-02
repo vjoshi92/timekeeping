@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  Grid2,
   Modal,
   Snackbar,
   Stack,
@@ -595,7 +596,7 @@ const Home = () => {
       handlePreviousWeek(true);
     } else if (navConfType === "next") {
       handleNextWeek(true);
-    } else if (navConfType === "datePicker") {      
+    } else if (navConfType === "datePicker") {
       dispatch(setDateRange(calendarDate));
       dispatch(setNewRowAdded(false));
       setCalendarDate('');
@@ -1063,7 +1064,7 @@ const Home = () => {
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
             smartId: entry?.TimeEntryDataFields?.USR00 || "--",
-            id: Math.random(),          
+            id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
               `${entry?.TimeEntryDataFields?.POST1}-${entry?.TimeEntryDataFields?.POSID}`,
@@ -1368,14 +1369,14 @@ const Home = () => {
               onChange={handleAlignment}
               aria-label="text alignment"
             >
-              <ToggleButton sx={{color: "#000"}}
+              <ToggleButton sx={{ color: "#000" }}
                 value="left"
                 aria-label="left aligned"
                 onClick={() => handlePreviousWeek(false)}
               >
                 <ArrowBackIcon />
               </ToggleButton>
-              <ToggleButton sx={{color: "#000"}}
+              <ToggleButton sx={{ color: "#000" }}
                 value="justify"
                 aria-label="justified"
                 // disabled={disableToggel}
@@ -1491,18 +1492,19 @@ const Home = () => {
         )}
 
         {status !== "Approved" && (
-          <Stack direction={"row"} spacing={0.1} alignItems={"center"}>
+          // <Stack direction={"row"} spacing={0.1} alignItems={"stretch"}>
+          <Box>
             <Tooltip title="Please ensure you log at least 40 hours per week and 8 hours per weekday to enable submission.">
               <IconButton>
                 <InfoIcon sx={{ color: "#ED6A15" }} />
               </IconButton>
             </Tooltip>
             <Tooltip title="Please ensure you log at least 40 hours per week and 8 hours per weekday to enable submission.">
-              <Button
+              <Button size="medium"
                 onClick={handleApproval}
                 sx={{
                   backgroundColor: saveTimeClick ? "#ED6A15" : "#BDBDBD",
-                  padding: "0.4rem",
+                  // padding: "0.4rem",
                   marginBottom: "0.5rem",
                 }}
                 disabled={
@@ -1520,8 +1522,9 @@ const Home = () => {
                 </StyledFooterText>
               </Button>
             </Tooltip>
-          </Stack>
+          </Box>
         )}
+        {/* </Stack> */}
       </Footer>
       <Modal
         keepMounted
@@ -1651,7 +1654,7 @@ const Home = () => {
             sx={{ color: "#41AF6E", width: "50px", height: "50px" }}
           />
 
-          <TimesheetText>Your timesheet for {selectedDate} has been submitted for approval</TimesheetText>          
+          <TimesheetText>Your timesheet for {selectedDate} has been submitted for approval</TimesheetText>
           <CloseButton
             variant="outlined"
             onClick={() => setIsTimesheetCreated(false)}
