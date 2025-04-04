@@ -70,7 +70,6 @@ export default function ApprovalsDatagrid({
   const { data: pendingApprovalList, isSuccess: successPendingData, isFetching: fetchingPendingApproval } =
     useGetPendingApprovalListQuery();
 
-  console.log("pendingApprovalList", pendingApprovalList);
   const selectedPendingApprovals = useSelector((state) => state?.CreateForm?.selectedPendingApprovals);
 
   React.useEffect(() => {

@@ -36,13 +36,14 @@ import MuiDrawer from "components/MuiDrawer";
 import CloseIcon from "@mui/icons-material/Close";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { setDateRange } from "store/slice/HomeSlice";
+import { setDateRange, setTokenExp } from "store/slice/HomeSlice";
 import {
   useGetReporteeListQuery,
   useGetUserDataQuery,
   useLazyGetPendingApprovalCountQuery,
 } from "api/timesheetApi";
 import { getCurrentEnvirnment } from "utils/AppUtil";
+import SessionExpiredDialog from "components/SessionExpiredDialog";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -179,6 +180,10 @@ export default function Header() {
   const [employeeDatas, setEmployeeDatas] = React.useState(""); // Initialize state as an empty array
   const [logoFile, setLogoFile] = React.useState(logo);
   const [envName, setEnv] = React.useState("PROD");
+  const [sessionExp, setSessionExp] = React.useState(false);
+
+  const tokenExp = useSelector((state) => state.home.tokenExp);
+
   React.useEffect(() => {
     const env = getCurrentEnvirnment();
     setEnv(env);
@@ -190,6 +195,13 @@ export default function Header() {
       setLogoFile(logo);
     }
   }, [])
+
+  React.useEffect(() => {
+    if (tokenExp == true) {      
+      dispatch(setTokenExp(false));
+      setSessionExp(true);
+    }
+  }, [tokenExp])
 
   const {
     data: reporteeData,
@@ -256,6 +268,10 @@ export default function Header() {
       // handleLogout(); // Perform logout action
     }
     handleCloseUserMenu();
+  };
+
+  const handleLogout = () => {
+    window.location.href = "my/logout";
   };
   return (
     <StyledAppBar>
@@ -338,7 +354,7 @@ export default function Header() {
             </ListItemIcon>
             <ListItemText color="#333">Help</ListItemText>
           </MenuItem>
-          <MenuItem>
+          <MenuItem onClick={handleLogout}>
             <ListItemIcon>
               <LogoutIcon fontSize="small" />
             </ListItemIcon>
@@ -414,6 +430,7 @@ export default function Header() {
           ) : null}
         </MuiDrawer>
       </Toolbar>
+      <SessionExpiredDialog  open={sessionExp} onClose={() => setSessionExp(false)} handleLogout={handleLogout} />
     </StyledAppBar>
   );
 }

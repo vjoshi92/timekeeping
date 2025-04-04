@@ -29,9 +29,6 @@ export const useDataManagement = () => {
       const response = await axios.patch(`/api/update-row/${rowId}`, {
         [field]: value
       });
-
-      // Optionally handle successful update
-      console.log('Row updated successfully', response.data);
     } catch (err) {
       setError(err);
       console.error('Error updating row:', err);

@@ -526,7 +526,7 @@ const ReviewScreen = () => {
   const { isReviewer, pernr, start, stop, week, type } = useParams();
   const [selectedReason, setSelectedReason] = useState(""); // Add this new state  
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMsg, setAlertMsg] = useState('');
+  const [alertMsg, setAlertMsg] = useState('');  
   const [totalError, setTotalError] = useState(false);
   const [batchCallType, setBatchCallType] = useState("");
   const [approvalMsg, setApprovalMsg] = useState();
@@ -557,7 +557,8 @@ const ReviewScreen = () => {
     {
       isSuccess: batchCallIsSuccess,
       isLoading: batchCallLoading,
-      error: batchCallIsError,
+      isError: batchCallIsError,
+      error: batchCallError,
     },
   ] = useMakeApprovalBatchCallMutation();
 
@@ -566,7 +567,8 @@ const ReviewScreen = () => {
     {
       isSuccess: submitBatchCallIsSuccess,
       isLoading: submitBatchCallLoading,
-      error: submitBatchCallIsError,
+      isError: apprvalBatchCallIsError,
+      error: apprvalBatchCallError,
     },
   ] = useMakeBatchCallMutation();
 
@@ -600,8 +602,7 @@ const ReviewScreen = () => {
     const timesheetEntries = prepareTimesheetPayload(type);
     if (timesheetEntries && timesheetEntries.length > 0) {
       const batchPayload = PrepareBatchPayload(timesheetEntries);
-      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });
-      console.log("response", response);
+      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });      
     }
   };
 
@@ -761,8 +762,7 @@ const ReviewScreen = () => {
     const timesheetEntries = prepareTimesheetPayload("approve");
     if (timesheetEntries && timesheetEntries.length > 0) {
       const batchPayload = PrepareBatchPayload(timesheetEntries);
-      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });
-      console.log("response", response);
+      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });      
     }
   }
 
@@ -776,6 +776,11 @@ const ReviewScreen = () => {
         setSnackbarOpen(true);
       }
 
+    }
+
+    if (apprvalBatchCallIsError) {
+      setOpenApiMsg(true);
+      setApiMsg(apprvalBatchCallError);
     }
   }, [submitBatchCallLoading]);
 
@@ -849,8 +854,7 @@ const ReviewScreen = () => {
   const handleApprove = async () => {
     const timesheetEntries = prepareApprovalPayload();
     const batchPayload = PrepareApprovalBatchPayload(timesheetEntries);
-    const response = await makeBatchCall({ body: batchPayload });
-    console.log("Approve response", response);
+    const response = await makeBatchCall({ body: batchPayload });    
   };
 
   const handleReject = () => { };
@@ -1082,8 +1086,7 @@ const ReviewScreen = () => {
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
       if (!newRow) {
-        const responseData = dateWiseData;
-        console.log("responsedata", responseData);
+        const responseData = dateWiseData;        
         let transformedData = transformToWeeklyRows(responseData);
         // const projectArray = transformedData.map((x) => x.project);
         // projectArray.forEach(project => {
@@ -1097,7 +1100,6 @@ const ReviewScreen = () => {
           )
         );
         transformedData = addTotalRow(transformedData);
-        console.log("transformedData>>>>>>>", transformedData);
         // setProductTime(transformedData);
         dispatch(setProjectData(transformedData));
       }
@@ -1121,6 +1123,11 @@ const ReviewScreen = () => {
         setSnackbarOpen(true);
       }
     }
+
+    if (batchCallIsError) {
+      setOpenApiMsg(true);
+      setApiMsg(batchCallError);
+    }
   }, [batchCallLoading]);
 
   useEffect(() => {
@@ -1139,6 +1146,7 @@ const ReviewScreen = () => {
     handleDelete,
     isParent: false,
     handleRejected,
+    updateTotalRow
   });
 
   // useEffect(() => {

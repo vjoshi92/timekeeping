@@ -131,8 +131,7 @@ export default function DatePickerWithButtonField({ onChange }) {
             const startOfWeek = dayjs(newValue).startOf('week').add(1, 'day');
             const endOfWeek = dayjs(newValue).endOf('week').add(1, "day");
             const formattedDateRange = `${startOfWeek.format('DD MMM YYYY')} - ${endOfWeek.format('DD MMM YYYY')}`;
-
-            // console.log("formattedDateRange", formattedDateRange)
+            
             // below code commented for date picker changes for showing change popup 
             // dispatch(setDateRange(formattedDateRange));
             if(selectedDate !== formattedDateRange){

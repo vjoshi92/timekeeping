@@ -177,7 +177,6 @@ export const RowsDataColumns = ({
   const [hasNote, setHasNote] = useState(new Set());
   const totalValue = useSelector((state) => state?.CreateForm?.totals);
 
-  // console.log("totalvalue", totalValue)
   const customStepper = () => {
     return (
       <Stepper orientation="vertical" activeStep={-1}>
@@ -279,7 +278,6 @@ export const RowsDataColumns = ({
       const isToday = currentDate?.isSame(dayjs(), "date");
       const isWeekend = currentDate.day() === 0 || currentDate.day() === 6;
       const isFutureDay = currentDate?.isAfter(dayjs(), "date");
-      // console.log("currentDate>>>>>>>>", currentDate)
       weekDays.push({
         field: `day${i}`,
         headerName: currentDate?.format("ddd"),

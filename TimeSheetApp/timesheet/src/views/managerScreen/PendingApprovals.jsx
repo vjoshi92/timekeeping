@@ -44,6 +44,8 @@ const PendingApprovals = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [checkboxChecked, setCheckboxChecked] = useState(false);
   const [showApproveAll, setShowApproveAll] = useState(false);
+  const [openApiMsg, setOpenApiMsg] = useState(false);
+  const [apiMsg, setApiMsg] = useState("");
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -58,7 +60,6 @@ const PendingApprovals = () => {
   const selectedPendingApprovals = useSelector((state) => state?.CreateForm?.selectedPendingApprovals);
 
   const handleApprove = () => {
-    console.log("selectedPendingApprovals", selectedPendingApprovals);
     selectedPendingApprovals.forEach(element => {
       const payload = { ...element, STATUS: "30", CatsHours: parseFloat(element?.CatsHours).toFixed(2) };
       delete payload.id;
@@ -82,6 +83,11 @@ const PendingApprovals = () => {
     if (saveWeekSuccess) {
       setSnackbarOpen(true);
       dispatch(setSelectedPendingApprovals([]));
+    }
+
+    if (isSaveWeekError) {
+      setApiMsg(saveWeekError);
+      setOpenApiMsg(true);
     }
   }, [saveWeekLoading])
 
@@ -131,6 +137,19 @@ const PendingApprovals = () => {
           sx={{ width: "100%" }}
         >
           Timesheet approved successfully.
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openApiMsg}
+        onClose={() => setOpenApiMsg(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setOpenApiMsg(false)}
+          severity={"error"}
+          sx={{ width: "100%" }}
+        >
+          {apiMsg}
         </Alert>
       </Snackbar>
       <BusyDialog open={saveWeekLoading} />
