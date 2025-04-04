@@ -58,7 +58,6 @@ export const TimesheetApi = createApi({
 
           body: body,
           responseHandler: (response) => {
-            console.log("response.text();", response.text());
             return response.text();
           },
         };

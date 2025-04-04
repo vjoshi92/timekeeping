@@ -298,6 +298,8 @@ const Home = () => {
   const [savedDateRange, setSavedDateRange] = useState();
   const status = useSelector((state) => state?.CreateForm?.status);
   const newRow = useSelector((state) => state?.CreateForm?.newRow);
+  const [openApiMsg, setOpenApiMsg] = useState(false);
+  const [apiMsg, setApiMsg] = useState("");
   const approvalCount = useSelector(
     (state) => state?.CreateForm?.approvalCount
   );
@@ -342,11 +344,12 @@ const Home = () => {
     {
       isSuccess: batchCallIsSuccess,
       isLoading: batchCallLoading,
+      isError: batchCallError,
+      error: batchCallErrorResponse,
       data: batchSuccessData
     },
   ] = useMakeBatchCallMutation();
-
-  console.log("batchSuccessData", batchSuccessData);
+  
   // this is service call to get Timesheet data for selected week
   const [
     getTimesheetEntry,
@@ -383,6 +386,11 @@ const Home = () => {
       dispatch(setNewRowAdded(false));
       getTimesheetDataWeekWise();
     }
+
+    if (batchCallError) {
+      setApiMsg(batchCallErrorResponse);
+      setOpenApiMsg(true);
+    }
   }, [batchCallLoading]);
 
   useEffect(() => {
@@ -415,8 +423,7 @@ const Home = () => {
     const saveBtn = projectedData?.filter(x => !x.totalRow).length > 0;
     setShowSaveBtn(saveBtn);
   }, [projectedData]);
-
-  // console.log("filteredData", filteredData)
+  
   const handleSearch = (searchQuery) => {
     if (searchQuery) {
       const filtered = projectedData?.filter(
@@ -425,7 +432,6 @@ const Home = () => {
           item?.title?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
           item?.project?.toLowerCase()?.includes(searchQuery.toLowerCase())
       );
-      // console.log("filtered>>>>>>>>>>>>>", filtered);
       setFilteredData(filtered);
     } else {
       setFilteredData(projectedData);
@@ -435,8 +441,7 @@ const Home = () => {
   //---------------------for showing different  modals on approvals----------------------------------------------  
   const handleApproval = () => {
     // const rejectedItems = projectedData
-    const isRejectedItem = checkStatusCondition(projectedData, "40");
-    console.log(isRejectedItem);
+    const isRejectedItem = checkStatusCondition(projectedData, "40");    
     if (isRejectedItem === true) {
       setAlertMsg("Please rectify the rejected entries and then resubmit for approval.");
       setAlertOpen(true);
@@ -595,7 +600,7 @@ const Home = () => {
       handlePreviousWeek(true);
     } else if (navConfType === "next") {
       handleNextWeek(true);
-    } else if (navConfType === "datePicker") {      
+    } else if (navConfType === "datePicker") {
       dispatch(setDateRange(calendarDate));
       dispatch(setNewRowAdded(false));
       setCalendarDate('');
@@ -1063,7 +1068,7 @@ const Home = () => {
             level: entry?.TimeEntryDataFields?.POSID,
             title: entry?.TimeEntryDataFields?.POST1,
             smartId: entry?.TimeEntryDataFields?.USR00 || "--",
-            id: Math.random(),          
+            id: Math.random(),
             hierarchy: [
               entry?.TimeEntryDataFields?.PSPID_DESC,
               `${entry?.TimeEntryDataFields?.POST1}-${entry?.TimeEntryDataFields?.POSID}`,
@@ -1368,14 +1373,14 @@ const Home = () => {
               onChange={handleAlignment}
               aria-label="text alignment"
             >
-              <ToggleButton sx={{color: "#000"}}
+              <ToggleButton sx={{ color: "#000" }}
                 value="left"
                 aria-label="left aligned"
                 onClick={() => handlePreviousWeek(false)}
               >
                 <ArrowBackIcon />
               </ToggleButton>
-              <ToggleButton sx={{color: "#000"}}
+              <ToggleButton sx={{ color: "#000" }}
                 value="justify"
                 aria-label="justified"
                 // disabled={disableToggel}
@@ -1651,7 +1656,7 @@ const Home = () => {
             sx={{ color: "#41AF6E", width: "50px", height: "50px" }}
           />
 
-          <TimesheetText>Your timesheet for {selectedDate} has been submitted for approval</TimesheetText>          
+          <TimesheetText>Your timesheet for {selectedDate} has been submitted for approval</TimesheetText>
           <CloseButton
             variant="outlined"
             onClick={() => setIsTimesheetCreated(false)}
@@ -1773,6 +1778,19 @@ const Home = () => {
         </StyledApprovalBox>
       </Modal>
       <BusyDialog open={batchCallLoading || timeSheetDataFetching || prevWeekTimesheetFetching} />
+      <Snackbar
+        open={openApiMsg}
+        onClose={() => setOpenApiMsg(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setOpenApiMsg(false)}
+          severity={"error"}
+          sx={{ width: "100%" }}
+        >
+          {apiMsg}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

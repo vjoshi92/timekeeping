@@ -1,9 +1,6 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { setTokenExp } from 'store/slice/HomeSlice';
 export const baseUrl = 'JMDNEW/sap/opu/odata/sap/';
-
-// https://jmwwdad1.jmawireless.com/sap/opu/odata/sap/HCMFAB_COMMON_SRV/EmployeeDetailSet?$format=json
-
-// console.log("baseUrl", baseUrl)
 
 const customBaseQuery = fetchBaseQuery({
     baseUrl,
@@ -34,6 +31,10 @@ export const baseQuery = async (args, api, extraOptions = {}) => {
             response = await metadataBaseQuery(args, api, extraOptions);
         } else {
             response = await customBaseQuery(args, api, extraOptions);
+        }
+
+        if (response?.error?.originalStatus === 403) {
+            api.dispatch(setTokenExp(true));
         }
 
         return {
@@ -70,7 +71,39 @@ export const metaDataCustomBaseQuery = fetchBaseQuery({
 export const metadataBaseQuery = async (args, api, extraOptions = {}) => {
     try {
         const response = await metaDataCustomBaseQuery(args, api, extraOptions);
-        console.log("metabase query",response);
+        const statusCodes = [];
+        if (api?.endpoint === "makeBatchCall" || api?.endpoint === "makeApprovalBatchCall") {
+            if (response?.error) {
+                const boundary = response?.error?.data.match(/boundary=(.*)/)[1];
+                const parts = response?.error?.data.split(`--${boundary}`);
+                parts.forEach(part => {
+                    const match = part.match(/HTTP\/1\.1\s(\d{3})\s/);
+                    if (match) {
+                        statusCodes.push(parseInt(match[1], 10));
+                    }
+                });
+            }
+            if (statusCodes.length > 0) {
+                const errorCodes = statusCodes.filter(x => (x === 400 || x === 404 || x === 500));
+                if (errorCodes && errorCodes?.length > 0) {
+                    return {
+                        error: {
+                            data: {
+                                error: {
+                                    message: {
+                                        value:
+                                            "An error occurred while processing your request. Please contact the support team for assistance."
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+                console.log(`Batch call: HTTP Status Code: ${statusCodes}`);
+            }
+        }
+
         return { data: response?.data?.d ?? response.data };
     } catch (error) {
         console.log('error', error);

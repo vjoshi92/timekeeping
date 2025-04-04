@@ -14,7 +14,8 @@ export const HomeSlice = createSlice({
     firstSearchRecord: 0,
     userDetails: [],
     selectedCards: null,
-    daterange: "" // This is where the date range should be stored
+    daterange: "", // This is where the date range should be stored
+    tokenExp: false
   },
   reducers: {
     addTodo: (state, action) => {
@@ -46,11 +47,14 @@ export const HomeSlice = createSlice({
       // Update the correct field, which is daterange
       state.daterange = action.payload;
     },
+    setTokenExp: (state, action) => {
+      state.tokenExp = action.payload;
+    }
   },
 });
 
 // This is for dispatch
-export const { addTodo, setPlant, setSelectedKpi, setRefresh, setUserDetails, setSelectedCards, setDateRange } = HomeSlice.actions;
+export const { addTodo, setPlant, setSelectedKpi, setRefresh, setUserDetails, setSelectedCards, setDateRange, setTokenExp } = HomeSlice.actions;
 
 // This is for configureStore
 export default HomeSlice.reducer;

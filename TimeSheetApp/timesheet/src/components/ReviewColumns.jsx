@@ -229,6 +229,7 @@ export const ReviewColumns = ({
   handleRejected,
   isPrevious,
   handleRemoveRejection,
+  updateTotalRow
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeInputId, setActiveInputId] = useState(null);
@@ -816,6 +817,7 @@ export const ReviewColumns = ({
                 handleClose={() => setOpenChangeEntry(false)}
                 activeInputId={activeInputId}
                 rowObject={rowObject}
+                updateTotalRow={updateTotalRow}
               />
             </InputStyleBox>
           );
