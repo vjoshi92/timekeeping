@@ -57,6 +57,7 @@ import {
   useLazyGetDateWiseDetailsQuery,
   useLazyGetPrevWeekDetailsQuery,
   useMakeBatchCallMutation,
+  useMakeDeleteBatchCallMutation,
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
 import Search from "components/Search";
@@ -332,7 +333,7 @@ const Home = () => {
   const [navConfType, setNavConfType] = useState('');
   const [isTimesheetChanged, setTimesheetChanged] = useState(false);
   const [calendarDate, setCalendarDate] = useState('');
-
+  const [toBeDeleteRowId, setToBeDeleteRowId] = useState(-1);
   // useEffect(() => {
   //   if (refresh === 'true') {
   //     navigate("/home");
@@ -349,7 +350,19 @@ const Home = () => {
       data: batchSuccessData
     },
   ] = useMakeBatchCallMutation();
-  
+
+  const [
+    deleteBatchCall,
+    {
+      isSuccess: deleteBatchCallIsSuccess,
+      isLoading: deleteBatchCallLoading,
+      isError: deleteBatchCallError,
+      error: deleteBatchCallErrorResponse,
+      data: deleteBatchSuccessData
+    },
+  ] = useMakeDeleteBatchCallMutation();
+
+
   // this is service call to get Timesheet data for selected week
   const [
     getTimesheetEntry,
@@ -380,9 +393,11 @@ const Home = () => {
         setIsTimesheetCreated(true);
       } else if (batchCallType == "save") {
         setSnackbarOpen(true);
-      } else if (batchCallType == "delete") {
-        setDeleteMsgOpen(true);
       }
+      // delete is handled in another batch call, commented for future use
+      // else if (batchCallType == "delete") {
+      //   setDeleteMsgOpen(true);
+      // }
       dispatch(setNewRowAdded(false));
       getTimesheetDataWeekWise();
     }
@@ -392,6 +407,26 @@ const Home = () => {
       setOpenApiMsg(true);
     }
   }, [batchCallLoading]);
+
+  useEffect(() => {
+    if (deleteBatchCallIsSuccess) {
+      setDeleteMsgOpen(true);
+      // dispatch(setNewRowAdded(false));
+      // splice the row after successfull deletion from BE
+      dispatch(deleteProjectDataById(toBeDeleteRowId));
+      const data = [...projectedData];
+      const entry = projectedData.find((item) => item?.id == toBeDeleteRowId);
+      const rowId = data.indexOf(entry);
+      data.splice(rowId, 1);
+      calculateRowsTotal(data);
+      setToBeDeleteRowId(-1);
+    }
+
+    if (deleteBatchCallError) {
+      setApiMsg(deleteBatchCallErrorResponse);
+      setOpenApiMsg(true);
+    }
+  }, [deleteBatchCallLoading]);
 
   useEffect(() => {
     if (prevWeekTimesheetSuccessful) {
@@ -422,8 +457,8 @@ const Home = () => {
     setFilteredData(projectedData);
     const saveBtn = projectedData?.filter(x => !x.totalRow).length > 0;
     setShowSaveBtn(saveBtn);
-  }, [projectedData]);
-  
+  }, [projectedData, toBeDeleteRowId]);
+
   const handleSearch = (searchQuery) => {
     if (searchQuery) {
       const filtered = projectedData?.filter(
@@ -441,7 +476,7 @@ const Home = () => {
   //---------------------for showing different  modals on approvals----------------------------------------------  
   const handleApproval = () => {
     // const rejectedItems = projectedData
-    const isRejectedItem = checkStatusCondition(projectedData, "40");    
+    const isRejectedItem = checkStatusCondition(projectedData, "40");
     if (isRejectedItem === true) {
       setAlertMsg("Please rectify the rejected entries and then resubmit for approval.");
       setAlertOpen(true);
@@ -938,6 +973,7 @@ const Home = () => {
   };
 
   const handleDelete = async (rowId) => {
+
     const entry = projectedData.find((item) => item?.id == rowId);
     if (entry.newRow) {
       dispatch(deleteProjectDataById(rowId));
@@ -947,9 +983,10 @@ const Home = () => {
     } else {
       // delete function
       setBatchCallType("delete");
+      setToBeDeleteRowId(rowId);
       const timesheetEntries = prepareDeleteEntryPayload(rowId);
       const batchPayload = PrepareBatchPayload(timesheetEntries);
-      const response = await makeBatchCall({ body: batchPayload });
+      const response = await deleteBatchCall({ body: batchPayload });
     }
   };
 
@@ -963,7 +1000,7 @@ const Home = () => {
       projectData = projectedData;
     }
 
-    let transformedData = projectedData.filter(x => !x.totalRow);
+    let transformedData = projectData.filter(x => !x.totalRow);
     let total = projectedData.find(x => x.totalRow);
 
     let totalsRow = {
@@ -1777,7 +1814,7 @@ const Home = () => {
           </NoteButtonStack>
         </StyledApprovalBox>
       </Modal>
-      <BusyDialog open={batchCallLoading || timeSheetDataFetching || prevWeekTimesheetFetching} />
+      <BusyDialog open={batchCallLoading || timeSheetDataFetching || prevWeekTimesheetFetching || deleteBatchCallLoading} />
       <Snackbar
         open={openApiMsg}
         onClose={() => setOpenApiMsg(false)}

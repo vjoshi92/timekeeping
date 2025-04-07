@@ -895,8 +895,7 @@ export const ReviewColumns = ({
                       }))}
                       onChange={handleReasonChange}
 
-                      value={selectedReason?.label || "--"}
-                      autoFocus={true}
+                      value={selectedReason?.label || ""}
                     />
                     {rowObject?.cellRejected && <IconButton onClick={handleRemoveRejectionLocal}>
                       <RemoveCircleIcon color="error" />

@@ -245,6 +245,19 @@ export const TimesheetApi = createApi({
         };
       },
     }),
+    makeDeleteBatchCall: builder.mutation({
+      query: ({ body }) => {
+        return {
+          url: "HCMFAB_TIMESHEET_MAINT_SRV/$batch",
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/mixed; boundary=batch",
+          },
+
+          body: body,
+        };
+      },
+    }),
   }),
 });
 
@@ -272,5 +285,6 @@ export const {
   useLazyGetTimesheetWeeklyQuery,
   useGetTeamTimesheetWeeklyQuery,
   useLazyGetTeamTimesheetWeeklyQuery,
-  useLazyGetPrevWeekDetailsQuery
+  useLazyGetPrevWeekDetailsQuery,
+  useMakeDeleteBatchCallMutation
 } = TimesheetApi;

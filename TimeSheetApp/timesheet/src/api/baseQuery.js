@@ -72,7 +72,8 @@ export const metadataBaseQuery = async (args, api, extraOptions = {}) => {
     try {
         const response = await metaDataCustomBaseQuery(args, api, extraOptions);
         const statusCodes = [];
-        if (api?.endpoint === "makeBatchCall" || api?.endpoint === "makeApprovalBatchCall") {
+        if (api?.endpoint === "makeBatchCall" || api?.endpoint === "makeApprovalBatchCall"
+            || api?.endpoint === "makeDeleteBatchCall") {
             if (response?.error) {
                 const boundary = response?.error?.data.match(/boundary=(.*)/)[1];
                 const parts = response?.error?.data.split(`--${boundary}`);
