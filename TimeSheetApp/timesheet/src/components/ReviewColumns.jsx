@@ -895,7 +895,7 @@ export const ReviewColumns = ({
                       }))}
                       onChange={handleReasonChange}
 
-                      value={selectedReason?.label || "--"}
+                      value={selectedReason?.label || ""}
                     />
                     {rowObject?.cellRejected && <IconButton onClick={handleRemoveRejectionLocal}>
                       <RemoveCircleIcon color="error" />
