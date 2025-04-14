@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Snackbar,
+  Stack,
   styled,
   Typography,
 } from "@mui/material";
@@ -66,6 +67,21 @@ const PendingApprovals = () => {
       delete payload.__metadata;
       delete payload.LAEDA;
       delete payload.weekDate;
+      delete payload.APNAM;
+      delete payload.Fullname;
+      saveWeekApproval({ body: payload });
+    });
+  };
+
+  const handleReject = () => {
+    selectedPendingApprovals.forEach(element => {
+      const payload = { ...element, STATUS: "40", CatsHours: parseFloat(element?.CatsHours).toFixed(2) };
+      delete payload.id;
+      delete payload.__metadata;
+      delete payload.LAEDA;
+      delete payload.weekDate;
+      delete payload.APNAM;
+      delete payload.Fullname;
       saveWeekApproval({ body: payload });
     });
   };
@@ -76,8 +92,22 @@ const PendingApprovals = () => {
     delete payload.__metadata;
     delete payload.LAEDA;
     delete payload.weekDate;
+    delete payload.APNAM;
+    delete payload.Fullname;
     saveWeekApproval({ body: payload });
   };
+
+  const rejectLineItem = (row) => {
+    const payload = { ...row, STATUS: "40", "CatsHours": parseFloat(row?.CatsHours).toFixed(2) };
+    delete payload.id;
+    delete payload.__metadata;
+    delete payload.LAEDA;
+    delete payload.weekDate;
+    delete payload.APNAM;
+    delete payload.Fullname;
+    saveWeekApproval({ body: payload });
+  };
+
 
   useEffect(() => {
     if (saveWeekSuccess) {
@@ -100,6 +130,7 @@ const PendingApprovals = () => {
             setCheckboxChecked={setCheckboxChecked}
             setShowApproveAll={setShowApproveAll}
             handleApprove={approveLineItem}
+            handleReject={rejectLineItem}
           />
         </Box>
         {/* <StyledMainBox sx={{ gap: { xs: 2, sm: 2 } }}>
@@ -107,23 +138,43 @@ const PendingApprovals = () => {
       </StyledMainBox> */}
       </StyledBox>
       <Footer>
-        <StyledButton
-          onClick={() => handleApprove()}
-          variant="contained"
-          disabled={!checkboxChecked && !showApproveAll}
-          sx={{
-            width: { xs: "100%", sm: "200px" },
-            fontWeight: 700,
-            backgroundColor: "#41af6e",
-            marginLeft: "0.3rem"
-          }}
-        >
-          {checkboxChecked
-            ? "Approve"
-            : showApproveAll
-              ? "Approve All"
-              : "Approve"}
-        </StyledButton>
+        <Stack direction={"row"} spacing={2}>
+          <StyledButton
+            onClick={() => handleApprove()}
+            variant="contained"
+            disabled={!checkboxChecked && !showApproveAll}
+            sx={{
+              width: { xs: "100%", sm: "200px" },
+              fontWeight: 700,
+              backgroundColor: "#41af6e",
+              marginLeft: "0.3rem"
+            }}
+          >
+            {checkboxChecked
+              ? "Approve"
+              : showApproveAll
+                ? "Approve All"
+                : "Approve"}
+          </StyledButton>
+          <StyledButton
+            onClick={() => handleApprove()}
+            variant="contained"
+            disabled={!checkboxChecked && !showApproveAll}
+            sx={{
+              width: { xs: "100%", sm: "200px" },
+              fontWeight: 700,
+              backgroundColor: "error",
+              marginLeft: "0.3rem"
+            }}
+            color="error"
+          >
+            {checkboxChecked
+              ? "Reject"
+              : showApproveAll
+                ? "Reject All"
+                : "Reject"}
+          </StyledButton>
+        </Stack>
       </Footer>
       <Snackbar
         open={snackbarOpen}

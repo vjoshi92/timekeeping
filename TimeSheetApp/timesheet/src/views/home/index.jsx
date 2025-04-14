@@ -461,7 +461,7 @@ const Home = () => {
     setShowSaveBtn(saveBtn);
 
     // set approved user name in local state        
-    setApprover(projectedData[0].ApproverName)
+    setApprover(projectedData[0]?.ApproverName)
   }, [projectedData, toBeDeleteRowId]);
 
   const handleSearch = (searchQuery) => {

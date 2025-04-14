@@ -68,6 +68,7 @@ import {
   useMakeApprovalBatchCallMutation,
   useMakeBatchCallMutation,
   useSaveLongTextMutation,
+  useSaveWeekApprovalMutation,
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
 import { Footer } from "components/Footer";
@@ -215,6 +216,7 @@ const ReworkButton = styled(Button)(({ theme }) => ({
   border: "1px solid #005AA6",
   fontWeight: 700,
 }));
+
 const ApproveButton = styled(Button)(({ theme }) => ({
   height: "42px",
   backgroundColor: "#41af6e",
@@ -498,6 +500,10 @@ const ReviewScreen = () => {
 
   const { data: rejectionReasons } = useGetRejectedReasonsQuery();
 
+  const [saveWeekApproval, { isSuccess: saveWeekSuccess, isLoading: saveWeekLoading, isError: isSaveWeekError,
+    error: saveWeekError
+  }] = useSaveWeekApprovalMutation();
+
   useEffect(() => {
     if (week && pernr) {
       getReviewDetailData({ week, pernr, type });
@@ -656,14 +662,8 @@ const ReviewScreen = () => {
 
     if (actionMsg.indexOf("approve") >= 0) {
       handleApprove();
-      // setSnackBarMsg("Timesheet Approved !!");
-      // setShowRelease(true);
-      // setNewStatus("Approved");
-    } else if (actionMsg.indexOf("reject") >= 0) {
-      // setSnackBarMsg(`Timesheet Rejected for ${selectedDate}.`);
-      // setNewStatus("Rejected");
-      // setShowRelease(true);
-      // setSnackbarOpen(true);
+    } else if (actionMsg.indexOf("release") >= 0) {
+      handleRelease();
     } else {
 
     }
@@ -1051,7 +1051,9 @@ const ReviewScreen = () => {
     }
   }, [noteCallLoading]);
 
+  const handleRowRejected = () => {
 
+  };
 
   const AllDataColumns = ReviewColumns({
     rows,
@@ -1060,7 +1062,8 @@ const ReviewScreen = () => {
     handleDelete,
     isParent: false,
     handleRejected,
-    updateTotalRow
+    updateTotalRow,
+    handleRowRejected
   });
 
   // useEffect(() => {
@@ -1354,10 +1357,33 @@ const ReviewScreen = () => {
     return entries;
   };
 
+  const handleRelease = () => {
+    const payloadForRelease = reviewDetailData?.results[0];
+    const payload = { ...payloadForRelease, STATUS: "20", CatsHours: parseFloat(payloadForRelease?.CatsHours).toFixed(2) };
+    delete payload.id;
+    delete payload.__metadata;
+    delete payload.LAEDA;
+    delete payload.weekDate;
+    delete payload.APNAM;
+    delete payload.Fullname;
+    saveWeekApproval({ body: payload });
+  }
+
+  useEffect(() => {
+    if (saveWeekSuccess) {
+      setSnackbarOpen(true);
+      setSnackBarMsg("Timesheet released.")
+    }
+
+    if (isSaveWeekError) {
+      setOpenApiMsg(true);
+      setAlertMsg(saveWeekError)
+    }
+  }, [saveWeekLoading])
+
   return (
     <>
-      <StyledStack
-      >
+      <StyledStack>
         <HeaderBox
           sx={{
             flexDirection: { xs: "column", sm: "row" },
@@ -1436,7 +1462,7 @@ const ReviewScreen = () => {
             >
               <HeaderTypography>Approver</HeaderTypography>
               <HeaderSubTypography>
-                {reviewDetailData?.results[0]?.APNAM}
+                {reviewDetailData?.results[0]?.Fullname}
               </HeaderSubTypography>
             </Stack>
             <Stack
@@ -1566,24 +1592,30 @@ const ReviewScreen = () => {
       {isReviewer === 'true' && type == "team" &&
         <Footer>
           <ButtonStack>
-            {isTimeSheetRejected && <RejectButton
-              disabled={status === "Approved" || status === "Rejected"}
-              variant="contained"
-              color="error"
-              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}
-              onClick={() => onRejectPress()}
-            >
-              Reject
-            </RejectButton>}
-            {!isTimeSheetRejected && <ApproveButton
-              disabled={status === "Approved" || status === "Rejected"}
-              variant="contained"
-              color="success"
-              sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}
-              onClick={() => handleApproval("approve")}
-            >
-              Approve
-            </ApproveButton>}
+            {status === "Pending For Approval" && <>
+              {isTimeSheetRejected && <RejectButton
+                disabled={status === "Approved" || status === "Rejected"}
+                variant="contained"
+                color="error"
+                sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}
+                onClick={() => onRejectPress()}
+              >
+                Reject
+              </RejectButton>}
+              {!isTimeSheetRejected && <ApproveButton
+                disabled={status === "Approved" || status === "Rejected"}
+                variant="contained"
+                color="success"
+                sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}
+                onClick={() => handleApproval("approve")}
+              >
+                Approve
+              </ApproveButton>}
+            </>}
+            {(status === "Approved" || status === "Rejected") && <ReworkButton
+              onClick={() => handleApproval("release")} sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}>
+              Release Timesheet
+            </ReworkButton>}
           </ButtonStack>
         </Footer>}
       <Modal

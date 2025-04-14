@@ -67,7 +67,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       flex: 1,
     },
     {
-      field: "APNAM",
+      field: "Fullname",
       headerName: "Approver",
       minWidth: 200,
       type: "string",
@@ -126,7 +126,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       flex: 1,
     },
     {
-      field: "APNAM",
+      field: "Fullname",
       headerName: "Approver",
       minWidth: 200,
       type: "string",

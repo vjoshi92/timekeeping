@@ -59,7 +59,8 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
 export default function ApprovalsDatagrid({
   setCheckboxChecked,
   setShowApproveAll,
-  handleApprove
+  handleApprove,
+  handleReject
 }) {
   const [isChecked, setIsChecked] = React.useState(false);
   const [checkedItems, setCheckedItems] = React.useState({});
@@ -192,7 +193,7 @@ export default function ApprovalsDatagrid({
       flex: 1,
     },
     {
-      field: "APNAM",
+      field: "Fullname",
       headerName: "Approver",
       minWidth: 200,
       type: "string",
