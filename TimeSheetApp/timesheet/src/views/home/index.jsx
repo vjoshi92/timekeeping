@@ -104,7 +104,8 @@ const StyledDateTypography = styled(Typography)(() => ({
 const HeaderTypography = styled(Typography)(() => ({
   fontWeight: "600",
   fontSize: { xs: "12px", sm: "14px" },
-  color: "#121212DE",
+  // color: "#121212DE",
+  color: "#005AA6",
 }));
 
 const HeaderSubTypography = styled(Typography)(() => ({
@@ -334,6 +335,7 @@ const Home = () => {
   const [isTimesheetChanged, setTimesheetChanged] = useState(false);
   const [calendarDate, setCalendarDate] = useState('');
   const [toBeDeleteRowId, setToBeDeleteRowId] = useState(-1);
+  const [approver, setApprover] = useState('');
   // useEffect(() => {
   //   if (refresh === 'true') {
   //     navigate("/home");
@@ -457,6 +459,9 @@ const Home = () => {
     setFilteredData(projectedData);
     const saveBtn = projectedData?.filter(x => !x.totalRow).length > 0;
     setShowSaveBtn(saveBtn);
+
+    // set approved user name in local state        
+    setApprover(projectedData[0].ApproverName)
   }, [projectedData, toBeDeleteRowId]);
 
   const handleSearch = (searchQuery) => {
@@ -1139,6 +1144,9 @@ const Home = () => {
           weekRow[`${dayKey}RecRowNo`] = entry?.RecRowNo;
           weekRow[`${dayKey}WORKDATE`] = entry?.TimeEntryDataFields?.WORKDATE;
         }
+        if (entry?.ApproverName) {
+          weekRow.ApproverName = entry?.ApproverName;
+        }
         if (rowIndex >= 0) {
           weekRows[rowIndex] = weekRow;
         } else {
@@ -1430,13 +1438,21 @@ const Home = () => {
               {selectedDate}
             </StyledDateTypography>
           </Stack>
-          <Stack direction={"row"} spacing={1} marginRight={"1rem"}>
-            <HeaderTypography>Status:</HeaderTypography>
-            <HeaderSubTypography
-              style={{ color: StatusColorFormatter(status) }}
-            >
-              {StatusCaseFormatting(status)}
-            </HeaderSubTypography>
+          <Stack direction={"row"} spacing={4} marginRight={"1rem"}>
+            <Stack direction={"row"} spacing={1}>
+              <HeaderTypography>Approver:</HeaderTypography>
+              <HeaderSubTypography>
+                {approver}
+              </HeaderSubTypography>
+            </Stack>
+            <Stack direction={"row"} spacing={1}>
+              <HeaderTypography>Status:</HeaderTypography>
+              <HeaderSubTypography
+                style={{ color: StatusColorFormatter(status) }}
+              >
+                {StatusCaseFormatting(status)}
+              </HeaderSubTypography>
+            </Stack>
           </Stack>
         </StyledBox>
         <StyledStackButton

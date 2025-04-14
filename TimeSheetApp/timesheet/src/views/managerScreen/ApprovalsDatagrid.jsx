@@ -192,6 +192,13 @@ export default function ApprovalsDatagrid({
       flex: 1,
     },
     {
+      field: "APNAM",
+      headerName: "Approver",
+      minWidth: 200,
+      type: "string",
+      flex: 1,
+    },
+    {
       field: "actions",
       headerName: "ACTIONS",
       type: "string",

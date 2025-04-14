@@ -406,93 +406,6 @@ const StyledDropdown = styled(Dropdown)(
   })
 );
 
-const dummyReviewData = [
-  {
-    day0: "2.00",
-    day1: "2.00",
-    day2: "2.00",
-    day3: "2.00",
-    day4: "2.00",
-    day5: "0.00",
-    day6: "0.00",
-    isNote: true,
-    weekTotal: "10.00",
-    project: "JMA NOFO 2 O-RU",
-    level: "Mechanical Design",
-    title: "1.4.10.2.1",
-    id: 1,
-    hierarchy: ["JMA NOFO 2 O-RU", "Mechanical Design"],
-  },
-  {
-    day0: "2.00",
-    day1: "2.00",
-    day2: "2.00",
-    day3: "2.00",
-    day4: "2.00",
-    day5: "0.00",
-    day6: "0.00",
-    weekTotal: "10.00",
-    project: "JMA NOFO 2 O-RU",
-    title: "1.4.10.2.3",
-    level: "PCB Design",
-    id: 2,
-    hierarchy: ["JMA NOFO 2 O-RU", "PCB Design"],
-  },
-  {
-    day0: "2.00",
-    day1: "2.00",
-    day2: "2.00",
-    day3: "2.00",
-    day4: "2.00",
-    day5: "0.00",
-    day6: "0.00",
-    weekTotal: "10.00",
-    project: "Indirect",
-    title: "1.1",
-    level: "General Training",
-    id: 3,
-    hierarchy: ["Indirect", "General Training"],
-  },
-  {
-    day0: "2.00",
-    day1: "2.00",
-    day2: "2.00",
-    day3: "2.00",
-    day4: "2.00",
-    day5: "0.00",
-    day6: "0.00",
-    weekTotal: "10.00",
-    project: "Indirect",
-    title: "1.3",
-    level: "PTO",
-    id: 4,
-    hierarchy: ["Indirect", "PTO"],
-  },
-  {
-    day0: "8.00",
-    day1: "8.00",
-    day2: "8.00",
-    day3: "8.00",
-    day4: "8.00",
-    day5: "0.00",
-    day6: "0.00",
-    weekTotal: "40.00",
-    project: "Total",
-    title: "",
-    level: "Total",
-    id: 5,
-    hierarchy: ["Total"],
-    totalRow: true,
-    isParent: false,
-  },
-];
-
-const ProjectData = [
-  { id: 1, title: "Incorrect Time Entry" },
-  { id: 2, title: "Incorrect Charge Code" },
-  { id: 3, title: "Other" },
-];
-
 const rows = [
   { id: 1, day1: 0, day2: 0, day3: 0, day4: 0, day5: 0, day6: 0, day7: 0 },
 ];
@@ -503,7 +416,7 @@ const ReviewScreen = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
   const selectedDate = useSelector((state) => state?.home?.daterange);
-  const newRow = useSelector((state) => state?.CreateForm?.newRow);
+  // const newRow = useSelector((state) => state?.CreateForm?.newRow);
   const [open, setOpen] = React.useState(false);
   const [openApproval, setOpenApproval] = React.useState(false);
   const [certificate, setOpenCertificate] = useState(false);
@@ -526,10 +439,11 @@ const ReviewScreen = () => {
   const { isReviewer, pernr, start, stop, week, type } = useParams();
   const [selectedReason, setSelectedReason] = useState(""); // Add this new state  
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMsg, setAlertMsg] = useState('');  
+  const [alertMsg, setAlertMsg] = useState('');
   const [totalError, setTotalError] = useState(false);
   const [batchCallType, setBatchCallType] = useState("");
   const [approvalMsg, setApprovalMsg] = useState();
+  const [approver, setApprover] = useState('');
   const [
     saveLongText,
     {
@@ -602,7 +516,7 @@ const ReviewScreen = () => {
     const timesheetEntries = prepareTimesheetPayload(type);
     if (timesheetEntries && timesheetEntries.length > 0) {
       const batchPayload = PrepareBatchPayload(timesheetEntries);
-      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });      
+      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });
     }
   };
 
@@ -762,7 +676,7 @@ const ReviewScreen = () => {
     const timesheetEntries = prepareTimesheetPayload("approve");
     if (timesheetEntries && timesheetEntries.length > 0) {
       const batchPayload = PrepareBatchPayload(timesheetEntries);
-      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });      
+      const response = await makeSubmitApprovalBatchCall({ body: batchPayload });
     }
   }
 
@@ -854,7 +768,7 @@ const ReviewScreen = () => {
   const handleApprove = async () => {
     const timesheetEntries = prepareApprovalPayload();
     const batchPayload = PrepareApprovalBatchPayload(timesheetEntries);
-    const response = await makeBatchCall({ body: batchPayload });    
+    const response = await makeBatchCall({ body: batchPayload });
   };
 
   const handleReject = () => { };
@@ -1085,25 +999,25 @@ const ReviewScreen = () => {
 
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
-      if (!newRow) {
-        const responseData = dateWiseData;        
-        let transformedData = transformToWeeklyRows(responseData);
-        // const projectArray = transformedData.map((x) => x.project);
-        // projectArray.forEach(project => {
-        //   const
-        // });
-        transformedData.sort((a, b) =>
-          a?.project?.localeCompare(
-            b?.project
-          ) || a?.title?.localeCompare(
-            b?.title
-          )
-        );
-        transformedData = addTotalRow(transformedData);
-        // setProductTime(transformedData);
-        dispatch(setProjectData(transformedData));
-      }
+      // if (!newRow) {
+      const responseData = dateWiseData;
+      let transformedData = transformToWeeklyRows(responseData);
+      // const projectArray = transformedData.map((x) => x.project);
+      // projectArray.forEach(project => {
+      //   const
+      // });
+      transformedData.sort((a, b) =>
+        a?.project?.localeCompare(
+          b?.project
+        ) || a?.title?.localeCompare(
+          b?.title
+        )
+      );
+      transformedData = addTotalRow(transformedData);
+      // setProductTime(transformedData);
+      dispatch(setProjectData(transformedData));
     }
+    // }
 
     if (isDateWiseDataError && dateWiseDataError) {
       setOpenApiMsg(true);
@@ -1334,6 +1248,11 @@ const ReviewScreen = () => {
           weekRow[`${dayKey}TimeCreate`] = entry?.TimeEntryDataFields?.LAETM;
           weekRow[`${dayKey}PERNR`] = entry?.TimeEntryDataFields?.PERNR;
         }
+
+        if (entry?.ApproverName) {
+          weekRow.ApproverName = entry?.ApproverName;
+        }
+
         if (rowIndex >= 0) {
           weekRows[rowIndex] = weekRow;
         } else {
@@ -1381,6 +1300,9 @@ const ReviewScreen = () => {
     } else {
       dispatch(setStatus("New"));
     }
+    // set approver name
+    setApprover(weekRows[0].ApproverName);
+
     return weekRows;
   };
 
@@ -1503,6 +1425,18 @@ const ReviewScreen = () => {
               <HeaderTypography>Employee ID</HeaderTypography>
               <HeaderSubTypography>
                 {reviewDetailData?.results[0]?.Pernr}
+              </HeaderSubTypography>
+            </Stack>
+            <Stack
+              sx={{
+                padding: { xs: 1, sm: 3 },
+                paddingRight: { xs: 1, sm: 10 },
+                alignItems: { xs: "flex-start", sm: "inherit" },
+              }}
+            >
+              <HeaderTypography>Approver</HeaderTypography>
+              <HeaderSubTypography>
+                {reviewDetailData?.results[0]?.APNAM}
               </HeaderSubTypography>
             </Stack>
             <Stack

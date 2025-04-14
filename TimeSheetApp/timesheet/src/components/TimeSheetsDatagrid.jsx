@@ -66,7 +66,13 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       type: "string",
       flex: 1,
     },
-
+    {
+      field: "APNAM",
+      headerName: "Approver",
+      minWidth: 200,
+      type: "string",
+      flex: 1,
+    },
     {
       field: "actions",
       headerName: "ACTIONS",
@@ -120,6 +126,13 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       flex: 1,
     },
     {
+      field: "APNAM",
+      headerName: "Approver",
+      minWidth: 200,
+      type: "string",
+      flex: 1,
+    },
+    {
       field: "submitDate",
       headerName: "DATE SUBMITTED",
       minWidth: 190,
@@ -134,11 +147,11 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       flex: 1,
       filterable: false,
       renderCell: (params) => (
-        <Box sx={{ marginTop: "0.4rem"}}>
+        <Box sx={{ marginTop: "0.4rem" }}>
           <RemoveRedEyeIcon
             sx={{ color: "#0073E6", cursor: "pointer" }}
             onClick={() => handleEyeClick(params?.row)}
-          />         
+          />
         </Box>
       ),
     },
