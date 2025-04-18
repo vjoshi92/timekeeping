@@ -31,6 +31,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addNotes, updateRow } from "store/slice/TimesheetSlice";
 import {
   checkStatusCondition,
+  checkStatusConditionForRow,
   formatFullDateString,
   formatFullTimeString,
   odataGetDateFormat,
@@ -252,6 +253,7 @@ export const ReviewColumns = ({
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const [openMsgPopup, setOpenMsgPopup] = useState(false);
   const [rejectRowId, setRejectionRowId] = useState(-1);
+  const [isRowRejected, setRowReject] = useState(false);
   const [
     makeBatchCall,
     {
@@ -402,27 +404,55 @@ export const ReviewColumns = ({
   };
 
   const handleRemoveRejectionLocal = () => {
-    const row = { ...rowObject?.row };
-    const index = rowObject?.index;
-    const rowIndex = projectedData.indexOf(rowObject?.row);
-    // if (row[`day${index}Counter`]) {
-    const date = formatFullDateString(new Date());
-    const time = formatFullTimeString(new Date());
-    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
-    const prevNote = row[`day${index}Notes`];
-    let noteString = `Rejection removed,${date},${time},${userName}`;
-    if (prevNote) {
-      noteString = prevNote + "\n" + noteString;
+    if (isRowRejected) {
+      const rowObj = projectedData.find(x => x.id == rejectRowId);
+      let row = { ...rowObj };
+      const rowIndex = projectedData.indexOf(rowObj);
+      const date = formatFullDateString(new Date());
+      const time = formatFullTimeString(new Date());
+      const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+      for (let index = 0; index < 7; index++) {
+        if (row[`day${index}STATUS`] === "40") {
+          const prevNote = row[`day${index}Notes`];
+          let noteString = `Rejection removed,${date},${time},${userName}`;
+          if (prevNote) {
+            noteString = prevNote + "\n" + noteString;
+          }
+          row[`day${index}Notes`] = noteString;
+          row[`day${index}STATUS`] = '20';
+          row[`day${index}Reason`] = "";
+          row[`day${index}ReasonDesc`] = "";
+        }
+      }
+      dispatch(updateRow({
+        rowIndex: rowIndex,
+        rowObj: row
+      }));
+      setOpenRejection(false);
+    } else {
+      const row = { ...rowObject?.row };
+      const index = rowObject?.index;
+      const rowIndex = projectedData.indexOf(rowObject?.row);
+      // if (row[`day${index}Counter`]) {
+      const date = formatFullDateString(new Date());
+      const time = formatFullTimeString(new Date());
+      const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+      const prevNote = row[`day${index}Notes`];
+      let noteString = `Rejection removed,${date},${time},${userName}`;
+      if (prevNote) {
+        noteString = prevNote + "\n" + noteString;
+      }
+      row[`day${index}Notes`] = noteString;
+      row[`day${index}STATUS`] = '20';
+      row[`day${index}Reason`] = "";
+      row[`day${index}ReasonDesc`] = "";
+      dispatch(updateRow({
+        rowIndex: rowIndex,
+        rowObj: row
+      }));
+      setOpenRejection(false);
     }
-    row[`day${index}Notes`] = noteString;
-    row[`day${index}STATUS`] = '20';
-    row[`day${index}Reason`] = "";
-    row[`day${index}ReasonDesc`] = "";
-    dispatch(updateRow({
-      rowIndex: rowIndex,
-      rowObj: row
-    }));
-    setOpenRejection(false);
+
   };
 
   const localRejection = () => {
@@ -505,6 +535,7 @@ export const ReviewColumns = ({
     setOpenRejection(true);
     setRejectionRowId(-1);
     setActiveInputId(inputId);
+    setRowReject(false);
     const cellRejected = isCellRejected(row, i);
     if (cellRejected) {
       setSelectedReason({
@@ -670,7 +701,8 @@ export const ReviewColumns = ({
   };
 
   const handleRowRejected = (rowId) => {
-    const isRejectedItem = checkStatusCondition(projectedData, "40");
+    const isRejectedItem = checkStatusConditionForRow(projectedData, "40", rowId);
+    setRowReject(isRejectedItem);
     setOpenRejection(true);
     setRejectionRowId(rowId);
   }
@@ -955,7 +987,7 @@ export const ReviewColumns = ({
 
                       value={selectedReason?.label || ""}
                     />
-                    {rowObject?.cellRejected && <IconButton onClick={handleRemoveRejectionLocal}>
+                    {(rowObject?.cellRejected || isRowRejected) && <IconButton onClick={handleRemoveRejectionLocal}>
                       <RemoveCircleIcon color="error" />
                     </IconButton>}
                   </Stack>
