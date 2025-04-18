@@ -263,6 +263,7 @@ export const TimesheetApi = createApi({
 
 export const {
   useGetUserDataQuery,
+  useLazyGetUserDataQuery,
   useGetWbsDataQuery,
   useGetProjectDataQuery,
   useMakeBatchCallMutation,

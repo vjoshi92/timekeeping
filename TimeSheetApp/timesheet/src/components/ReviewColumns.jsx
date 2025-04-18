@@ -30,6 +30,7 @@ import Dropdown from "./Dropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { addNotes, updateRow } from "store/slice/TimesheetSlice";
 import {
+  checkStatusCondition,
   formatFullDateString,
   formatFullTimeString,
   odataGetDateFormat,
@@ -231,7 +232,6 @@ export const ReviewColumns = ({
   isPrevious,
   handleRemoveRejection,
   updateTotalRow,
-  handleRowRejected
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeInputId, setActiveInputId] = useState(null);
@@ -251,6 +251,7 @@ export const ReviewColumns = ({
   const status = useSelector((state) => state?.CreateForm?.status);
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const [openMsgPopup, setOpenMsgPopup] = useState(false);
+  const [rejectRowId, setRejectionRowId] = useState(-1);
   const [
     makeBatchCall,
     {
@@ -271,7 +272,11 @@ export const ReviewColumns = ({
 
   const handleApprovalClose = (type) => {
     if (type == "submit") {
-      localRejection();
+      if (rejectRowId === -1) {
+        localRejection();
+      } else {
+        localRowRejection();
+      }
     } else {
       setOpenRejection(false);
     }
@@ -455,8 +460,50 @@ export const ReviewColumns = ({
 
   };
 
+  const localRowRejection = () => {
+    const rowObj = projectedData.find(x => x.id == rejectRowId);
+    let row = { ...rowObj };
+    const rowIndex = projectedData.indexOf(rowObj);
+
+    const date = formatFullDateString(new Date());
+    const time = formatFullTimeString(new Date());
+    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+    const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
+    // remove \n with |n inside the actual text
+    let noteValue = reason;
+    if (noteValue.includes("\n")) {
+      noteValue = noteValue.replaceAll("\n", "|n",);
+    }
+
+    for (let index = 0; index < 7; index++) {
+      let noteString = `Rejected Reason: ${noteValue},${date},${time},${userName}`;
+      if (row[`day${index}`] != 0.00) {
+        const prevNote = row[`day${index}Notes`];
+        if (prevNote) {
+          noteString = prevNote + "\n" + noteString;
+        }
+        row[`day${index}Notes`] = noteString;
+        row[`day${index}STATUS`] = '40';
+        row[`day${index}Reason`] = selectedReason?.value.toString();
+        row[`day${index}ReasonDesc`] = selectedReason?.label.toString();
+        row[`day${index}OtherReason`] = otherReason;
+      }
+    }
+
+    dispatch(updateRow({
+      rowIndex: rowIndex,
+      rowObj: row
+    }));
+    setOpenRejection(false);
+    // } else {
+    //   setOpenMsgPopup(true);
+    // }
+
+  };
+
   const openRejectionModal = (inputId, row, i) => {
     setOpenRejection(true);
+    setRejectionRowId(-1);
     setActiveInputId(inputId);
     const cellRejected = isCellRejected(row, i);
     if (cellRejected) {
@@ -621,6 +668,12 @@ export const ReviewColumns = ({
   const handleReasonChange = (event, value) => {
     setSelectedReason(value);
   };
+
+  const handleRowRejected = (rowId) => {
+    const isRejectedItem = checkStatusCondition(projectedData, "40");
+    setOpenRejection(true);
+    setRejectionRowId(rowId);
+  }
 
   const getWeekDays = () => {
     let startDate;
@@ -992,7 +1045,7 @@ export const ReviewColumns = ({
         return (!params.row.totalRow && (
           <Tooltip title="Reject time entry.">
             <IconButton
-              disabled={status === "Approved"}
+              disabled={status === "Approved" || status === "Rejected"}
               size="small"
               color="secondary"
               onClick={() => handleRowRejected(params.row.id)}
