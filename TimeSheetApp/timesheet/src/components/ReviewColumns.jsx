@@ -1076,14 +1076,17 @@ export const ReviewColumns = ({
 
         return (!params.row.totalRow && (
           <Tooltip title="Reject time entry.">
-            <IconButton
+            <Button variant="text" color="error" size="small" onClick={() => handleRowRejected(params.row.id)}>
+              Reject
+            </Button>
+            {/* <IconButton
               disabled={status === "Approved" || status === "Rejected"}
               size="small"
               color="secondary"
               onClick={() => handleRowRejected(params.row.id)}
             >
               <CancelIcon />
-            </IconButton>
+            </IconButton> */}
           </Tooltip>
         )
         )
