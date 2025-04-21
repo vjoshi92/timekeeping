@@ -80,12 +80,14 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       description: "Approve or reject the entry.",
       flex: 1,
       renderCell: (params) => (
-        <Box>
-          <RemoveRedEyeIcon
-            sx={{ color: "#0073E6", cursor: "pointer" }}
-            onClick={() => handleEyeClick(params?.row)}
-          />
-        </Box>
+        <>
+          <Box>
+            <RemoveRedEyeIcon
+              sx={{ color: "#0073E6", cursor: "pointer" }}
+              onClick={() => handleEyeClick(params?.row)}
+            />
+          </Box>
+        </>
       ),
     },
   ];
@@ -152,6 +154,11 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
             sx={{ color: "#0073E6", cursor: "pointer" }}
             onClick={() => handleEyeClick(params?.row)}
           />
+          {(params?.row?.STATUS == "30" || params?.row?.STATUS == "40") && (
+            <Tooltip title="Release timesheet">
+              <ApprovalIcon sx={{ color: "#0073E6", marginLeft: "1rem", cursor: "pointer" }} />
+            </Tooltip>
+          )}
         </Box>
       ),
     },
