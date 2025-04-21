@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 
 const SessionExpiredDialog = ({ open, onClose, handleLogout }) => {
     const handleReload = () => {
@@ -10,10 +10,10 @@ const SessionExpiredDialog = ({ open, onClose, handleLogout }) => {
 
     return (
         <Dialog open={open} maxWidth="xs" fullWidth>
-            <DialogTitle>Session Expired</DialogTitle>
+            <DialogTitle fontWeight={600} color='#ED6A15'>Session Expired</DialogTitle>
             <DialogContent>
                 <p>Your session has expired. Please refresh the page.</p>
-            </DialogContent>            
+            </DialogContent>
         </Dialog>
     );
 };

@@ -16,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CancelIcon from '@mui/icons-material/Cancel';
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import TextSnippetOutlined from "@mui/icons-material/TextSnippetOutlined";
 import MuiInput from "./MuiInput";
@@ -29,6 +30,8 @@ import Dropdown from "./Dropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { addNotes, updateRow } from "store/slice/TimesheetSlice";
 import {
+  checkStatusCondition,
+  checkStatusConditionForRow,
   formatFullDateString,
   formatFullTimeString,
   odataGetDateFormat,
@@ -229,7 +232,7 @@ export const ReviewColumns = ({
   handleRejected,
   isPrevious,
   handleRemoveRejection,
-  updateTotalRow
+  updateTotalRow,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeInputId, setActiveInputId] = useState(null);
@@ -249,6 +252,8 @@ export const ReviewColumns = ({
   const status = useSelector((state) => state?.CreateForm?.status);
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const [openMsgPopup, setOpenMsgPopup] = useState(false);
+  const [rejectRowId, setRejectionRowId] = useState(-1);
+  const [isRowRejected, setRowReject] = useState(false);
   const [
     makeBatchCall,
     {
@@ -269,7 +274,11 @@ export const ReviewColumns = ({
 
   const handleApprovalClose = (type) => {
     if (type == "submit") {
-      handleReject();
+      if (rejectRowId === -1) {
+        localRejection();
+      } else {
+        localRowRejection();
+      }
     } else {
       setOpenRejection(false);
     }
@@ -321,8 +330,11 @@ export const ReviewColumns = ({
     return [temp];
   };
 
+  const openRowRejectPopup = () => {
+    setModalOpen(true);
+
+  }
   const handleReject = async () => {
-    localRejection();
     // older code commented for local storing of rejection
     // const oPayload = prepareRejectPayload();
     // const obatchPayload = PrepareApprovalBatchPayload(oPayload);
@@ -392,27 +404,55 @@ export const ReviewColumns = ({
   };
 
   const handleRemoveRejectionLocal = () => {
-    const row = { ...rowObject?.row };
-    const index = rowObject?.index;
-    const rowIndex = projectedData.indexOf(rowObject?.row);
-    // if (row[`day${index}Counter`]) {
-    const date = formatFullDateString(new Date());
-    const time = formatFullTimeString(new Date());
-    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
-    const prevNote = row[`day${index}Notes`];
-    let noteString = `Rejection removed,${date},${time},${userName}`;
-    if (prevNote) {
-      noteString = prevNote + "\n" + noteString;
+    if (isRowRejected) {
+      const rowObj = projectedData.find(x => x.id == rejectRowId);
+      let row = { ...rowObj };
+      const rowIndex = projectedData.indexOf(rowObj);
+      const date = formatFullDateString(new Date());
+      const time = formatFullTimeString(new Date());
+      const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+      for (let index = 0; index < 7; index++) {
+        if (row[`day${index}STATUS`] === "40") {
+          const prevNote = row[`day${index}Notes`];
+          let noteString = `Rejection removed,${date},${time},${userName}`;
+          if (prevNote) {
+            noteString = prevNote + "\n" + noteString;
+          }
+          row[`day${index}Notes`] = noteString;
+          row[`day${index}STATUS`] = '20';
+          row[`day${index}Reason`] = "";
+          row[`day${index}ReasonDesc`] = "";
+        }
+      }
+      dispatch(updateRow({
+        rowIndex: rowIndex,
+        rowObj: row
+      }));
+      setOpenRejection(false);
+    } else {
+      const row = { ...rowObject?.row };
+      const index = rowObject?.index;
+      const rowIndex = projectedData.indexOf(rowObject?.row);
+      // if (row[`day${index}Counter`]) {
+      const date = formatFullDateString(new Date());
+      const time = formatFullTimeString(new Date());
+      const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+      const prevNote = row[`day${index}Notes`];
+      let noteString = `Rejection removed,${date},${time},${userName}`;
+      if (prevNote) {
+        noteString = prevNote + "\n" + noteString;
+      }
+      row[`day${index}Notes`] = noteString;
+      row[`day${index}STATUS`] = '20';
+      row[`day${index}Reason`] = "";
+      row[`day${index}ReasonDesc`] = "";
+      dispatch(updateRow({
+        rowIndex: rowIndex,
+        rowObj: row
+      }));
+      setOpenRejection(false);
     }
-    row[`day${index}Notes`] = noteString;
-    row[`day${index}STATUS`] = '20';
-    row[`day${index}Reason`] = "";
-    row[`day${index}ReasonDesc`] = "";
-    dispatch(updateRow({
-      rowIndex: rowIndex,
-      rowObj: row
-    }));
-    setOpenRejection(false);
+
   };
 
   const localRejection = () => {
@@ -450,9 +490,52 @@ export const ReviewColumns = ({
 
   };
 
+  const localRowRejection = () => {
+    const rowObj = projectedData.find(x => x.id == rejectRowId);
+    let row = { ...rowObj };
+    const rowIndex = projectedData.indexOf(rowObj);
+
+    const date = formatFullDateString(new Date());
+    const time = formatFullTimeString(new Date());
+    const userName = userData?.results[0]?.EmployeeName?.FormattedName;
+    const reason = `${selectedReason?.label}${otherReason ? ` : ${otherReason}` : ""}`;
+    // remove \n with |n inside the actual text
+    let noteValue = reason;
+    if (noteValue.includes("\n")) {
+      noteValue = noteValue.replaceAll("\n", "|n",);
+    }
+
+    for (let index = 0; index < 7; index++) {
+      let noteString = `Rejected Reason: ${noteValue},${date},${time},${userName}`;
+      if (row[`day${index}`] != 0.00) {
+        const prevNote = row[`day${index}Notes`];
+        if (prevNote) {
+          noteString = prevNote + "\n" + noteString;
+        }
+        row[`day${index}Notes`] = noteString;
+        row[`day${index}STATUS`] = '40';
+        row[`day${index}Reason`] = selectedReason?.value.toString();
+        row[`day${index}ReasonDesc`] = selectedReason?.label.toString();
+        row[`day${index}OtherReason`] = otherReason;
+      }
+    }
+
+    dispatch(updateRow({
+      rowIndex: rowIndex,
+      rowObj: row
+    }));
+    setOpenRejection(false);
+    // } else {
+    //   setOpenMsgPopup(true);
+    // }
+
+  };
+
   const openRejectionModal = (inputId, row, i) => {
     setOpenRejection(true);
+    setRejectionRowId(-1);
     setActiveInputId(inputId);
+    setRowReject(false);
     const cellRejected = isCellRejected(row, i);
     if (cellRejected) {
       setSelectedReason({
@@ -616,6 +699,13 @@ export const ReviewColumns = ({
   const handleReasonChange = (event, value) => {
     setSelectedReason(value);
   };
+
+  const handleRowRejected = (rowId) => {
+    const isRejectedItem = checkStatusConditionForRow(projectedData, "40", rowId);
+    setRowReject(isRejectedItem);
+    setOpenRejection(true);
+    setRejectionRowId(rowId);
+  }
 
   const getWeekDays = () => {
     let startDate;
@@ -897,7 +987,7 @@ export const ReviewColumns = ({
 
                       value={selectedReason?.label || ""}
                     />
-                    {rowObject?.cellRejected && <IconButton onClick={handleRemoveRejectionLocal}>
+                    {(rowObject?.cellRejected || isRowRejected) && <IconButton onClick={handleRemoveRejectionLocal}>
                       <RemoveCircleIcon color="error" />
                     </IconButton>}
                   </Stack>
@@ -974,6 +1064,34 @@ export const ReviewColumns = ({
         );
       },
     },
+    {
+      field: "action",
+      headerName: "Action",
+      flex: 0.5,
+      minWidth: 100,
+      renderCell: (params) => {
+        if (params.row.isParent || isAutogeneratedRow(params.row)) {
+          return <EmptyBox sx={{ backgroundColor: "transparent" }}></EmptyBox>;
+        }
+
+        return (!params.row.totalRow && (
+          <Tooltip title="Reject time entry.">
+            <Button variant="text" color="error" size="small" onClick={() => handleRowRejected(params.row.id)}>
+              Reject
+            </Button>
+            {/* <IconButton
+              disabled={status === "Approved" || status === "Rejected"}
+              size="small"
+              color="secondary"
+              onClick={() => handleRowRejected(params.row.id)}
+            >
+              <CancelIcon />
+            </IconButton> */}
+          </Tooltip>
+        )
+        )
+      }
+    }
   ];
 
   return columns;

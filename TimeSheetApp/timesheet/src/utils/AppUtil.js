@@ -368,3 +368,18 @@ export const getCurrentEnvirnment = () => {
     return "PROD";
   }
 }
+
+export const checkStatusConditionForRow = (objectsArray, status, rowId) => {
+  const filteredData = objectsArray.filter(x => x.id === rowId);
+  // Loop through each object in the array
+  for (let obj of filteredData) {
+    // Check each day0STATUS to day6STATUS key for the "40" value
+    for (let i = 0; i <= 6; i++) {
+      const statusKey = `day${i}STATUS`;
+      if (obj[statusKey] === status) {
+        return true; // Return true if the condition is met
+      }
+    }
+  }
+  return false; // Return false if no object meets the condition
+};
