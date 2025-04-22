@@ -1074,7 +1074,7 @@ export const ReviewColumns = ({
           return <EmptyBox sx={{ backgroundColor: "transparent" }}></EmptyBox>;
         }
 
-        return ((!params.row.totalRow && status?.toLowerCase() === 'pending for approval') && (
+        return ((isReviewer === 'true' && !params.row.totalRow && status?.toLowerCase() === 'pending for approval') && (
           <Tooltip title="Reject time entry.">
             <Button variant="text" color="error" size="small" onClick={() => handleRowRejected(params.row.id)}>
               Reject
