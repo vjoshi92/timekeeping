@@ -1304,7 +1304,7 @@ const ReviewScreen = () => {
       dispatch(setStatus("New"));
     }
     // set approver name
-    setApprover(weekRows[0].ApproverName);
+    setApprover(weekRows[0]?.ApproverName);
 
     return weekRows;
   };
@@ -1612,10 +1612,10 @@ const ReviewScreen = () => {
                 Approve
               </ApproveButton>}
             </>}
-            {(status === "Approved" || status === "Rejected") && <ReworkButton
+            {/* {(status === "Approved" || status === "Rejected") && <ReworkButton
               onClick={() => handleApproval("release")} sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}>
               Release Timesheet
-            </ReworkButton>}
+            </ReworkButton>} */}
           </ButtonStack>
         </Footer>}
       <Modal
