@@ -138,7 +138,7 @@ const PendingApprovals = () => {
       </StyledMainBox> */}
       </StyledBox>
       <Footer>
-        <Stack direction={"row"} spacing={2}>
+        {/* <Stack direction={"row"} spacing={2}> */}
           <StyledButton
             onClick={() => handleApprove()}
             variant="contained"
@@ -156,7 +156,10 @@ const PendingApprovals = () => {
                 ? "Approve All"
                 : "Approve"}
           </StyledButton>
-          <StyledButton
+
+          {/*
+          Reject all commented for now, as it is not required
+           <StyledButton
             onClick={() => handleApprove()}
             variant="contained"
             disabled={!checkboxChecked && !showApproveAll}
@@ -173,8 +176,8 @@ const PendingApprovals = () => {
               : showApproveAll
                 ? "Reject All"
                 : "Reject"}
-          </StyledButton>
-        </Stack>
+          </StyledButton> */}
+        {/* </Stack> */}
       </Footer>
       <Snackbar
         open={snackbarOpen}
