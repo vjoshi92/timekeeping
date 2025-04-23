@@ -510,6 +510,23 @@ const ReviewScreen = () => {
     }
   }, [week, pernr]);
 
+  /**
+   * code commented for future reference
+   * @returns 
+   */
+  // useEffect(() => {
+  //   if (reviewDetailData) {
+  //     const approverName = reviewDetailData?.results[0]?.Fullname;
+  //     const loginUser = userData?.results[0]?.EmployeeName?.FormattedName;
+  //     if (isReviewer == "true") {
+  //       if (approverName && loginUser && approverName.toLowerCase() !== loginUser?.toLowerCase()) {
+  //         navigate("/messagePage/reviewPage")
+  //       }
+  //     }
+
+  //   }
+  // }, [reviewDataLoading])
+
   const handleRejection = () => setOpenRejection(true);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
