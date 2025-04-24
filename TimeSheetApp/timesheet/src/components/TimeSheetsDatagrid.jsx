@@ -7,10 +7,11 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import Checkbox from "@mui/material/Checkbox";
 import MuiDataGrid from "./MuiDataGrid";
 import { useNavigate, useParams } from "react-router-dom";
-import { Tooltip, Typography } from "@mui/material";
+import { Alert, Snackbar, Tooltip, Typography } from "@mui/material";
 import { formatDate, formatDDMMMYYYYDateString, sortDatewiseArray, StatusColorFormatter, StatusTextFormatting, weekTimesheetFormat } from "utils/AppUtil";
 import ApprovalIcon from "@mui/icons-material/Approval";
-import { useGetTimesheetWeeklyQuery, useLazyGetTeamTimesheetWeeklyQuery, useLazyGetTimesheetWeeklyQuery } from "api/timesheetApi";
+import { useGetTimesheetWeeklyQuery, useLazyGetTeamTimesheetWeeklyQuery, useLazyGetTimesheetWeeklyQuery, useReleaseWeekTimesheetMutation } from "api/timesheetApi";
+import BusyDialog from "./BusyLoader";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 export default function TimeSheetsDatagrid({ searchQuery }) {
@@ -18,6 +19,10 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
   const [pageSize, setPageSize] = React.useState(5);
   const [page, setPage] = React.useState(0);
   const { isManager } = useParams();
+  const [snackBarMsg, setSnackBarMsg] = React.useState("");
+  const [snackBarSeverity, setSnackBarSeverity] = React.useState('');
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
   const handleEyeClick = (params) => {
     const allData = params;
     const type = isManager === "true" ? "team" : "my";
@@ -27,6 +32,10 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       navigate(`/Review/false/${params?.Pernr}/${params?.BEGDA}/${params?.ENDDA}/${params?.Week}/${type}`, { state: { data: allData } });
     }
   };
+
+  const [releaseWeek, { isSuccess: saveWeekSuccess, isLoading: saveWeekLoading, isError: isSaveWeekError,
+    error: saveWeekError
+  }] = useReleaseWeekTimesheetMutation();
 
   const MyColumns = [
     {
@@ -150,13 +159,15 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       filterable: false,
       renderCell: (params) => (
         <Box sx={{ marginTop: "0.4rem" }}>
-          <RemoveRedEyeIcon
-            sx={{ color: "#0073E6", cursor: "pointer" }}
-            onClick={() => handleEyeClick(params?.row)}
-          />
+          <Tooltip title="View timesheet">
+            <RemoveRedEyeIcon
+              sx={{ color: "#0073E6", cursor: "pointer" }}
+              onClick={() => handleEyeClick(params?.row)}
+            />
+          </Tooltip>
           {(params?.row?.STATUS == "30" || params?.row?.STATUS == "40") && (
             <Tooltip title="Release timesheet">
-              <ApprovalIcon sx={{ color: "#0073E6", marginLeft: "1rem", cursor: "pointer" }} />
+              <ApprovalIcon onClick={() => handleRelease(params?.row)} sx={{ color: "#0073E6", marginLeft: "1rem", cursor: "pointer" }} />
             </Tooltip>
           )}
         </Box>
@@ -226,20 +237,64 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
       }
 
     }
-  }, [searchQuery])
+  }, [searchQuery]);
+
+  const handleRelease = (row) => {
+    const payloadForRelease = row;
+    const payload = { ...payloadForRelease, STATUS: "20", CatsHours: parseFloat(payloadForRelease?.CatsHours).toFixed(2) };
+    delete payload.id;
+    delete payload.__metadata;
+    delete payload.LAEDA;
+    delete payload.weekDate;
+    delete payload.submitDate;
+    delete payload.Status;
+    // delete payload.APNAM;
+    // delete payload.Fullname;
+    releaseWeek({ body: payload });
+  };
+
+  React.useEffect(() => {
+    if (saveWeekSuccess) {
+      setSnackBarMsg("Timesheet released successfully!!");
+      setSnackBarSeverity("success");
+      setSnackbarOpen(true);
+    }
+
+    if (isSaveWeekError) {
+      setSnackBarMsg(saveWeekError);
+      setSnackBarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  }, [saveWeekLoading])
 
   return (
-    <MuiDataGrid
-      datagridName={"weeklytimesheet"}
-      rows={timesheetData}
-      columns={columns}
-      pageSize={pageSize}
-      loading={loadingMyTimesheetData || loadingTeamTimesheetData}
-      page={page}
-      onPageChange={(newPage) => setPage(newPage)}
-      onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-      rowsPerPageOptions={[5, 10, 20]}
-      pagination
-    />
+    <>
+      <MuiDataGrid
+        datagridName={"weeklytimesheet"}
+        rows={timesheetData}
+        columns={columns}
+        pageSize={pageSize}
+        loading={loadingMyTimesheetData || loadingTeamTimesheetData}
+        page={page}
+        onPageChange={(newPage) => setPage(newPage)}
+        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+        rowsPerPageOptions={[5, 10, 20]}
+        pagination
+      />
+      <BusyDialog open={saveWeekLoading} />
+      <Snackbar
+        open={snackbarOpen}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackBarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackBarMsg}
+        </Alert>
+      </Snackbar>
+    </>
   )
 }
