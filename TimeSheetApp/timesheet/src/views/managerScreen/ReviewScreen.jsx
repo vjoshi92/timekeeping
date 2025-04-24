@@ -67,6 +67,7 @@ import {
   useLazyGetReviewDetailDataQuery,
   useMakeApprovalBatchCallMutation,
   useMakeBatchCallMutation,
+  useReleaseWeekTimesheetMutation,
   useSaveLongTextMutation,
   useSaveWeekApprovalMutation,
 } from "api/timesheetApi";
@@ -212,8 +213,8 @@ const ReworkButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
   width: { xs: "100%", sm: "200px" },
   backgroundColor: "#fff",
-  color: "#005AA6",
-  border: "1px solid #005AA6",
+  color: "#ED6A15",
+  border: "1px solid #ED6A15",
   fontWeight: 700,
 }));
 
@@ -500,15 +501,33 @@ const ReviewScreen = () => {
 
   const { data: rejectionReasons } = useGetRejectedReasonsQuery();
 
-  const [saveWeekApproval, { isSuccess: saveWeekSuccess, isLoading: saveWeekLoading, isError: isSaveWeekError,
+  const [releaseWeek, { isSuccess: saveWeekSuccess, isLoading: saveWeekLoading, isError: isSaveWeekError,
     error: saveWeekError
-  }] = useSaveWeekApprovalMutation();
+  }] = useReleaseWeekTimesheetMutation();
+
 
   useEffect(() => {
     if (week && pernr) {
       getReviewDetailData({ week, pernr, type });
     }
   }, [week, pernr]);
+
+  /**
+   * code commented for future reference
+   * @returns 
+   */
+  // useEffect(() => {
+  //   if (reviewDetailData) {
+  //     const approverName = reviewDetailData?.results[0]?.Fullname;
+  //     const loginUser = userData?.results[0]?.EmployeeName?.FormattedName;
+  //     if (isReviewer == "true") {
+  //       if (approverName && loginUser && approverName.toLowerCase() !== loginUser?.toLowerCase()) {
+  //         navigate("/messagePage/reviewPage")
+  //       }
+  //     }
+
+  //   }
+  // }, [reviewDataLoading])
 
   const handleRejection = () => setOpenRejection(true);
   const handleOpen = () => setOpen(true);
@@ -1364,9 +1383,9 @@ const ReviewScreen = () => {
     delete payload.__metadata;
     delete payload.LAEDA;
     delete payload.weekDate;
-    delete payload.APNAM;
-    delete payload.Fullname;
-    saveWeekApproval({ body: payload });
+    // delete payload.APNAM;
+    // delete payload.Fullname;
+    releaseWeek({ body: payload });
   }
 
   useEffect(() => {
@@ -1612,10 +1631,11 @@ const ReviewScreen = () => {
                 Approve
               </ApproveButton>}
             </>}
-            {/* {(status === "Approved" || status === "Rejected") && <ReworkButton
-              onClick={() => handleApproval("release")} sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}>
-              Release Timesheet
-            </ReworkButton>} */}
+            {(status === "Approved" || status === "Rejected") &&
+              <ReworkButton
+                onClick={() => handleApproval("release")} sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}>
+                Release Timesheet
+              </ReworkButton>}
           </ButtonStack>
         </Footer>}
       <Modal
@@ -1832,7 +1852,7 @@ const ReviewScreen = () => {
           {alertMsg}
         </Alert>
       </Snackbar>
-      <BusyDialog open={batchCallLoading || timeSheetDataFetching || submitBatchCallLoading || noteCallLoading} />
+      <BusyDialog open={batchCallLoading || timeSheetDataFetching || submitBatchCallLoading || noteCallLoading || saveWeekLoading} />
     </>
   );
 };

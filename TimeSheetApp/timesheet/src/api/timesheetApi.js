@@ -258,6 +258,20 @@ export const TimesheetApi = createApi({
         };
       },
     }),
+    releaseWeekTimesheet: builder.mutation({
+      query: ({ body }) => {
+        const URL = `ZCATS_NOFO_TIMESHEET_SRV/ReleaseSet`;
+        return {
+          url: URL,
+          method: "POST",
+          body: body,
+        };
+      },
+      invalidatesTags: ["Get_Review_Timesheet",
+        "Get_ReviewStatus_Timesheet",
+        "Get_Pending_Count",
+        "Get_pending_approval"],
+    }),
   }),
 });
 
@@ -286,5 +300,6 @@ export const {
   useGetTeamTimesheetWeeklyQuery,
   useLazyGetTeamTimesheetWeeklyQuery,
   useLazyGetPrevWeekDetailsQuery,
-  useMakeDeleteBatchCallMutation
+  useMakeDeleteBatchCallMutation,
+  useReleaseWeekTimesheetMutation
 } = TimesheetApi;
