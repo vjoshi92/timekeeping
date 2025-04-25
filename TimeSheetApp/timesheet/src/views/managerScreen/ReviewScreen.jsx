@@ -1,13 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Box,
   Button,
   Divider,
-  Fade,
   IconButton,
   Modal,
-  Popper,
   Snackbar,
   Stack,
   ToggleButton,
@@ -20,26 +18,16 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import InfoIcon from '@mui/icons-material/Info';
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import EditIcon from "@mui/icons-material/Edit";
-import AddIcon from "@mui/icons-material/Add";
-import MuiDataGrid from "../../components/MuiDataGrid";
-import { getCurrentWeekDays, PRColumns } from "../../constant/Columns";
 import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeild";
 import { useNavigate, useParams } from "react-router-dom";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import dayjs from "dayjs";
-import { DaysColumns } from "components/CurrentWeekColumns";
-import { RowsDataColumns } from "components/RowsDataColumn";
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
-
+import UndoIcon from '@mui/icons-material/Undo';
 import TreeGrid from "components/TreeGrid";
 import MuiInput from "components/MuiInput";
 import { useLocation } from "react-router-dom";
 import { ReviewColumns } from "components/ReviewColumns";
-import { ArrowBackIosNew } from "@mui/icons-material";
 import { setDateRange } from "store/slice/HomeSlice";
 import { setProjectData, setStatus, updateRow } from "store/slice/TimesheetSlice";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -47,7 +35,6 @@ import Dropdown from "components/Dropdown";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import {
   checkStatusCondition,
-  formatDate,
   getODataFormatDate,
   getWeekStartDate,
   hasNonZeroEntry,
@@ -1378,7 +1365,7 @@ const ReviewScreen = () => {
 
   const handleRelease = () => {
     const payloadForRelease = reviewDetailData?.results[0];
-    const payload = { ...payloadForRelease, STATUS: "20", CatsHours: parseFloat(payloadForRelease?.CatsHours).toFixed(2) };
+    const payload = { ...payloadForRelease, CatsHours: parseFloat(payloadForRelease?.CatsHours).toFixed(2) };
     delete payload.id;
     delete payload.__metadata;
     delete payload.LAEDA;
@@ -1631,10 +1618,10 @@ const ReviewScreen = () => {
                 Approve
               </ApproveButton>}
             </>}
-            {(status === "Approved" || status === "Rejected") &&
-              <ReworkButton
+            {(status === "Approved") &&
+              <ReworkButton startIcon={<UndoIcon />}
                 onClick={() => handleApproval("release")} sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}>
-                Release Timesheet
+                Recall Timesheet
               </ReworkButton>}
           </ButtonStack>
         </Footer>}
