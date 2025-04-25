@@ -1,18 +1,14 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import { DataGrid } from "@mui/x-data-grid";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
-import Checkbox from "@mui/material/Checkbox";
 import MuiDataGrid from "./MuiDataGrid";
 import { useNavigate, useParams } from "react-router-dom";
 import { Alert, Snackbar, Tooltip, Typography } from "@mui/material";
-import { formatDate, formatDDMMMYYYYDateString, sortDatewiseArray, StatusColorFormatter, StatusTextFormatting, weekTimesheetFormat } from "utils/AppUtil";
-import ApprovalIcon from "@mui/icons-material/Approval";
-import { useGetTimesheetWeeklyQuery, useLazyGetTeamTimesheetWeeklyQuery, useLazyGetTimesheetWeeklyQuery, useReleaseWeekTimesheetMutation } from "api/timesheetApi";
+import { formatDDMMMYYYYDateString, sortDatewiseArray, StatusColorFormatter, StatusTextFormatting, weekTimesheetFormat } from "utils/AppUtil";
+
+import UndoIcon from '@mui/icons-material/Undo';
+import { useLazyGetTeamTimesheetWeeklyQuery, useLazyGetTimesheetWeeklyQuery, useReleaseWeekTimesheetMutation } from "api/timesheetApi";
 import BusyDialog from "./BusyLoader";
-const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 export default function TimeSheetsDatagrid({ searchQuery }) {
   const navigate = useNavigate();
@@ -165,9 +161,9 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
               onClick={() => handleEyeClick(params?.row)}
             />
           </Tooltip>
-          {(params?.row?.STATUS == "30" || params?.row?.STATUS == "40") && (
-            <Tooltip title="Release timesheet">
-              <ApprovalIcon onClick={() => handleRelease(params?.row)} sx={{ color: "#0073E6", marginLeft: "1rem", cursor: "pointer" }} />
+          {(params?.row?.STATUS == "30") && (
+            <Tooltip title="Recall timesheet">
+              <UndoIcon onClick={() => handleRelease(params?.row)} sx={{ color: "#0073E6", marginLeft: "1rem", cursor: "pointer" }} />
             </Tooltip>
           )}
         </Box>
@@ -180,6 +176,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
 
   const [getMyTimesheet,
     { data: myTimesheetData, isSuccess: isMyTimesheetSuccess, isFetching: loadingMyTimesheetData }] = useLazyGetTimesheetWeeklyQuery();
+
   const [getTeamsTimesheet,
     { data: teamTimesheetData, isSuccess: isTeamTimesheetSuccess, isFetching: loadingTeamTimesheetData }] = useLazyGetTeamTimesheetWeeklyQuery();
 
@@ -241,7 +238,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
 
   const handleRelease = (row) => {
     const payloadForRelease = row;
-    const payload = { ...payloadForRelease, STATUS: "20", CatsHours: parseFloat(payloadForRelease?.CatsHours).toFixed(2) };
+    const payload = { ...payloadForRelease, CatsHours: parseFloat(payloadForRelease?.CatsHours).toFixed(2) };
     delete payload.id;
     delete payload.__metadata;
     delete payload.LAEDA;
@@ -255,9 +252,10 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
 
   React.useEffect(() => {
     if (saveWeekSuccess) {
-      setSnackBarMsg("Timesheet released successfully!!");
+      setSnackBarMsg("Timesheet recalled successfully!!");
       setSnackBarSeverity("success");
       setSnackbarOpen(true);
+      getTeamsTimesheet();
     }
 
     if (isSaveWeekError) {
