@@ -1037,7 +1037,7 @@ const ReviewScreen = () => {
   useEffect(() => {
     if (batchCallIsSuccess) {
       if (actionMsg.indexOf("approve") >= 0) {
-        setSnackBarMsg(`Timesheet Approved for ${selectedDate}.`);
+        setSnackBarMsg(`Timesheet approved for ${selectedDate}.`);
         setShowRelease(true);
         // setNewStatus("Approved");
         setSnackbarOpen(true);
@@ -1052,7 +1052,7 @@ const ReviewScreen = () => {
 
   useEffect(() => {
     if (noteCallIsSuccess) {
-      setSnackBarMsg(`Timesheet Rejected for ${selectedDate}.`);
+      setSnackBarMsg(`Timesheet rejected for ${selectedDate}.`);
       setSnackbarOpen(true);
     }
   }, [noteCallLoading]);
@@ -1378,7 +1378,7 @@ const ReviewScreen = () => {
   useEffect(() => {
     if (saveWeekSuccess) {
       setSnackbarOpen(true);
-      setSnackBarMsg("Timesheet released.")
+      setSnackBarMsg(`Timesheet recalled for ${selectedDate}`)
     }
 
     if (isSaveWeekError) {
