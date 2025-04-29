@@ -802,7 +802,7 @@ export const ReviewColumns = ({
               }}
             >
               {isReviewer === 'true' ? (
-                <Tooltip title="Entry with 0.00 is not allowed for rejection."
+                <Tooltip title="Entry is not allowed for rejection."
                   disableHoverListener={(status === 'Approved' || status === 'Rejected' || !row[`day${i}Counter`]) === false} >
                   <Box
                     component="div"
