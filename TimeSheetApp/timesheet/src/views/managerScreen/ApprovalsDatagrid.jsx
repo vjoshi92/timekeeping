@@ -194,7 +194,7 @@ export default function ApprovalsDatagrid({
     },
     {
       field: "Fullname",
-      headerName: "Approver",
+      headerName: "APPROVER",
       minWidth: 200,
       type: "string",
       flex: 1,

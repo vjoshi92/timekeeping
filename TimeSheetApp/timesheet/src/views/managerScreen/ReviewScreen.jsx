@@ -558,7 +558,7 @@ const ReviewScreen = () => {
     if (type == "reject") {
       setActionMsg("Are you sure you want to reject this timesheet?");
     } else if (type == "release") {
-      setActionMsg("Are you sure you want to release this timesheet?");
+      setActionMsg("Are you sure you want to recall the approval?");
     } else if (type == "approve") {
       setActionMsg("Are you sure you want to approve this timesheet?");
     } else {
@@ -668,7 +668,7 @@ const ReviewScreen = () => {
 
     if (actionMsg.indexOf("approve") >= 0) {
       handleApprove();
-    } else if (actionMsg.indexOf("release") >= 0) {
+    } else if (actionMsg.indexOf("recall") >= 0) {
       handleRelease();
     } else {
 
@@ -1621,7 +1621,7 @@ const ReviewScreen = () => {
             {(status === "Approved") &&
               <ReworkButton startIcon={<UndoIcon />}
                 onClick={() => handleApproval("release")} sx={{ width: { xs: "100%", sm: "200px" }, marginRight: "0.4rem" }}>
-                Recall Timesheet
+                Recall Approval
               </ReworkButton>}
           </ButtonStack>
         </Footer>}

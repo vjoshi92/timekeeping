@@ -73,7 +73,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
     },
     {
       field: "Fullname",
-      headerName: "Approver",
+      headerName: "APPROVER",
       minWidth: 200,
       type: "string",
       flex: 1,
@@ -134,7 +134,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
     },
     {
       field: "Fullname",
-      headerName: "Approver",
+      headerName: "APPROVER",
       minWidth: 200,
       type: "string",
       flex: 1,
@@ -162,7 +162,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
             />
           </Tooltip>
           {(params?.row?.STATUS == "30") && (
-            <Tooltip title="Recall timesheet">
+            <Tooltip title="Recall approval">
               <UndoIcon onClick={() => handleRelease(params?.row)} sx={{ color: "#0073E6", marginLeft: "1rem", cursor: "pointer" }} />
             </Tooltip>
           )}
@@ -252,7 +252,7 @@ export default function TimeSheetsDatagrid({ searchQuery }) {
 
   React.useEffect(() => {
     if (saveWeekSuccess) {
-      setSnackBarMsg("Timesheet recalled successfully!!");
+      setSnackBarMsg("Approval recalled successfully!!");
       setSnackBarSeverity("success");
       setSnackbarOpen(true);
       getTeamsTimesheet();
