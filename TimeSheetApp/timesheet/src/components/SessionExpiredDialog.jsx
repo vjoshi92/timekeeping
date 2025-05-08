@@ -11,7 +11,7 @@ const SessionExpiredDialog = ({ open, onClose, handleLogout }) => {
         <Dialog open={open} maxWidth="xs" fullWidth>
             <DialogTitle fontWeight={600} color='#ED6A15'>Session Expired</DialogTitle>
             <DialogContent>
-                <p>Your session has expired. Please refresh the page.</p>
+                <p>Your session has expired. Please logout and login again.</p>
             </DialogContent>
             <DialogActions>
                 <Button color='error' variant='outlined' onClick={logout}>Logout</Button>
