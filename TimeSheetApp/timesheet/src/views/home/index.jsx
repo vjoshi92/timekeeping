@@ -719,7 +719,8 @@ const Home = () => {
       for (let i = 0; i < 7; i++) {
         const currentDate = dayjs(startDate).add(i, "day");
         const payloadDate = getODataFormatDate(currentDate.$d);
-        if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+        // removed the condition for zero entry filtering for save, instead we will be setting it as delete
+        // if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
           const entryStatus = entry[`day${i}STATUS`];
           if (entryStatus !== "40") {
             const temp = {
@@ -749,7 +750,7 @@ const Home = () => {
             };
             entries.push(temp);
           }
-        }
+        // }
       }
     });
     return entries;

@@ -181,6 +181,9 @@ const ChangeEntry = ({
     row[`day${index}Notes`] = noteString;
     row[`day${index}`] = hours;
     row[`day${index}STATUS`] = row[`day${index}STATUS`] === "40" ? "10" : row[`day${index}STATUS`];
+    if (hours === '0.00' || hours == '0') {
+      row[`day${index}timeEntryOperation`] = "D";
+    }
 
     let rowSum = 0;
     for (let i = 0; i < 7; i++) {
