@@ -2,10 +2,9 @@ import React from 'react';
 import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 
 const SessionExpiredDialog = ({ open, onClose, handleLogout }) => {
-    const handleReload = () => {
-        // handleLogout();
-        window.location.reload(); // Reload the app
+    const logout = () => {
         onClose();
+        window.location.href = "my/logout";
     };
 
     return (
@@ -14,6 +13,9 @@ const SessionExpiredDialog = ({ open, onClose, handleLogout }) => {
             <DialogContent>
                 <p>Your session has expired. Please refresh the page.</p>
             </DialogContent>
+            <DialogActions>
+                <Button color='error' variant='outlined' onClick={logout}>Logout</Button>
+            </DialogActions>
         </Dialog>
     );
 };
