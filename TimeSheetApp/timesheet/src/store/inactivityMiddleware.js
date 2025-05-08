@@ -1,8 +1,8 @@
 // middleware/inactivityMiddleware.js
 
 import { logout, showIdleLogoutDialog } from "./slice/authSlice";
-const FIRST_WARNING_TIME = 20000; //24 * 60 * 1000;
-const FINAL_LOGOUT_DELAY = 10000; //1 * 60 * 1000;
+const FIRST_WARNING_TIME = 24 * 60 * 1000;
+const FINAL_LOGOUT_DELAY = 1 * 60 * 1000;
 
 let warningTimer;
 let logoutTimer;
