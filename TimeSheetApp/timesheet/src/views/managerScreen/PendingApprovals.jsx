@@ -47,6 +47,9 @@ const PendingApprovals = () => {
   const [showApproveAll, setShowApproveAll] = useState(false);
   const [openApiMsg, setOpenApiMsg] = useState(false);
   const [apiMsg, setApiMsg] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMsg, setAlertMsg] = useState('');
+
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -62,16 +65,30 @@ const PendingApprovals = () => {
 
   const handleApprove = () => {
     selectedPendingApprovals.forEach(element => {
-      const payload = { ...element, STATUS: "30", CatsHours: parseFloat(element?.CatsHours).toFixed(2) };
-      delete payload.id;
-      delete payload.__metadata;
-      delete payload.LAEDA;      
-      delete payload.weekDate;
-      delete payload.APNAM;
-      delete payload.Fullname;
-      saveWeekApproval({ body: payload });
+      if (checkApprovalValid(element)) {
+        const payload = { ...element, STATUS: "30", CatsHours: parseFloat(element?.CatsHours).toFixed(2) };
+        delete payload.id;
+        delete payload.__metadata;
+        delete payload.LAEDA;
+        delete payload.weekDate;
+        delete payload.APNAM;
+        delete payload.Fullname;
+        saveWeekApproval({ body: payload });
+      } else {
+        return;
+      }
     });
   };
+
+  const checkApprovalValid = (item) => {
+    if (parseFloat(item?.CatsHours) < 40) {
+      setAlertMsg("You cannot approve a timesheet with fewer than 40 hours. Please request the employee to update their hours to 40 or more.");
+      setAlertOpen(true);
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   const handleReject = () => {
     selectedPendingApprovals.forEach(element => {
@@ -87,14 +104,16 @@ const PendingApprovals = () => {
   };
 
   const approveLineItem = (row) => {
-    const payload = { ...row, STATUS: "30", "CatsHours": parseFloat(row?.CatsHours).toFixed(2) };
-    delete payload.id;
-    delete payload.__metadata;
-    delete payload.LAEDA;
-    delete payload.weekDate;
-    delete payload.APNAM;
-    delete payload.Fullname;
-    saveWeekApproval({ body: payload });
+    if (checkApprovalValid(row)) {
+      const payload = { ...row, STATUS: "30", "CatsHours": parseFloat(row?.CatsHours).toFixed(2) };
+      delete payload.id;
+      delete payload.__metadata;
+      delete payload.LAEDA;
+      delete payload.weekDate;
+      delete payload.APNAM;
+      delete payload.Fullname;
+      saveWeekApproval({ body: payload });
+    }
   };
 
   const rejectLineItem = (row) => {
@@ -139,25 +158,25 @@ const PendingApprovals = () => {
       </StyledBox>
       <Footer>
         {/* <Stack direction={"row"} spacing={2}> */}
-          <StyledButton
-            onClick={() => handleApprove()}
-            variant="contained"
-            disabled={!checkboxChecked && !showApproveAll}
-            sx={{
-              width: { xs: "100%", sm: "200px" },
-              fontWeight: 700,
-              backgroundColor: "#41af6e",
-              marginLeft: "0.3rem"
-            }}
-          >
-            {checkboxChecked
-              ? "Approve"
-              : showApproveAll
-                ? "Approve All"
-                : "Approve"}
-          </StyledButton>
+        <StyledButton
+          onClick={() => handleApprove()}
+          variant="contained"
+          disabled={!checkboxChecked && !showApproveAll}
+          sx={{
+            width: { xs: "100%", sm: "200px" },
+            fontWeight: 700,
+            backgroundColor: "#41af6e",
+            marginLeft: "0.3rem"
+          }}
+        >
+          {checkboxChecked
+            ? "Approve"
+            : showApproveAll
+              ? "Approve All"
+              : "Approve"}
+        </StyledButton>
 
-          {/*
+        {/*
           Reject all commented for now, as it is not required
            <StyledButton
             onClick={() => handleApprove()}
@@ -204,6 +223,19 @@ const PendingApprovals = () => {
           sx={{ width: "100%" }}
         >
           {apiMsg}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlertOpen(false)}
+          severity={"warning"}
+          sx={{ width: "100%" }}
+        >
+          {alertMsg}
         </Alert>
       </Snackbar>
       <BusyDialog open={saveWeekLoading} />

@@ -560,7 +560,14 @@ const ReviewScreen = () => {
     } else if (type == "release") {
       setActionMsg("Are you sure you want to recall the approval?");
     } else if (type == "approve") {
-      setActionMsg("Are you sure you want to approve this timesheet?");
+      // check if total hours is 40 or less if less then not allow to approve
+      if (!saveTimeClick) {
+        setAlertMsg("You cannot approve a timesheet with fewer than 40 hours. Please request the employee to update their hours to 40 or more.");
+        setAlertOpen(true);
+        return;
+      } else {
+        setActionMsg("Are you sure you want to approve this timesheet?");
+      }
     } else {
       setNewStatus("Pending for Approval");
     }
@@ -627,37 +634,37 @@ const ReviewScreen = () => {
       for (let i = 0; i < 7; i++) {
         const currentDate = dayjs(startDate).add(i, "day");
         const payloadDate = getODataFormatDate(currentDate.$d);
-        if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
-          const entryStatus = entry[`day${i}STATUS`];
-          if (entryStatus !== "40") {
-            const temp = {
+        // if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
+        const entryStatus = entry[`day${i}STATUS`];
+        if (entryStatus !== "40") {
+          const temp = {
+            __metadata: {
+              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+            },
+            TimeEntryDataFields: {
               __metadata: {
-                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
               },
-              TimeEntryDataFields: {
-                __metadata: {
-                  type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
-                },
-                CATSHOURS: entry[`day${i}`] || '0.00',
-                PERNR: userData?.results[0].EmployeeNumber,
-                CATSQUANTITY: entry[`day${i}`] || '0.00',
-                LTXA1: entry[`day${i}Notes`] ? entry[`day${i}Notes`]?.substring(0, 40) : "",
-                LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
-                MEINH: "H",
-                UNIT: "H",
-                WORKDATE: payloadDate,
-                LONGTEXT_DATA: entry[`day${i}Notes`] || "",
-                POSID: entry?.level,
-              },
-              Pernr: userData?.results[0].EmployeeNumber,
-              TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
-              Counter: entry[`day${i}Counter`] || "",
-              AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
-              RecRowNo: (entries.length + 1).toString(),
-            };
-            entries.push(temp);
-          }
+              CATSHOURS: entry[`day${i}`] || '0.00',
+              PERNR: userData?.results[0].EmployeeNumber,
+              CATSQUANTITY: entry[`day${i}`] || '0.00',
+              LTXA1: entry[`day${i}Notes`] ? entry[`day${i}Notes`]?.substring(0, 40) : "",
+              LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
+              MEINH: "H",
+              UNIT: "H",
+              WORKDATE: payloadDate,
+              LONGTEXT_DATA: entry[`day${i}Notes`] || "",
+              POSID: entry?.level,
+            },
+            Pernr: userData?.results[0].EmployeeNumber,
+            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+            Counter: entry[`day${i}Counter`] || "",
+            AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
+            RecRowNo: (entries.length + 1).toString(),
+          };
+          entries.push(temp);
         }
+        // }
       }
     });
     return entries;

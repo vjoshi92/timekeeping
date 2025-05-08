@@ -12,7 +12,8 @@ import Theme from './theme/Theme';
 import reportWebVitals from './reportWebVitals';
 import ManagerHeader from 'views/common/ManagerHeader';
 import IdleTimerContainer from 'components/IdleTimerContainer';
-const headerUrls =  ["PendingApprovals" , "ReviewScreen" , "AllTimesheet" ]
+import IdleLogoutDialog from 'components/IdleLogoutDialog';
+const headerUrls = ["PendingApprovals", "ReviewScreen", "AllTimesheet"]
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -29,10 +30,10 @@ root.render(
                   path={r.path}
                   element={
                     <>
-                    {/* {
+                      {/* {
                       headerUrls.includes(r.key) ? <ManagerHeader key={r.key}/> : <Header key={r.key} />
                     } */}
-                       <Header key={r.key} />
+                      <Header key={r.key} />
                       {r.component}
                     </>
                   }
@@ -41,7 +42,8 @@ root.render(
             </Routes>
             {/* <IdleTimerComponent /> */}
           </Router>
-          <IdleTimerContainer /> 
+          {/* <IdleTimerContainer />  */}
+          <IdleLogoutDialog />
         </ThemeProvider>
         {/* </I18nextProvider> */}
       </Provider>
