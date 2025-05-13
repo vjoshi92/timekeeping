@@ -1197,6 +1197,12 @@ const ReviewScreen = () => {
       // here j is consider as day number
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
+        // if entry is zero from BE and status is 10 then we need to omit that entry
+        if ((entry?.TimeEntryDataFields?.CATSHOURS == "0.00" ||
+          entry?.TimeEntryDataFields?.CATSHOURS == 0) && entry?.Status === "10"
+        ) {
+          continue;
+        }
         // const workDate = new Date(
         //   parseInt(entry.TimeEntryDataFields.WORKDATE.match(/\d+/)[j], 10)
         // );
