@@ -617,11 +617,12 @@ const Home = () => {
     const today = dayjs(); // Get the current date
 
     // Validation: Prevent selecting a future week beyond the current date
-    if (startOfNextWeek.isAfter(today)) {
-      setAlertMsg("You can not select future date(s).");
-      setAlertOpen(true);
-      return;
-    }
+    // commented code to allow future date selection
+    // if (startOfNextWeek.isAfter(today)) {
+    //   setAlertMsg("You can not select future date(s).");
+    //   setAlertOpen(true);
+    //   return;
+    // }
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
     dispatch(setNewRowAdded(false));
@@ -1225,6 +1226,8 @@ const Home = () => {
         ) {
           continue;
         }
+        // check for WBS id is valid or not
+        
         const hours = 0.00;
         const dayKey = `day${i}`;
         let weekRow;

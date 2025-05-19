@@ -48,6 +48,7 @@ import {
 import { useParams } from "react-router-dom";
 import ChangeEntry from "./ChangeEntry";
 import NotesModal from "./NotesModal";
+import { targetPOSIDsForFuturedate } from "constant/Columns";
 
 const StyledStack = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -724,6 +725,7 @@ export const ReviewColumns = ({
       const isToday = currentDate?.isSame(dayjs(), "date");
 
       const isWeekend = currentDate.day() === 0 || currentDate.day() === 6;
+      const isFutureDay = currentDate?.isAfter(dayjs(), "date");
 
       weekDays.push({
         field: `day${i}`,
@@ -784,6 +786,11 @@ export const ReviewColumns = ({
 
           const isFirstInput = i === 3 && params.row.isReject && isPrevious;
           const isNote = i === 3 && params.row.isNote;
+
+          // is future date and WBS is PTO then only allow change
+          const isPTO = targetPOSIDsForFuturedate.includes(row[`level`]);
+
+
           return (
             <InputStyleBox
               sx={{
@@ -845,7 +852,7 @@ export const ReviewColumns = ({
                       border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
                       borderRadius: "4px",
                       padding: "0.5rem",
-                      cursor: status === 'Approved' ? "not-allowed" : "pointer",
+                      cursor: (status === 'Approved' || (isFutureDay && !isPTO)) ? "not-allowed" : "pointer",
                       height: "1.2rem",
                       "&:hover": {
                         borderColor:
@@ -854,7 +861,11 @@ export const ReviewColumns = ({
                     }}
                     onClick={() => {
                       if (status !== 'Approved') {
-                        openChangePopup(inputId, row, i, params?.value);
+                        if (isFutureDay && !isPTO) {
+                          return;
+                        } else {
+                          openChangePopup(inputId, row, i, params?.value);
+                        }
                       }
                     }}
                   >

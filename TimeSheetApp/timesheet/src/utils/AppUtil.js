@@ -383,3 +383,34 @@ export const checkStatusConditionForRow = (objectsArray, status, rowId) => {
   }
   return false; // Return false if no object meets the condition
 };
+
+export const WeekChecker = ({ weekRange }) => {
+  if (weekRange) {
+    // Example input: "19 May 2025 - 25 May 2025"
+    const [startStr, endStr] = weekRange.split(' - ');
+
+    // Convert to Date objects
+    const startDate = new Date(startStr);
+    const endDate = new Date(endStr);
+
+    // Normalize current date (set to midnight)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Normalize start and end dates too
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    let status = '';
+    if (today < startDate) {
+      status = 'F';
+    } else if (today > endDate) {
+      status = 'P';
+    } else {
+      status = 'C';
+    }
+    return status;
+  }
+
+
+};
