@@ -23,9 +23,14 @@ import TitleDropdown from "components/TitleDropdown";
 import {
   useGetProjectDataQuery,
   useGetWbsDataQuery,
+  useLazyGetProjectDataQuery,
+  useLazyGetWbsDataQuery,
   useMakeBatchCallMutation,
 } from "api/timesheetApi";
 import dayjs from "dayjs";
+import { WeekChecker } from "utils/AppUtil";
+import { targetPOSIDsForFuturedate } from "constant/Columns";
+import BusyDialog from "components/BusyLoader";
 
 const StyledTypography = styled(Typography)({
   color: "#0073E6",
@@ -139,7 +144,7 @@ const AddRowsScreen = () => {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const dispatch = useDispatch();
   const [selectedLevels, setSelectedLevels] = useState({
-    project: '',    
+    project: '',
     levelOne: '',
     levelOneTitle: '',
     projectDesc: '',
@@ -150,14 +155,47 @@ const AddRowsScreen = () => {
   const [projectDataArray, setProjectDataArray] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
-  const { data: wbsData } = useGetWbsDataQuery();
-  const { data: projectAllData } = useGetProjectDataQuery(); 
+  const [getProjectData, { data: projectAllData, isFetching: loadingProjectData, isSuccess: projectDataSuccess }] = useLazyGetProjectDataQuery();
+  const [getWbsData, { data: wbsData, isFetching: loadingWbsData, isSuccess: wbsDataSuccess }] = useLazyGetWbsDataQuery();
   const selectedDate = useSelector((state) => state?.home?.daterange);
+  const [currentWkStatus, setCurrentWkStatus] = useState('');
+
+  useEffect(() => {
+    getWbsData();
+    getProjectData();
+  }, []);
+
+  useEffect(() => {
+    if (wbsDataSuccess) {
+      const status = WeekChecker({ weekRange: selectedDate });
+      setCurrentWkStatus(status);
+      if (status === "F") {
+        const matches = wbsData?.results.filter(item =>
+          targetPOSIDsForFuturedate.includes(item.POSID)
+        );
+        // Step 2: Remove duplicates by PSPID (keep first occurrence)
+        const uniqueByPSPID = [];
+        const seenPSPIDs = new Set();
+
+        for (const item of matches) {
+          if (!seenPSPIDs.has(item.PSPID)) {
+            seenPSPIDs.add(item.PSPID);
+            uniqueByPSPID.push(item);
+          }
+        }
+
+        setProjectDataArray(uniqueByPSPID);
+        setLevels(matches);
+      } else {
+        setProjectDataArray(projectAllData?.results);
+      }
+    }
+  }, [loadingWbsData, selectedDate]);
 
   const handleProjectData = () => {
     const levels = ["levelOne"];
     let lastSelectedLevel = null;
-    let lastSelectedTitle = null;    
+    let lastSelectedTitle = null;
     for (const level of levels) {
       if (selectedLevels[level]) {
         lastSelectedLevel = selectedLevels[level];
@@ -241,26 +279,29 @@ const AddRowsScreen = () => {
 
   const handleChange = (level, value) => {
     if (level === "project") {
-      // When project is selected, find the matching PSPID from the selected POSID_DESC
-      // const selectedProject = wbsData?.results?.find(
-      //   (item) => item.POSID_DESC === value
-      // );
+      if (currentWkStatus !== "F") {
+        // When project is selected, find the matching PSPID from the selected POSID_DESC
+        // const selectedProject = wbsData?.results?.find(
+        //   (item) => item.POSID_DESC === value
+        // );
 
-      // Filter projectAllData based on matching PSPID
-      const filteredLevels = wbsData?.results?.filter(
-        (x) => x?.PSPID === value?.value
-      );
+        // Filter projectAllData based on matching PSPID
+        const filteredLevels = wbsData?.results?.filter(
+          (x) => x?.PSPID === value?.value
+        );
 
-      filteredLevels.sort((a, b) =>
-        a?.TimeEntryDataFields?.POSID_DESC?.localeCompare(
-          b?.TimeEntryDataFields?.POSID_DESC
-        )
-      );
+        filteredLevels.sort((a, b) =>
+          a?.TimeEntryDataFields?.POSID_DESC?.localeCompare(
+            b?.TimeEntryDataFields?.POSID_DESC
+          )
+        );
 
-      setLevels(filteredLevels);
+        setLevels(filteredLevels);
+      }
+
       setSelectedLevels((prevLevels) => ({
         ...prevLevels,
-        [level]: value?.label,   
+        [level]: value?.label,
         projectDesc: value?.value,
         levelOne: '',
         levelOneTitle: '',
@@ -315,7 +356,7 @@ const AddRowsScreen = () => {
         /> */}
         <Dropdown
           name="project"
-          options={projectAllData?.results?.map((option) => ({
+          options={projectDataArray?.map((option) => ({
             label: option?.PSPID_DESC,
             value: option?.PSPID,
           }))}
@@ -388,6 +429,7 @@ const AddRowsScreen = () => {
           Added Project Sucessfully
         </Alert>
       </Snackbar>
+      <BusyDialog open={loadingProjectData || loadingWbsData} />
     </Box>
   );
 };

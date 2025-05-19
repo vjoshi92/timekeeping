@@ -617,11 +617,12 @@ const Home = () => {
     const today = dayjs(); // Get the current date
 
     // Validation: Prevent selecting a future week beyond the current date
-    if (startOfNextWeek.isAfter(today)) {
-      setAlertMsg("You can not select future date(s).");
-      setAlertOpen(true);
-      return;
-    }
+    // commented code to allow future date selection
+    // if (startOfNextWeek.isAfter(today)) {
+    //   setAlertMsg("You can not select future date(s).");
+    //   setAlertOpen(true);
+    //   return;
+    // }
     const newDateRange = `${startOfNextWeek.format("DD MMM YYYY")} - ${endOfNextWeek.format("DD MMM YYYY")}`;
     dispatch(setDateRange(newDateRange));
     dispatch(setNewRowAdded(false));
@@ -721,35 +722,35 @@ const Home = () => {
         const payloadDate = getODataFormatDate(currentDate.$d);
         // removed the condition for zero entry filtering for save, instead we will be setting it as delete
         // if (entry[`day${i}`] && parseFloat(entry[`day${i}`]) > 0) {
-          const entryStatus = entry[`day${i}STATUS`];
-          if (entryStatus !== "40") {
-            const temp = {
+        const entryStatus = entry[`day${i}STATUS`];
+        if (entryStatus !== "40") {
+          const temp = {
+            __metadata: {
+              type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+            },
+            TimeEntryDataFields: {
               __metadata: {
-                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntry",
+                type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
               },
-              TimeEntryDataFields: {
-                __metadata: {
-                  type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
-                },
-                CATSHOURS: entry[`day${i}`] || '0.00',
-                PERNR: userData?.results[0].EmployeeNumber,
-                CATSQUANTITY: entry[`day${i}`] || '0.00',
-                LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
-                LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
-                MEINH: "H",
-                UNIT: "H",
-                WORKDATE: payloadDate,
-                LONGTEXT_DATA: entry[`day${i}Notes`],
-                POSID: entry?.level,
-              },
-              Pernr: userData?.results[0].EmployeeNumber,
-              TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
-              Counter: entry[`day${i}Counter`] || "",
-              AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
-              RecRowNo: (entries.length + 1).toString(),
-            };
-            entries.push(temp);
-          }
+              CATSHOURS: entry[`day${i}`] || '0.00',
+              PERNR: userData?.results[0].EmployeeNumber,
+              CATSQUANTITY: entry[`day${i}`] || '0.00',
+              LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
+              LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
+              MEINH: "H",
+              UNIT: "H",
+              WORKDATE: payloadDate,
+              LONGTEXT_DATA: entry[`day${i}Notes`],
+              POSID: entry?.level,
+            },
+            Pernr: userData?.results[0].EmployeeNumber,
+            TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
+            Counter: entry[`day${i}Counter`] || "",
+            AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
+            RecRowNo: (entries.length + 1).toString(),
+          };
+          entries.push(temp);
+        }
         // }
       }
     });
@@ -1092,6 +1093,12 @@ const Home = () => {
       );
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
+        // if entry is zero from BE and status is 10 then we need to omit that entry
+        if ((entry?.TimeEntryDataFields?.CATSHOURS == "0.00" ||
+          entry?.TimeEntryDataFields?.CATSHOURS == 0) && entry?.Status === "10"
+        ) {
+          continue;
+        }
         const hours = parseFloat(entry.TimeEntryDataFields.CATSHOURS || "0");
         const dayKey = `day${i}`;
         let weekRow;
@@ -1213,6 +1220,14 @@ const Home = () => {
       );
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
+        // if entry is zero from BE and status is 10 then we need to omit that entry
+        if ((entry?.TimeEntryDataFields?.CATSHOURS == "0.00" ||
+          entry?.TimeEntryDataFields?.CATSHOURS == 0) && entry?.Status === "10"
+        ) {
+          continue;
+        }
+        // check for WBS id is valid or not
+        
         const hours = 0.00;
         const dayKey = `day${i}`;
         let weekRow;

@@ -23,3 +23,5 @@ export const getCurrentWeekDays = () => {
 
     return rearrangedDays;
 };
+
+export const targetPOSIDsForFuturedate = ["NON-NOF.0002.002", "NON-NOF.0002.001"];
