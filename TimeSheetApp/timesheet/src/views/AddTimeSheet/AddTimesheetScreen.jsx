@@ -3,8 +3,6 @@ import {
   Box,
   Button,
   FormControl,
-  ListItem,
-  ListItemText,
   Snackbar,
   styled,
   Typography,
@@ -17,17 +15,12 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setNewRowAdded,
   setProjectData,
-  setStatus,
 } from "store/slice/TimesheetSlice";
 import TitleDropdown from "components/TitleDropdown";
 import {
-  useGetProjectDataQuery,
-  useGetWbsDataQuery,
   useLazyGetProjectDataQuery,
   useLazyGetWbsDataQuery,
-  useMakeBatchCallMutation,
 } from "api/timesheetApi";
-import dayjs from "dayjs";
 import { WeekChecker } from "utils/AppUtil";
 import { targetPOSIDsForFuturedate } from "constant/Columns";
 import BusyDialog from "components/BusyLoader";
@@ -97,49 +90,6 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const StyledDropdown = styled(Dropdown)(
-  ({ readOnly, backgroundColor, theme }) => ({
-    backgroundColor: backgroundColor || (readOnly ? "#F5F5F5" : "transparent"),
-    marginBottom: theme.spacing(2),
-    width: "100%",
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "14px",
-    },
-  })
-);
-
-const ProjectData = [
-  { id: 1, title: "JMA NOFO 2 O-RU", value: "JMA NOFO 2 O-RU" },
-  { id: 2, title: "Indirect", value: "Indirect" },
-  { id: 3, title: "Other Direct", value: "Other Direct" },
-];
-
-const LevelOneOptions = [
-  {
-    id: 1,
-    project: "JMA NOFO 2 O-RU",
-    title: "1.4.10.2.1",
-    value: "Mechanical Design",
-  },
-  {
-    id: 2,
-    project: "JMA NOFO 2 O-RU",
-    title: "1.4.10.2.2",
-    value: "Board Design",
-  },
-  {
-    id: 3,
-    project: "JMA NOFO 2 O-RU",
-    title: "1.4.10.2.3",
-    value: "PCB Design",
-  },
-  { id: 4, project: "Indirect", title: "1.1", value: "General Training" },
-  { id: 5, project: "Indirect", title: "1.2", value: "Holiday" },
-  { id: 6, project: "Indirect", title: "1.3", value: "PTO" },
-  { id: 7, project: "Indirect", title: "1.4", value: "Available" },
-  { id: 8, project: "Other Direct", title: "1.1", value: "Other Projects" },
-];
-
 const AddRowsScreen = () => {
   const projectedData = useSelector((state) => state?.CreateForm?.projectData);
   const dispatch = useDispatch();
@@ -161,8 +111,8 @@ const AddRowsScreen = () => {
   const [currentWkStatus, setCurrentWkStatus] = useState('');
 
   useEffect(() => {
-    getWbsData();
     getProjectData();
+    getWbsData();
   }, []);
 
   useEffect(() => {
@@ -190,7 +140,7 @@ const AddRowsScreen = () => {
         setProjectDataArray(projectAllData?.results);
       }
     }
-  }, [loadingWbsData, selectedDate]);
+  }, [loadingWbsData, selectedDate, loadingProjectData]);
 
   const handleProjectData = () => {
     const levels = ["levelOne"];

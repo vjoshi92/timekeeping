@@ -411,6 +411,22 @@ export const WeekChecker = ({ weekRange }) => {
     }
     return status;
   }
+};
 
+export const isCurrentDateAfter = (datestring) => {
+  if (datestring) {
+    // Parse the string into a JavaScript Date
+    const year = parseInt(datestring.substring(0, 4), 10);
+    const month = parseInt(datestring.substring(4, 6), 10) - 1; // Month is 0-based
+    const day = parseInt(datestring.substring(6, 8), 10);
+    const inputDate = new Date(year, month, day);
 
+    // Get today's date (set time to 00:00:00 to match date-only comparison)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return inputDate >= today;
+  } else {
+    return true;
+  }
 };
