@@ -47,6 +47,7 @@ import {
   getWeekStartDate,
   hasNonZeroEntry,
   hasValidTimeEntry,
+  isCurrentDateAfter,
   PrepareBatchPayload,
   StatusCaseFormatting,
   StatusColorFormatter,
@@ -54,8 +55,10 @@ import {
 import {
   useGetHierarchyDataQuery,
   useGetUserDataQuery,
+  useGetWbsDataQuery,
   useLazyGetDateWiseDetailsQuery,
   useLazyGetPrevWeekDetailsQuery,
+  useLazyGetWbsDataQuery,
   useMakeBatchCallMutation,
   useMakeDeleteBatchCallMutation,
 } from "api/timesheetApi";
@@ -384,9 +387,7 @@ const Home = () => {
     },
   ] = useLazyGetPrevWeekDetailsQuery();
 
-  // get heirachy data
-  const { data: heirachyData } = useGetHierarchyDataQuery();
-
+  const { data: wbsData } = useGetWbsDataQuery();
   const { data: userData } = useGetUserDataQuery();
 
   useEffect(() => {
@@ -431,10 +432,12 @@ const Home = () => {
   }, [deleteBatchCallLoading]);
 
   useEffect(() => {
-    if (prevWeekTimesheetSuccessful) {
+    if (prevWeekTimesheetSuccessful && prevWeekTimesheetFetching === false) {
+      // set invalid WBS entry to blank     
       const responseData = prevWeekTimesheetData;
       if (responseData?.results) {
-        let transformedData = transformCopyWeeklyRows(responseData);
+        let { weekRows, invalidWBSEntry } = transformCopyWeeklyRows(responseData);
+        let transformedData = weekRows;
         // add older data in array and then do total      
         if (transformedData && transformedData?.length > 0) {
           const data = transformedData.map(x => { if (x) return x; });
@@ -447,10 +450,26 @@ const Home = () => {
           );
           transformedData = addTotalRow(data);
           dispatch(setProjectData(transformedData));
+
+          if (invalidWBSEntry.length > 0) {
+            const wbsNames = invalidWBSEntry.join(', ');
+            setAlertMsg(`Some WBS entries were skipped as they are no longer active: ${wbsNames}. Please use the '+' button to add valid entries.`)
+            setAlertOpen(true);
+          }
         } else {
-          setAlertMsg("No time entry was found for the previous week. Please use the + button to add a WBS.")
-          setAlertOpen(true);
+          if (invalidWBSEntry.length > 0) {
+            const wbsNames = invalidWBSEntry.join(', ');
+            setAlertMsg(`Some WBS entries were skipped as they are no longer active: ${wbsNames}. Please use the '+' button to add valid entries.`)
+            setAlertOpen(true);
+          } else {
+            setAlertMsg("No time entry was found for the previous week. Please use the + button to add a WBS.")
+            setAlertOpen(true);
+          }
+          // dispatch(setProjectData(transformedData));
         }
+      } else {
+        setAlertMsg("No time entry was found for the previous week. Please use the + button to add a WBS.")
+        setAlertOpen(true);
       }
     }
   }, [prevWeekTimesheetFetching])
@@ -1208,6 +1227,7 @@ const Home = () => {
   const transformCopyWeeklyRows = (response) => {
     const results = response?.results; // Extract the top-level results array
     const weekRows = []; // Array to store the transformed weekly data    
+    let invalidWBSEntry = [];
     // here i is consider as row data
     for (let i = 0; i < results?.length; i++) {
       let dayData = results[i];
@@ -1227,7 +1247,20 @@ const Home = () => {
           continue;
         }
         // check for WBS id is valid or not
-        
+        const wbs = wbsData?.results;
+        const entryWBS = wbs.filter(x => x.POSID === entry?.TimeEntryDataFields?.POSID);
+        if (entryWBS && entryWBS?.length === 0) {
+          // const wbsEntry = entryWBS[0];
+          // const validWbs = isCurrentDateAfter(wbsEntry?.ENDDA);
+          // if (!validWbs) {
+          if (!invalidWBSEntry.includes(entry?.TimeEntryDataFields?.POST1)) {
+            invalidWBSEntry.push(entry?.TimeEntryDataFields?.POST1);
+          }
+          console.log("invalidWBSEntry", invalidWBSEntry);
+          continue;
+          // }
+        }
+
         const hours = 0.00;
         const dayKey = `day${i}`;
         let weekRow;
@@ -1293,7 +1326,7 @@ const Home = () => {
 
     // overall status check
     dispatch(setStatus("New"));
-    return weekRows;
+    return { weekRows, invalidWBSEntry };
   };
 
   const addTotalRow = (transformedData) => {
