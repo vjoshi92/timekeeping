@@ -292,7 +292,7 @@ export const RowsDataColumns = ({
                     border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
                     borderRadius: "4px",
                     padding: "0.5rem",
-                    cursor: "pointer",
+                    cursor: isFutureDay && currentWkStatus !== "F" && !isPTO ? 'not-allowed' : "pointer",
                     height: "1.2rem",
                     "&:hover": {
                       borderColor:
@@ -300,7 +300,9 @@ export const RowsDataColumns = ({
                     },
                   }}
                   onClick={() => {
-                    openChangePopup(inputId, row, i, params?.value);
+                    if (!(isFutureDay && currentWkStatus !== "F" && !isPTO)) {
+                      openChangePopup(inputId, row, i, params?.value);
+                    }
                   }}
                 >
                   <Typography color={params?.value > 23 ? "#f44336 !important" : "#797b79 !important"}>

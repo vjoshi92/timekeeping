@@ -1,5 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery } from "./baseQuery";
+import { getFormattedDate } from "utils/AppUtil";
 
 export const TimesheetApi = createApi({
   reducerPath: "TimesheetApi",
@@ -14,22 +15,30 @@ export const TimesheetApi = createApi({
       }),
     }),
     getWbsData: builder.query({
-      query: () => {
+      query: ({ selectedDate }) => {
+        const dateString = getFormattedDate(selectedDate);
         const URL = "ZCATS_NOFO_TIMESHEET_SRV/WBSSet?$format=json";
         return {
           url: URL,
           method: "GET",
-          header: ("Accept", "*/*"),
+          headers: {
+            "Accept": "*/*",
+            "currentdate": dateString
+          },
         };
       },
     }),
     getProjectData: builder.query({
-      query: () => {
+      query: ({ selectedDate }) => {
         const URL = "ZCATS_NOFO_TIMESHEET_SRV/ProjectsSet?$format=json";
+        const dateString = getFormattedDate(selectedDate);
         return {
           url: URL,
           method: "GET",
-          header: ("Accept", "*/*"),
+          headers: {
+            "Accept": "*/*",
+            "currentdate": dateString
+          },
         };
       },
     }),

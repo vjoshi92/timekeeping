@@ -387,7 +387,7 @@ const Home = () => {
     },
   ] = useLazyGetPrevWeekDetailsQuery();
 
-  const { data: wbsData } = useGetWbsDataQuery();
+  const { data: wbsData } = useGetWbsDataQuery({ selectedDate });
   const { data: userData } = useGetUserDataQuery();
 
   useEffect(() => {
@@ -412,7 +412,7 @@ const Home = () => {
   }, [batchCallLoading]);
 
   useEffect(() => {
-    if (deleteBatchCallIsSuccess) {
+    if (deleteBatchCallIsSuccess && deleteBatchCallLoading == false) {
       setDeleteMsgOpen(true);
       // dispatch(setNewRowAdded(false));
       // splice the row after successfull deletion from BE
@@ -425,7 +425,7 @@ const Home = () => {
       setToBeDeleteRowId(-1);
     }
 
-    if (deleteBatchCallError) {
+    if (deleteBatchCallError && deleteBatchCallLoading == false) {
       setApiMsg(deleteBatchCallErrorResponse);
       setOpenApiMsg(true);
     }
@@ -481,6 +481,9 @@ const Home = () => {
 
     // set approved user name in local state        
     setApprover(projectedData[0]?.ApproverName)
+    if (!projectedData[0]?.ApproverName) {
+      dispatch(setStatus("New"));
+    }
   }, [projectedData, toBeDeleteRowId]);
 
   const handleSearch = (searchQuery) => {

@@ -430,3 +430,26 @@ export const isCurrentDateAfter = (datestring) => {
     return true;
   }
 };
+
+export const getFormattedDate = (dateRangeStr) => {
+  if (!dateRangeStr || dateRangeStr.trim() === "") {
+    // Return current date in yyyyMMdd
+    const now = new Date();
+    return now.toISOString().slice(0, 10).replace(/-/g, "");
+  }
+
+  // Extract first date
+  const firstDateStr = dateRangeStr.split("-")[0].trim();
+
+  // Parse the date
+  const date = new Date(firstDateStr);
+
+  // Check if the date is valid
+  if (isNaN(date)) {
+    // Fall back to current date
+    const now = new Date();
+    return now.toISOString().slice(0, 10).replace(/-/g, "");
+  }
+
+  return date.toISOString().slice(0, 10).replace(/-/g, "");
+}
