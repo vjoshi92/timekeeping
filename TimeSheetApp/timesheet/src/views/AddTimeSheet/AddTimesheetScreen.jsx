@@ -105,15 +105,15 @@ const AddRowsScreen = () => {
   const [projectDataArray, setProjectDataArray] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
+  const selectedDate = useSelector((state) => state?.home?.daterange);
   const [getProjectData, { data: projectAllData, isFetching: loadingProjectData, isSuccess: projectDataSuccess }] = useLazyGetProjectDataQuery();
   const [getWbsData, { data: wbsData, isFetching: loadingWbsData, isSuccess: wbsDataSuccess }] = useLazyGetWbsDataQuery();
-  const selectedDate = useSelector((state) => state?.home?.daterange);
   const [currentWkStatus, setCurrentWkStatus] = useState('');
 
   useEffect(() => {
-    getProjectData();
-    getWbsData();
-  }, []);
+    getProjectData({ selectedDate });
+    getWbsData({ selectedDate });
+  }, [selectedDate]);
 
   useEffect(() => {
     if (wbsDataSuccess) {
