@@ -1005,9 +1005,10 @@ const Home = () => {
 
     const entry = projectedData.find((item) => item?.id == rowId);
     if (entry.newRow) {
+      const rowIndex = projectedData.indexOf(entry);
       dispatch(deleteProjectDataById(rowId));
       const data = [...projectedData];
-      data.splice(rowId, 1);
+      data.splice(rowIndex, 1);
       calculateRowsTotal(data);
     } else {
       // delete function
@@ -1250,19 +1251,20 @@ const Home = () => {
           continue;
         }
         // check for WBS id is valid or not
-        const wbs = wbsData?.results;
-        const entryWBS = wbs.filter(x => x.POSID === entry?.TimeEntryDataFields?.POSID);
-        if (entryWBS && entryWBS?.length === 0) {
-          // const wbsEntry = entryWBS[0];
-          // const validWbs = isCurrentDateAfter(wbsEntry?.ENDDA);
-          // if (!validWbs) {
-          if (!invalidWBSEntry.includes(entry?.TimeEntryDataFields?.POST1)) {
-            invalidWBSEntry.push(entry?.TimeEntryDataFields?.POST1);
-          }
-          console.log("invalidWBSEntry", invalidWBSEntry);
-          continue;
-          // }
-        }
+        // code commented for future release - 23-05-2025
+        // const wbs = wbsData?.results;
+        // const entryWBS = wbs.filter(x => x.POSID === entry?.TimeEntryDataFields?.POSID);
+        // if (entryWBS && entryWBS?.length === 0) {
+        //   // const wbsEntry = entryWBS[0];
+        //   // const validWbs = isCurrentDateAfter(wbsEntry?.ENDDA);
+        //   // if (!validWbs) {
+        //   if (!invalidWBSEntry.includes(entry?.TimeEntryDataFields?.POST1)) {
+        //     invalidWBSEntry.push(entry?.TimeEntryDataFields?.POST1);
+        //   }
+        //   console.log("invalidWBSEntry", invalidWBSEntry);
+        //   continue;
+        //   // }
+        // }
 
         const hours = 0.00;
         const dayKey = `day${i}`;
