@@ -292,7 +292,7 @@ export const RowsDataColumns = ({
                     border: `1px solid ${row[`day${i}STATUS`] === "40" ? "#FF0000" : "#0000004d"}`,
                     borderRadius: "4px",
                     padding: "0.5rem",
-                    cursor: isFutureDay && currentWkStatus !== "F" && !isPTO ? 'not-allowed' : "pointer",
+                    cursor: isFutureDay && !isPTO ? 'not-allowed' : "pointer",
                     height: "1.2rem",
                     "&:hover": {
                       borderColor:
@@ -300,7 +300,7 @@ export const RowsDataColumns = ({
                     },
                   }}
                   onClick={() => {
-                    if (!(isFutureDay && currentWkStatus !== "F" && !isPTO)) {
+                    if (!(isFutureDay && !isPTO)) {
                       openChangePopup(inputId, row, i, params?.value);
                     }
                   }}
@@ -315,7 +315,7 @@ export const RowsDataColumns = ({
                     handleInputChange(`day${i}`, value, params?.row?.id)
                   }
                   value={params?.value}
-                  readOnly={isFutureDay && currentWkStatus !== "F" && !isPTO} // commented code for allowing edit for Future days
+                  readOnly={isFutureDay && !isPTO} // commented code for allowing edit for Future days
                   inValidValue={params?.value > 23}
                 />
               )}

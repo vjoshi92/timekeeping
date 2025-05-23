@@ -23,7 +23,7 @@ export const TimesheetApi = createApi({
           method: "GET",
           headers: {
             "Accept": "*/*",
-            "currentdate": dateString
+            // "currentdate": dateString
           },
         };
       },
@@ -37,7 +37,7 @@ export const TimesheetApi = createApi({
           method: "GET",
           headers: {
             "Accept": "*/*",
-            "currentdate": dateString
+            // "currentdate": dateString
           },
         };
       },
