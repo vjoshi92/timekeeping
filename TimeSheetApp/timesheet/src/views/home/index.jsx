@@ -1252,19 +1252,14 @@ const Home = () => {
         }
         // check for WBS id is valid or not
         // code commented for future release - 23-05-2025
-        // const wbs = wbsData?.results;
-        // const entryWBS = wbs.filter(x => x.POSID === entry?.TimeEntryDataFields?.POSID);
-        // if (entryWBS && entryWBS?.length === 0) {
-        //   // const wbsEntry = entryWBS[0];
-        //   // const validWbs = isCurrentDateAfter(wbsEntry?.ENDDA);
-        //   // if (!validWbs) {
-        //   if (!invalidWBSEntry.includes(entry?.TimeEntryDataFields?.POST1)) {
-        //     invalidWBSEntry.push(entry?.TimeEntryDataFields?.POST1);
-        //   }
-        //   console.log("invalidWBSEntry", invalidWBSEntry);
-        //   continue;
-        //   // }
-        // }
+        const wbs = wbsData?.results;
+        const entryWBS = wbs.filter(x => x.POSID === entry?.TimeEntryDataFields?.POSID);
+        if (entryWBS && entryWBS?.length === 0) {
+          if (!invalidWBSEntry.includes(entry?.TimeEntryDataFields?.POST1)) {
+            invalidWBSEntry.push(entry?.TimeEntryDataFields?.POST1);
+          }
+          continue;
+        }
 
         const hours = 0.00;
         const dayKey = `day${i}`;
