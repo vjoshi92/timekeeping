@@ -105,11 +105,9 @@ export const StatusTextFormatting = (status) => {
     return "Approved";
   } else if (status == "40") {
     return "Rejected";
-  }
-  else if (status == "10") {
+  } else if (status == "10") {
     return "Draft";
-  }
-  else {
+  } else {
     return "";
   }
 };
@@ -257,7 +255,6 @@ export const weekTimesheetFormat = (yearWeek) => {
   } else {
     return yearWeek;
   }
-
 };
 
 export const xmlToJson = (xml) => {
@@ -301,9 +298,9 @@ export const xmlToJson = (xml) => {
 
 export const readXmlData = (metaData) => {
   const parser = new DOMParser();
-  const xml = parser.parseFromString(metaData, 'application/xml');
+  const xml = parser.parseFromString(metaData, "application/xml");
   const xmljson = xmlToJson(xml);
-  const entities = xmljson['edmx:Edmx']['edmx:DataServices'].Schema.EntityType;
+  const entities = xmljson["edmx:Edmx"]["edmx:DataServices"].Schema.EntityType;
   return entities;
 };
 
@@ -347,30 +344,45 @@ export const roundToNearestQuarter = (value) => {
 
 export const sortDatewiseArray = (aItems) => {
   return aItems.sort((a, b) => {
-    const dateA = new Date(a?.BEGDA.slice(0, 4), a?.BEGDA.slice(4, 6) - 1, a?.BEGDA.slice(6, 8));
-    const dateB = new Date(b?.BEGDA.slice(0, 4), b?.BEGDA.slice(4, 6) - 1, b?.BEGDA.slice(6, 8));
+    const dateA = new Date(
+      a?.BEGDA.slice(0, 4),
+      a?.BEGDA.slice(4, 6) - 1,
+      a?.BEGDA.slice(6, 8)
+    );
+    const dateB = new Date(
+      b?.BEGDA.slice(0, 4),
+      b?.BEGDA.slice(4, 6) - 1,
+      b?.BEGDA.slice(6, 8)
+    );
 
-    return (dateB - dateA) || (a?.EName?.localeCompare(
-      b?.EName
-    )); // Compare dates
+    return dateB - dateA || a?.EName?.localeCompare(b?.EName); // Compare dates
   });
 };
 
 export const getCurrentEnvirnment = () => {
   const origin = window.location.origin;
-  if (origin.includes("localhost") || origin.includes("ks6l-ft-2sbp6d06.launchpad.cfapps.us10.hana.ondemand.com")
-    || origin.includes("jmweccd1.jmawireless.com:8000")) {
+  if (
+    origin.includes("localhost") ||
+    origin.includes(
+      "ks6l-ft-2sbp6d06.launchpad.cfapps.us10.hana.ondemand.com"
+    ) ||
+    origin.includes("jmweccd1.jmawireless.com:8000")
+  ) {
     return "DEV";
-  } else if (origin.includes("jma-fiori-44n6rxen.launchpad.cfapps.us10.hana.ondemand.com")
-    || origin.includes("jmweccq1.jmawireless.com")) {
-    return "QA"
+  } else if (
+    origin.includes(
+      "jma-fiori-44n6rxen.launchpad.cfapps.us10.hana.ondemand.com"
+    ) ||
+    origin.includes("jmweccq1.jmawireless.com")
+  ) {
+    return "QA";
   } else {
     return "PROD";
   }
-}
+};
 
 export const checkStatusConditionForRow = (objectsArray, status, rowId) => {
-  const filteredData = objectsArray.filter(x => x.id === rowId);
+  const filteredData = objectsArray.filter((x) => x.id === rowId);
   // Loop through each object in the array
   for (let obj of filteredData) {
     // Check each day0STATUS to day6STATUS key for the "40" value
@@ -387,7 +399,7 @@ export const checkStatusConditionForRow = (objectsArray, status, rowId) => {
 export const WeekChecker = ({ weekRange }) => {
   if (weekRange) {
     // Example input: "19 May 2025 - 25 May 2025"
-    const [startStr, endStr] = weekRange.split(' - ');
+    const [startStr, endStr] = weekRange.split(" - ");
 
     // Convert to Date objects
     const startDate = new Date(startStr);
@@ -401,13 +413,13 @@ export const WeekChecker = ({ weekRange }) => {
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(0, 0, 0, 0);
 
-    let status = '';
+    let status = "";
     if (today < startDate) {
-      status = 'F';
+      status = "F";
     } else if (today > endDate) {
-      status = 'P';
+      status = "P";
     } else {
-      status = 'C';
+      status = "C";
     }
     return status;
   }
@@ -452,4 +464,38 @@ export const getFormattedDate = (dateRangeStr) => {
   }
 
   return date.toISOString().slice(0, 10).replace(/-/g, "");
-}
+};
+
+export const getStartAndEndDateFromWeekNumber = (weekStr) => {
+  const year = parseInt(weekStr.slice(0, 4), 10);
+  const week = parseInt(weekStr.slice(4), 10);
+
+  // Step 1: Get date for Jan 4 of the given year (ensures we're in ISO week 1)
+  const jan4 = new Date(year, 0, 4); // January 4th
+  const jan4Day = jan4.getDay() || 7; // Make Sunday (0) = 7
+
+  // Step 2: Get Monday of the first ISO week
+  const firstMonday = new Date(jan4);
+  firstMonday.setDate(jan4.getDate() - jan4Day + 1);
+
+  // Step 3: Calculate Monday of the target week
+  const startDate = new Date(firstMonday);
+  startDate.setDate(startDate.getDate() + (week - 1) * 7);
+
+  // Step 4: Calculate Sunday of that week
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+
+  // Step 5: Format date as "DD MMM YYYY"
+  const formatDate = (date) =>
+    date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+  return {
+    start: formatDate(startDate),
+    end: formatDate(endDate),
+  };
+};

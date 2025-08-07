@@ -1,11 +1,11 @@
 {
   "base": "./build",
-  "conn_server": "http://10.79.170.31:8000",
+  "conn_server": "http://10.79.170.128:8000",
   "conn_user": "VJOSHI",
   "conn_password": "India@123",
   "abap_package": "Z001",
   "abap_bsp": "ZTIMEKEEPING",
   "abap_bsp_text": "Timekeeping Application",
-  "conn_client": "210",
-  "abap_transport": "JMDK926422"
+  "conn_client": "100",
+  "abap_transport": "JD1K900068"
 }
