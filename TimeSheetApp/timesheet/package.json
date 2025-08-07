@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "./",
-  "proxy": "https://jmwwdad1.jmawireless.com/",
+  "proxy": "http://10.79.170.128:8000/",
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",

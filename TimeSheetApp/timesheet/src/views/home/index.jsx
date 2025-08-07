@@ -21,7 +21,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DateRangePickerWithButtonField from "../../components/DateRangeButtonFeild";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import WarningIcon from '@mui/icons-material/Warning';
+import WarningIcon from "@mui/icons-material/Warning";
 import CloseIcon from "@mui/icons-material/Close";
 import dayjs from "dayjs";
 import { DaysColumns } from "components/CurrentWeekColumns";
@@ -31,7 +31,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import IconButton from "@mui/material/IconButton";
 import { setDateRange } from "store/slice/HomeSlice";
 import { Footer } from "components/Footer";
-import InfoIcon from '@mui/icons-material/Info';
+import InfoIcon from "@mui/icons-material/Info";
 import {
   deleteProjectDataById,
   setApprovalCount,
@@ -44,6 +44,7 @@ import {
 import {
   checkStatusCondition,
   getODataFormatDate,
+  getStartAndEndDateFromWeekNumber,
   getWeekStartDate,
   hasNonZeroEntry,
   hasValidTimeEntry,
@@ -64,6 +65,7 @@ import {
 } from "api/timesheetApi";
 import BusyDialog from "components/BusyLoader";
 import Search from "components/Search";
+import { useSearchParams } from "react-router-dom";
 
 /**
  * Styled component
@@ -94,7 +96,6 @@ const ApprovalBox = styled(Box)(() => ({
   flexDirection: "column",
   padding: "20px",
 }));
-
 
 const StyledDateTypography = styled(Typography)(() => ({
   fontSize: "22px",
@@ -310,6 +311,9 @@ const Home = () => {
   );
 
   const { refresh } = useParams();
+  const search = window.location.search;
+  const searchParams = new URLSearchParams(search);
+  const week = searchParams.get("week");
 
   const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
   const currentWeekStart = startOfCurrentWeek.format("DD");
@@ -325,7 +329,7 @@ const Home = () => {
   const [batchCallType, setBatchCallType] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
   const [totalError, setTotalError] = useState(false);
-  const [alertMsg, setAlertMsg] = useState('');
+  const [alertMsg, setAlertMsg] = useState("");
   const handleClose = () => setOpen(false);
   const handleApprovalClose = () => setOpenApproval(false);
   const navigate = useNavigate();
@@ -334,16 +338,11 @@ const Home = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [showSaveBtn, setShowSaveBtn] = useState(false);
   const [showNavConfirmation, setShowNavConfirmation] = useState(false);
-  const [navConfType, setNavConfType] = useState('');
+  const [navConfType, setNavConfType] = useState("");
   const [isTimesheetChanged, setTimesheetChanged] = useState(false);
-  const [calendarDate, setCalendarDate] = useState('');
+  const [calendarDate, setCalendarDate] = useState("");
   const [toBeDeleteRowId, setToBeDeleteRowId] = useState(-1);
-  const [approver, setApprover] = useState('');
-  // useEffect(() => {
-  //   if (refresh === 'true') {
-  //     navigate("/home");
-  //   }   
-  // }, [refresh])
+  const [approver, setApprover] = useState("");  
 
   const [
     makeBatchCall,
@@ -352,7 +351,7 @@ const Home = () => {
       isLoading: batchCallLoading,
       isError: batchCallError,
       error: batchCallErrorResponse,
-      data: batchSuccessData
+      data: batchSuccessData,
     },
   ] = useMakeBatchCallMutation();
 
@@ -363,10 +362,9 @@ const Home = () => {
       isLoading: deleteBatchCallLoading,
       isError: deleteBatchCallError,
       error: deleteBatchCallErrorResponse,
-      data: deleteBatchSuccessData
+      data: deleteBatchSuccessData,
     },
   ] = useMakeDeleteBatchCallMutation();
-
 
   // this is service call to get Timesheet data for selected week
   const [
@@ -433,54 +431,63 @@ const Home = () => {
 
   useEffect(() => {
     if (prevWeekTimesheetSuccessful && prevWeekTimesheetFetching === false) {
-      // set invalid WBS entry to blank     
+      // set invalid WBS entry to blank
       const responseData = prevWeekTimesheetData;
       if (responseData?.results) {
-        let { weekRows, invalidWBSEntry } = transformCopyWeeklyRows(responseData);
+        let { weekRows, invalidWBSEntry } =
+          transformCopyWeeklyRows(responseData);
         let transformedData = weekRows;
-        // add older data in array and then do total      
+        // add older data in array and then do total
         if (transformedData && transformedData?.length > 0) {
-          const data = transformedData.map(x => { if (x) return x; });
-          data.sort((a, b) =>
-            a?.project?.localeCompare(
-              b?.project
-            ) || a?.title?.localeCompare(
-              b?.title
-            )
+          const data = transformedData.map((x) => {
+            if (x) return x;
+          });
+          data.sort(
+            (a, b) =>
+              a?.project?.localeCompare(b?.project) ||
+              a?.title?.localeCompare(b?.title)
           );
           transformedData = addTotalRow(data);
           dispatch(setProjectData(transformedData));
 
           if (invalidWBSEntry.length > 0) {
-            const wbsNames = invalidWBSEntry.join(', ');
-            setAlertMsg(`Some WBS entries were skipped as they are no longer active: ${wbsNames}. Please use the '+' button to add valid entries.`)
+            const wbsNames = invalidWBSEntry.join(", ");
+            setAlertMsg(
+              `Some WBS entries were skipped as they are no longer active: ${wbsNames}. Please use the '+' button to add valid entries.`
+            );
             setAlertOpen(true);
           }
         } else {
           if (invalidWBSEntry.length > 0) {
-            const wbsNames = invalidWBSEntry.join(', ');
-            setAlertMsg(`Some WBS entries were skipped as they are no longer active: ${wbsNames}. Please use the '+' button to add valid entries.`)
+            const wbsNames = invalidWBSEntry.join(", ");
+            setAlertMsg(
+              `Some WBS entries were skipped as they are no longer active: ${wbsNames}. Please use the '+' button to add valid entries.`
+            );
             setAlertOpen(true);
           } else {
-            setAlertMsg("No time entry was found for the previous week. Please use the + button to add a WBS.")
+            setAlertMsg(
+              "No time entry was found for the previous week. Please use the + button to add a WBS."
+            );
             setAlertOpen(true);
           }
           // dispatch(setProjectData(transformedData));
         }
       } else {
-        setAlertMsg("No time entry was found for the previous week. Please use the + button to add a WBS.")
+        setAlertMsg(
+          "No time entry was found for the previous week. Please use the + button to add a WBS."
+        );
         setAlertOpen(true);
       }
     }
-  }, [prevWeekTimesheetFetching])
+  }, [prevWeekTimesheetFetching]);
 
   useEffect(() => {
     setFilteredData(projectedData);
-    const saveBtn = projectedData?.filter(x => !x.totalRow).length > 0;
+    const saveBtn = projectedData?.filter((x) => !x.totalRow).length > 0;
     setShowSaveBtn(saveBtn);
 
-    // set approved user name in local state        
-    setApprover(projectedData[0]?.ApproverName)
+    // set approved user name in local state
+    setApprover(projectedData[0]?.ApproverName);
     if (!projectedData[0]?.ApproverName) {
       dispatch(setStatus("New"));
     }
@@ -500,12 +507,14 @@ const Home = () => {
     }
   };
 
-  //---------------------for showing different  modals on approvals----------------------------------------------  
+  //---------------------for showing different  modals on approvals----------------------------------------------
   const handleApproval = () => {
     // const rejectedItems = projectedData
     const isRejectedItem = checkStatusCondition(projectedData, "40");
     if (isRejectedItem === true) {
-      setAlertMsg("Please rectify the rejected entries and then resubmit for approval.");
+      setAlertMsg(
+        "Please rectify the rejected entries and then resubmit for approval."
+      );
       setAlertOpen(true);
       return;
     }
@@ -522,7 +531,6 @@ const Home = () => {
     }
     setOpenApproval(true);
   };
-
 
   const handleApproveOk = () => {
     setOpenApproval(false);
@@ -558,7 +566,12 @@ const Home = () => {
     if (isTimesheetChanged || newRow) {
       const isEmptyEntry = isNotEmptyEntries();
       if (skipPopup == false) {
-        if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+        if (
+          (status === "New" && isEmptyEntry) ||
+          status === "Draft" ||
+          status === "Rejected" ||
+          newRow
+        ) {
           if (status !== "Approved") {
             checkForUnsavedChanges("prev");
             return;
@@ -566,8 +579,6 @@ const Home = () => {
         }
       }
     }
-
-
 
     // if ((skipPopup || (status !== "New" && status !== "Draft") || notEmptyEntry) || !newRow) {
     let currentStartDate;
@@ -608,7 +619,12 @@ const Home = () => {
     if (isTimesheetChanged || newRow) {
       const isEmptyEntry = isNotEmptyEntries();
       if (skipPopup == false) {
-        if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+        if (
+          (status === "New" && isEmptyEntry) ||
+          status === "Draft" ||
+          status === "Rejected" ||
+          newRow
+        ) {
           if (status !== "Approved") {
             checkForUnsavedChanges("next");
             return;
@@ -666,12 +682,12 @@ const Home = () => {
     } else if (navConfType === "datePicker") {
       dispatch(setDateRange(calendarDate));
       dispatch(setNewRowAdded(false));
-      setCalendarDate('');
+      setCalendarDate("");
     }
     setShowNavConfirmation(false);
     setNavConfType("");
     setTimesheetChanged(false);
-  }
+  };
 
   useEffect(() => {
     if (selectedDate == "") {
@@ -681,6 +697,15 @@ const Home = () => {
       dispatch(setDateRange(formattedDateRange));
     }
   }, []);
+
+  useEffect(() => {
+    if (week) {
+      const { start, end } = getStartAndEndDateFromWeekNumber(week);
+      const formattedDateRange = `${start} - ${end}`;
+      dispatch(setDateRange(formattedDateRange));
+      // console.log("start - end", start, end);
+    }
+  }, [week]);
 
   const prepareTimesheetPayload = (type) => {
     const timesheetEntries = projectedData.filter(
@@ -695,13 +720,13 @@ const Home = () => {
       isValidEntry: true,
     };
 
-    timesheetEntries.forEach(element => {
+    timesheetEntries.forEach((element) => {
       const tempValue = hasNonZeroEntry(element);
       if (tempValue == false) {
         isNonZeroEntry = {
           isNonZero: tempValue,
           msg: `Please provide non-zero entry for <b>${element?.level} - ${element?.title}</b> or delete the row.`,
-          isValidEntry: true
+          isValidEntry: true,
         };
         return;
       }
@@ -719,13 +744,17 @@ const Home = () => {
     }
 
     if (isNonZeroEntry?.isValidEntry == false) {
-      setAlertMsg("Please provide valid input. Time entry must be less than or equal to 23 hours.");
+      setAlertMsg(
+        "Please provide valid input. Time entry must be less than or equal to 23 hours."
+      );
       setAlertOpen(true);
       return;
     }
 
     if (totalError) {
-      setAlertMsg("Please provide valid input. Time entry for given day, must be less than or equal to 24 hours.");
+      setAlertMsg(
+        "Please provide valid input. Time entry for given day, must be less than or equal to 24 hours."
+      );
       setAlertOpen(true);
       return;
     }
@@ -754,9 +783,9 @@ const Home = () => {
               __metadata: {
                 type: "ZHCMFAB_TIMESHEET_MAINT_SRV.TimeEntryDataFields",
               },
-              CATSHOURS: entry[`day${i}`] || '0.00',
+              CATSHOURS: entry[`day${i}`] || "0.00",
               PERNR: userData?.results[0].EmployeeNumber,
-              CATSQUANTITY: entry[`day${i}`] || '0.00',
+              CATSQUANTITY: entry[`day${i}`] || "0.00",
               LTXA1: entry[`day${i}Notes`]?.substring(0, 40),
               LONGTEXT: entry[`day${i}Notes`] ? "X" : "",
               MEINH: "H",
@@ -768,7 +797,8 @@ const Home = () => {
             Pernr: userData?.results[0].EmployeeNumber,
             TimeEntryOperation: entry[`day${i}timeEntryOperation`] || "C",
             Counter: entry[`day${i}Counter`] || "",
-            AllowRelease: type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
+            AllowRelease:
+              type === "approve" ? "X" : entryStatus === "20" ? "X" : "",
             RecRowNo: (entries.length + 1).toString(),
           };
           entries.push(temp);
@@ -847,11 +877,9 @@ const Home = () => {
   };
 
   const isNotEmptyEntries = () => {
-    const entries = projectedData.filter(
-      (item) => item?.totalRow !== true
-    );
+    const entries = projectedData.filter((item) => item?.totalRow !== true);
     return entries && entries?.length > 0;
-  }
+  };
 
   const handleYes = () => {
     // timesheet copy functionality
@@ -881,7 +909,6 @@ const Home = () => {
     });
   };
 
-
   const handleAlignment = (event, newAlignment) => {
     setAlignment(newAlignment);
   };
@@ -895,7 +922,9 @@ const Home = () => {
     // Convert input value to a number
     let parsedValue = parseFloat(value || 0);
     if (parsedValue > 23) {
-      setAlertMsg("Please provide valid input. Time entry must be less than or equal to 23 hours.");
+      setAlertMsg(
+        "Please provide valid input. Time entry must be less than or equal to 23 hours."
+      );
       setAlertOpen(true);
       setTotalError(true);
     } else {
@@ -939,7 +968,9 @@ const Home = () => {
     );
     dayTotal = parseFloat(dayTotal) + parseFloat(rowObj[field]);
     if (dayTotal > 24) {
-      setAlertMsg("Please provide valid input. Time entry for given day, must be less than or equal to 24 hours.");
+      setAlertMsg(
+        "Please provide valid input. Time entry for given day, must be less than or equal to 24 hours."
+      );
       setAlertOpen(true);
       setTotalError(true);
     } else {
@@ -1002,7 +1033,6 @@ const Home = () => {
   };
 
   const handleDelete = async (rowId) => {
-
     const entry = projectedData.find((item) => item?.id == rowId);
     if (entry.newRow) {
       const rowIndex = projectedData.indexOf(entry);
@@ -1020,7 +1050,6 @@ const Home = () => {
     }
   };
 
-
   // ---------------------- for handelling the columns and its data in dashboard screen---------------------
   const calculateRowsTotal = (tProjectData) => {
     let projectData = [];
@@ -1030,8 +1059,8 @@ const Home = () => {
       projectData = projectedData;
     }
 
-    let transformedData = projectData.filter(x => !x.totalRow);
-    let total = projectedData.find(x => x.totalRow);
+    let transformedData = projectData.filter((x) => !x.totalRow);
+    let total = projectedData.find((x) => x.totalRow);
 
     let totalsRow = {
       day0: 0,
@@ -1053,7 +1082,9 @@ const Home = () => {
     let data = [...transformedData];
     data.forEach((item) => {
       for (let i = 0; i <= 6; i++) {
-        totalsRow[`day${i}`] = parseFloat(totalsRow[`day${i}`] || "0") + parseFloat(item[`day${i}`] || "0");
+        totalsRow[`day${i}`] =
+          parseFloat(totalsRow[`day${i}`] || "0") +
+          parseFloat(item[`day${i}`] || "0");
       }
       totalsRow.weekTotal += parseFloat(item.weekTotal || "0");
     });
@@ -1067,10 +1098,12 @@ const Home = () => {
     // check for enable the button
     checkForTotalHours(totalsRow);
     // Add total row to the data array
-    dispatch(updateRow({
-      rowObj: totalsRow,
-      rowIndex: totalIndex
-    }));
+    dispatch(
+      updateRow({
+        rowObj: totalsRow,
+        rowIndex: totalIndex,
+      })
+    );
   };
 
   const AllRowsColumns = RowsDataColumns({
@@ -1083,7 +1116,7 @@ const Home = () => {
     setAlertMsg,
     setAlertOpen,
     setBatchCallType,
-    updateTotalRow
+    updateTotalRow,
   });
 
   const handleSnackbarClose = (event, reason) => {
@@ -1117,8 +1150,10 @@ const Home = () => {
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
         // if entry is zero from BE and status is 10 then we need to omit that entry
-        if ((entry?.TimeEntryDataFields?.CATSHOURS == "0.00" ||
-          entry?.TimeEntryDataFields?.CATSHOURS == 0) && entry?.Status === "10"
+        if (
+          (entry?.TimeEntryDataFields?.CATSHOURS == "0.00" ||
+            entry?.TimeEntryDataFields?.CATSHOURS == 0) &&
+          entry?.Status === "10"
         ) {
           continue;
         }
@@ -1186,14 +1221,11 @@ const Home = () => {
         // all status check
         if (entry?.Status === "10") {
           weeklyStatus.Draft = weeklyStatus.Draft + 1;
-        }
-        else if (entry?.Status === "40") {
+        } else if (entry?.Status === "40") {
           weeklyStatus.Rejected = weeklyStatus.Rejected + 1;
-        }
-        else if (entry?.Status === "20") {
+        } else if (entry?.Status === "20") {
           weeklyStatus.SubmitForApproval = weeklyStatus.SubmitForApproval + 1;
-        }
-        else if (entry?.Status === "30") {
+        } else if (entry?.Status === "30") {
           weeklyStatus.Approved = weeklyStatus.Approved + 1;
         } else {
           weeklyStatus.Draft = weeklyStatus.Draft + 1;
@@ -1230,7 +1262,7 @@ const Home = () => {
 
   const transformCopyWeeklyRows = (response) => {
     const results = response?.results; // Extract the top-level results array
-    const weekRows = []; // Array to store the transformed weekly data    
+    const weekRows = []; // Array to store the transformed weekly data
     let invalidWBSEntry = [];
     // here i is consider as row data
     for (let i = 0; i < results?.length; i++) {
@@ -1245,15 +1277,19 @@ const Home = () => {
       for (let j = 0; j < timeEntries?.length; j++) {
         let entry = timeEntries[j];
         // if entry is zero from BE and status is 10 then we need to omit that entry
-        if ((entry?.TimeEntryDataFields?.CATSHOURS == "0.00" ||
-          entry?.TimeEntryDataFields?.CATSHOURS == 0) && entry?.Status === "10"
+        if (
+          (entry?.TimeEntryDataFields?.CATSHOURS == "0.00" ||
+            entry?.TimeEntryDataFields?.CATSHOURS == 0) &&
+          entry?.Status === "10"
         ) {
           continue;
         }
         // check for WBS id is valid or not
         // code commented for future release - 23-05-2025
         const wbs = wbsData?.results;
-        const entryWBS = wbs.filter(x => x.POSID === entry?.TimeEntryDataFields?.POSID);
+        const entryWBS = wbs.filter(
+          (x) => x.POSID === entry?.TimeEntryDataFields?.POSID
+        );
         if (entryWBS && entryWBS?.length === 0) {
           if (!invalidWBSEntry.includes(entry?.TimeEntryDataFields?.POST1)) {
             invalidWBSEntry.push(entry?.TimeEntryDataFields?.POST1);
@@ -1261,7 +1297,7 @@ const Home = () => {
           continue;
         }
 
-        const hours = 0.00;
+        const hours = 0.0;
         const dayKey = `day${i}`;
         let weekRow;
         let rowIndex = -1;
@@ -1292,7 +1328,7 @@ const Home = () => {
             day4: "0.00",
             day5: "0.00",
             day6: "0.00",
-            newRow: true
+            newRow: true,
           };
           weekRow = {
             ...weekRow,
@@ -1351,11 +1387,14 @@ const Home = () => {
     data.forEach((item) => {
       if (item) {
         for (let i = 0; i <= 6; i++) {
-          totalsRow[`day${i}`] = parseFloat(totalsRow[`day${i}`] || "0") + parseFloat(item[`day${i}`] || "0");
+          totalsRow[`day${i}`] =
+            parseFloat(totalsRow[`day${i}`] || "0") +
+            parseFloat(item[`day${i}`] || "0");
         }
-        totalsRow.weekTotal = parseFloat(totalsRow.weekTotal || "0") + parseFloat(item.weekTotal || "0");
+        totalsRow.weekTotal =
+          parseFloat(totalsRow.weekTotal || "0") +
+          parseFloat(item.weekTotal || "0");
       }
-
     });
 
     // Convert totals to string format with 2 decimal places
@@ -1371,8 +1410,6 @@ const Home = () => {
     return data;
   };
 
-
-
   useEffect(() => {
     if (dateWiseDataSuccessful && dateWiseData) {
       if (!newRow) {
@@ -1380,31 +1417,34 @@ const Home = () => {
         let transformedData = transformToWeeklyRows(responseData);
         // add older data in array and then do total
         // check this condition properly to rectify the issue
-        if (batchCallType !== "approve" && batchCallType !== "save" && batchCallType !== "delete"
-          && batchCallType !== "newData"
+        if (
+          batchCallType !== "approve" &&
+          batchCallType !== "save" &&
+          batchCallType !== "delete" &&
+          batchCallType !== "newData"
         ) {
           const oldData = [...projectedData];
-          const newRows = oldData.filter(item => item.newRow);
-          newRows.forEach(element => {
+          const newRows = oldData.filter((item) => item.newRow);
+          newRows.forEach((element) => {
             transformedData.unshift(element);
           });
         } else {
           setBatchCallType("");
           dispatch(setBatchCallTypeGlobal(""));
         }
-        const data = transformedData.map(x => { if (x) return x; })
-        data.sort((a, b) =>
-          a?.project?.localeCompare(
-            b?.project
-          ) || a?.title?.localeCompare(
-            b?.title
-          )
+        const data = transformedData.map((x) => {
+          if (x) return x;
+        });
+        data.sort(
+          (a, b) =>
+            a?.project?.localeCompare(b?.project) ||
+            a?.title?.localeCompare(b?.title)
         );
         transformedData = addTotalRow(data);
         dispatch(setProjectData(transformedData));
       } else {
         if (projectedData && projectedData.length > 1) {
-          const totalRow = projectedData.filter(x => x.totalRow === true);
+          const totalRow = projectedData.filter((x) => x.totalRow === true);
           checkForTotalHours(totalRow[0]);
         }
       }
@@ -1433,7 +1473,12 @@ const Home = () => {
   const onCalendarDateChange = (newDate) => {
     if (isTimesheetChanged || newRow) {
       const isEmptyEntry = isNotEmptyEntries();
-      if ((status === "New" && isEmptyEntry) || status === "Draft" || status === "Rejected" || newRow) {
+      if (
+        (status === "New" && isEmptyEntry) ||
+        status === "Draft" ||
+        status === "Rejected" ||
+        newRow
+      ) {
         if (status !== "Approved") {
           checkForUnsavedChanges("datePicker");
           setCalendarDate(newDate);
@@ -1441,7 +1486,7 @@ const Home = () => {
         }
       }
     } else {
-      setCalendarDate('');
+      setCalendarDate("");
       dispatch(setDateRange(newDate));
     }
   };
@@ -1467,14 +1512,16 @@ const Home = () => {
               onChange={handleAlignment}
               aria-label="text alignment"
             >
-              <ToggleButton sx={{ color: "#000" }}
+              <ToggleButton
+                sx={{ color: "#000" }}
                 value="left"
                 aria-label="left aligned"
                 onClick={() => handlePreviousWeek(false)}
               >
                 <ArrowBackIcon />
               </ToggleButton>
-              <ToggleButton sx={{ color: "#000" }}
+              <ToggleButton
+                sx={{ color: "#000" }}
                 value="justify"
                 aria-label="justified"
                 // disabled={disableToggel}
@@ -1483,16 +1530,12 @@ const Home = () => {
                 <ArrowForwardIcon />
               </ToggleButton>
             </StyledToggleButtonGroup>
-            <StyledDateTypography>
-              {selectedDate}
-            </StyledDateTypography>
+            <StyledDateTypography>{selectedDate}</StyledDateTypography>
           </Stack>
           <Stack direction={"row"} spacing={4} marginRight={"1rem"}>
             <Stack direction={"row"} spacing={1}>
               <HeaderTypography>Approver:</HeaderTypography>
-              <HeaderSubTypography>
-                {approver}
-              </HeaderSubTypography>
+              <HeaderSubTypography>{approver}</HeaderSubTypography>
             </Stack>
             <Stack direction={"row"} spacing={1}>
               <HeaderTypography>Status:</HeaderTypography>
@@ -1509,9 +1552,7 @@ const Home = () => {
           justifyContent={"space-between"}
           mt={2}
         >
-          <DateRangePickerWithButtonField
-            onChange={onCalendarDateChange}
-          />
+          <DateRangePickerWithButtonField onChange={onCalendarDateChange} />
 
           {isSelectedDateGreaterThanCurrent() && (
             <Alert
@@ -1586,13 +1627,20 @@ const Home = () => {
               disabled={!showSaveBtn}
               sx={{
                 backgroundColor: showSaveBtn ? "#FFF" : "#BDBDBD",
-                color: showSaveBtn ? '#ED6A15' : '#fff',
-                border: `1px solid ${showSaveBtn ? '#ED6A15' : '#fff'}`,
+                color: showSaveBtn ? "#ED6A15" : "#fff",
+                border: `1px solid ${showSaveBtn ? "#ED6A15" : "#fff"}`,
                 marginBottom: "0.5rem",
               }}
-              size="medium" onClick={() => handleSaveTime("save")}>
-              <Typography fontWeight={"700"} fontSize={"14px"}
-                color={showSaveBtn ? '#ED6A15' : '#fff'}>Save My Time</Typography>
+              size="medium"
+              onClick={() => handleSaveTime("save")}
+            >
+              <Typography
+                fontWeight={"700"}
+                fontSize={"14px"}
+                color={showSaveBtn ? "#ED6A15" : "#fff"}
+              >
+                Save My Time
+              </Typography>
             </Button>
           </Tooltip>
         )}
@@ -1758,7 +1806,9 @@ const Home = () => {
             sx={{ color: "#41AF6E", width: "50px", height: "50px" }}
           />
 
-          <TimesheetText>Your timesheet for {selectedDate} has been submitted for approval</TimesheetText>
+          <TimesheetText>
+            Your timesheet for {selectedDate} has been submitted for approval
+          </TimesheetText>
           <CloseButton
             variant="outlined"
             onClick={() => setIsTimesheetCreated(false)}
@@ -1831,8 +1881,7 @@ const Home = () => {
           },
         }}
       >
-        <StyledApprovalBox
-        >
+        <StyledApprovalBox>
           <Stack direction={"row"} justifyContent={"right"}>
             <IconButton onClick={() => setShowNavConfirmation(false)}>
               <CloseIcon sx={{ color: "#ED6A15" }} />
@@ -1843,7 +1892,9 @@ const Home = () => {
             sx={{ color: "#ED6A15", width: "50px", height: "50px" }}
           />
 
-          <Typography fontWeight={700}>Your unsaved changes will be lost. Do you want to continue?</Typography>
+          <Typography fontWeight={700}>
+            Your unsaved changes will be lost. Do you want to continue?
+          </Typography>
           <NoteButtonStack
             direction="row"
             justifyContent={"space-between"}
@@ -1858,28 +1909,41 @@ const Home = () => {
             >
               <Typography color="#ED6A15" fontWeight={700}>Cancel</Typography>
             </Button> */}
-            <Button sx={{ border: "1px solid #ED6A15", }}
-
+            <Button
+              sx={{ border: "1px solid #ED6A15" }}
               variant="h6"
               component="h2"
               size="small"
               onClick={() => navAfterConfirmation()}
             >
-              <Typography color="#ED6A15" fontWeight={700}>Skip Saving</Typography>
+              <Typography color="#ED6A15" fontWeight={700}>
+                Skip Saving
+              </Typography>
             </Button>
             <Button
-
-              sx={{ backgroundColor: "#ED6A15", }}
+              sx={{ backgroundColor: "#ED6A15" }}
               component="h2"
               size="small"
-              onClick={() => { setShowNavConfirmation(false); handleSaveTime("save") }}
+              onClick={() => {
+                setShowNavConfirmation(false);
+                handleSaveTime("save");
+              }}
             >
-              <Typography color="#FFF" fontWeight={700}>Save Changes</Typography>
+              <Typography color="#FFF" fontWeight={700}>
+                Save Changes
+              </Typography>
             </Button>
           </NoteButtonStack>
         </StyledApprovalBox>
       </Modal>
-      <BusyDialog open={batchCallLoading || timeSheetDataFetching || prevWeekTimesheetFetching || deleteBatchCallLoading} />
+      <BusyDialog
+        open={
+          batchCallLoading ||
+          timeSheetDataFetching ||
+          prevWeekTimesheetFetching ||
+          deleteBatchCallLoading
+        }
+      />
       <Snackbar
         open={openApiMsg}
         onClose={() => setOpenApiMsg(false)}
