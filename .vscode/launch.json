@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run TimeSheetApp-timesheet",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/TimeSheetApp/node_modules/@sap/html5-repo-mock/index.js",
+      "args": [
+        "--standalone",
+        "/timesheet/index.html"
+      ],
+      "cwd": "${workspaceFolder}/TimeSheetApp/timesheet/build",
+      "env": {
+        "PORT": "6004",
+        "run.config": "{\"handlerId\":\"html5_run_config_handler_id\",\"runnableId\":\"/home/user/projects/TimeSheetApp-latest/TimeSheetApp/timesheet\"}"
+      },
+      "envFile": "${workspaceFolder}/TimeSheetApp/timesheet/.env1",
+      "preLaunchTask": "Run TimeSheetApp"
+    }
+  ]
+}
