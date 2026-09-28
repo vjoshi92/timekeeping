@@ -43,6 +43,7 @@ import {
 } from "store/slice/TimesheetSlice";
 import {
   checkStatusCondition,
+  getCalNavMinDate,
   getODataFormatDate,
   getStartAndEndDateFromWeekNumber,
   getWeekStartDate,
@@ -509,6 +510,9 @@ const Home = () => {
 
   //---------------------for showing different  modals on approvals----------------------------------------------
   const handleApproval = () => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
     // const rejectedItems = projectedData
     const isRejectedItem = checkStatusCondition(projectedData, "40");
     if (isRejectedItem === true) {
@@ -559,6 +563,65 @@ const Home = () => {
       console.error("Error parsing dates:", error);
       return false;
     }
+  };
+
+  //-------------------for checking whether the selected week is before the current week----------------------
+  const isSelectedWeekPastWeek = () => {
+    if (!selectedDate || typeof selectedDate !== "string") return false;
+    try {
+      const selectedStartDate = dayjs(
+        selectedDate.split(" - ")[0],
+        "DD MMM YYYY"
+      );
+      if (!selectedStartDate.isValid()) return false;
+      return selectedStartDate.isBefore(startOfCurrentWeek, "day");
+    } catch (error) {
+      console.error("Error parsing dates:", error);
+      return false;
+    }
+  };
+
+  // earliest date the backend allows timesheet actions for, from the currently loaded week's response
+  const calNavMinDate = getCalNavMinDate(dateWiseData);
+
+  //-------------------for checking whether the selected week starts before CaleNavMinDate----------------------
+  const isSelectedDateBeforeCalNavMinDate = () => {
+    if (!selectedDate || typeof selectedDate !== "string" || !calNavMinDate) {
+      return false;
+    }
+    const selectedStartDate = dayjs(
+      selectedDate.split(" - ")[0],
+      "DD MMM YYYY"
+    );
+    return (
+      selectedStartDate.isValid() &&
+      selectedStartDate.isBefore(calNavMinDate, "day")
+    );
+  };
+
+  //-------------------blocks add/delete/save/submit actions when the selected week is outside the allowed CaleNavMinDate range----------------------
+  const blockActionForCalNavMinDate = () => {
+    if (isSelectedWeekPastWeek() && isSelectedDateBeforeCalNavMinDate()) {
+      setAlertMsg(
+        <span>
+          Timesheet edits and new submissions are allowed only for dates
+          between{" "}
+          <span style={{ fontWeight: 500, fontSize: "inherit" }}>
+            {calNavMinDate.format("DD MMM YYYY")}
+          </span>{" "}
+          and{" "}
+          <span style={{ fontWeight: 500, fontSize: "inherit" }}>
+            {dayjs().format("DD MMM YYYY")}
+          </span>
+          . Changes to older entries or new submissions for periods outside
+          this range cannot be saved. To request an exception, please contact
+          the Project Manager.
+        </span>
+      );
+      setAlertOpen(true);
+      return true;
+    }
+    return false;
   };
 
   //----------------function for handelling the previous week toggle buttons here ---------------------------
@@ -862,6 +925,9 @@ const Home = () => {
   };
 
   const handleSaveTime = async (type) => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
     setBatchCallType(type);
     if (isNotEmptyEntries()) {
       setTimesheetChanged(false);
@@ -1033,6 +1099,9 @@ const Home = () => {
   };
 
   const handleDelete = async (rowId) => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
     const entry = projectedData.find((item) => item?.id == rowId);
     if (entry.newRow) {
       const rowIndex = projectedData.indexOf(entry);
@@ -1452,7 +1521,17 @@ const Home = () => {
   }, [timeSheetDataFetching]);
 
   const addNewRow = () => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
     navigate("/addRows");
+  };
+
+  const handleCopyLastWeekClick = () => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
+    setOpen(true);
   };
 
   const getTimesheetDataWeekWise = () => {
@@ -1581,7 +1660,7 @@ const Home = () => {
                 sx={{ background: status === "New" ? "#fff" : "#dee2e6" }}
                 disabled={status !== "New"}
                 boxShadow="5"
-                onClick={() => setOpen(true)}
+                onClick={handleCopyLastWeekClick}
               >
                 <FileCopyIcon
                   fontSize="small"

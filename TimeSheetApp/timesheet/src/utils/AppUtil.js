@@ -216,6 +216,15 @@ export const odataGetDateFormat = (dateString) => {
   return formattedDate;
 };
 
+// CaleNavMinDate is the earliest date the backend allows timesheet navigation/submission
+// for, returned on the WorkCalendarCollection response as an OData "/Date(...)/" string.
+export const getCalNavMinDate = (response) => {
+  const rawDate = response?.results?.[0]?.CaleNavMinDate;
+  if (!rawDate) return null;
+  const parsedDate = dayjs(odataGetDateFormat(rawDate));
+  return parsedDate.isValid() ? parsedDate : null;
+};
+
 export const weekTimesheetFormat = (yearWeek) => {
   if (yearWeek) {
     let year = parseInt(yearWeek.toString().substring(0, 4), 10);

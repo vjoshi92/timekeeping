@@ -35,6 +35,7 @@ import Dropdown from "components/Dropdown";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import {
   checkStatusCondition,
+  getCalNavMinDate,
   getODataFormatDate,
   getWeekStartDate,
   hasNonZeroEntry,
@@ -406,6 +407,7 @@ const ReviewScreen = () => {
   const [alignment, setAlignment] = React.useState("left");
   const [value, setValue] = React.useState([null, null]);
   const selectedDate = useSelector((state) => state?.home?.daterange);
+  const startOfCurrentWeek = dayjs().startOf("week").add(1, "day");
   // const newRow = useSelector((state) => state?.CreateForm?.newRow);
   const [open, setOpen] = React.useState(false);
   const [openApproval, setOpenApproval] = React.useState(false);
@@ -522,6 +524,9 @@ const ReviewScreen = () => {
   const handleApprovalClose = () => setOpenRejection(false);
 
   const handleSaveTime = async (type) => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
     // setSnackbarOpen(true);
     setBatchCallType(type);
     // make a batch call with payload
@@ -533,6 +538,9 @@ const ReviewScreen = () => {
   };
 
   const handleSubmitForApproval = () => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
     // const rejectedItems = projectedData
     const isRejectedItem = checkStatusCondition(projectedData, "40");
     if (isRejectedItem === true) {
@@ -729,6 +737,65 @@ const ReviewScreen = () => {
     setSnackbarOpen(false);
   };
 
+  //-------------------for checking whether the selected week is before the current week----------------------
+  const isSelectedWeekPastWeek = () => {
+    if (!selectedDate || typeof selectedDate !== "string") return false;
+    try {
+      const selectedStartDate = dayjs(
+        selectedDate.split(" - ")[0],
+        "DD MMM YYYY"
+      );
+      if (!selectedStartDate.isValid()) return false;
+      return selectedStartDate.isBefore(startOfCurrentWeek, "day");
+    } catch (error) {
+      console.error("Error parsing dates:", error);
+      return false;
+    }
+  };
+
+  // earliest date the backend allows timesheet actions for, from the currently loaded week's response
+  const calNavMinDate = getCalNavMinDate(dateWiseData);
+
+  //-------------------for checking whether the selected week starts before CaleNavMinDate----------------------
+  const isSelectedDateBeforeCalNavMinDate = () => {
+    if (!selectedDate || typeof selectedDate !== "string" || !calNavMinDate) {
+      return false;
+    }
+    const selectedStartDate = dayjs(
+      selectedDate.split(" - ")[0],
+      "DD MMM YYYY"
+    );
+    return (
+      selectedStartDate.isValid() &&
+      selectedStartDate.isBefore(calNavMinDate, "day")
+    );
+  };
+
+  //-------------------blocks add/delete/save/submit actions when the selected week is outside the allowed CaleNavMinDate range----------------------
+  const blockActionForCalNavMinDate = () => {
+    if (isSelectedWeekPastWeek() && isSelectedDateBeforeCalNavMinDate()) {
+      setAlertMsg(
+        <span>
+          Timesheet edits and new submissions are allowed only for dates
+          between{" "}
+          <span style={{ fontWeight: 500, fontSize: "inherit" }}>
+            {calNavMinDate.format("DD MMM YYYY")}
+          </span>{" "}
+          and{" "}
+          <span style={{ fontWeight: 500, fontSize: "inherit" }}>
+            {dayjs().format("DD MMM YYYY")}
+          </span>
+          . Changes to older entries or new submissions for periods outside
+          this range cannot be saved. To request an exception, please contact
+          the Project Manager.
+        </span>
+      );
+      setAlertOpen(true);
+      return true;
+    }
+    return false;
+  };
+
   const handlePreviousWeek = () => {
     let currentStartDate;
 
@@ -775,6 +842,9 @@ const ReviewScreen = () => {
   };
 
   const handleSubmit = () => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
     navigate("/addRows");
   };
 
@@ -865,6 +935,9 @@ const ReviewScreen = () => {
   };
 
   const handleDelete = (rowId) => {
+    if (blockActionForCalNavMinDate()) {
+      return;
+    }
     let tempRows = [...rows];
     tempRows.splice(rowId, 1);
     // setRows(tempRows)
